@@ -638,8 +638,8 @@ render();
 </script>
 <script>
 /* ===== SUPABASE: login e dados na nuvem (substitui o localStorage) ===== */
-/* >>> COLE AQUI a URL e a chave publishable/anon do SEU projeto Supabase (Project Settings > API). Essa chave é pública por design; quem protege os dados é o RLS do supabase.sql. */
-const SB_URL='https://SEU-PROJETO.supabase.co',SB_KEY='SUA_PUBLISHABLE_OU_ANON_KEY';
+/* Supabase do MathXP. A chave publishable é pública por design; quem protege os dados é o RLS do supabase.sql. NUNCA coloque a chave secret aqui. */
+const SB_URL='https://pgwzothumdljxvmhdtyk.supabase.co',SB_KEY='sb_publishable_WOoNDXfhsHQZOgkVyGCzeA_2dAA_z84';
 const sb=supabase.createClient(SB_URL,SB_KEY);
 const COL={users:'id',classes:'code',missions:'id',responses:'id',shopItems:'id',achv:'id'};
 let authUid=null,snap={},saveT=null;
