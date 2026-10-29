@@ -741,15 +741,17 @@ const COL={users:'id',classes:'code',missions:'id',responses:'id',shopItems:'id'
 let authUid=null,snap={},saveT=null;
 function emptyDB(){Object.assign(db,{users:[],classes:[],missions:[],responses:[],shopItems:[],achv:[]});snap={}}
 session=null;localStorage.removeItem(SES_KEY);emptyDB();
-async function pull(){
+async function pull(dry){
  let all=[],from=0;
  for(;;){const{data,error}=await sb.from('records').select('kind,id,data').order('kind').order('id').range(from,from+999);
   if(error){toast('⚠️ Sem conexão com o banco.');return false}
   all=all.concat(data);if(data.length<1000)break;from+=1000}
- const n={users:[],classes:[],missions:[],responses:[],shopItems:[],achv:[]};snap={};
- all.forEach(function(r){if(n[r.kind]){n[r.kind].push(r.data);snap[r.kind+'|'+r.id]=JSON.stringify(r.data)}});
- Object.assign(db,n);return true}
-async function push(){
+ const n={users:[],classes:[],missions:[],responses:[],shopItems:[],achv:[]},s2={};
+ all.forEach(function(r){if(n[r.kind]){n[r.kind].push(r.data);s2[r.kind+'|'+r.id]=JSON.stringify(r.data)}});
+ if(dry)return{n:n,snap:s2};snap=s2;Object.assign(db,n);return true}
+let pushBusy=0,pushAgain=0;
+async function push(){if(pushBusy){pushAgain=1;return}pushBusy=1;try{await pushNow()}finally{pushBusy=0;if(pushAgain){pushAgain=0;push()}}}
+async function pushNow(){
  const ups=[],dels=[];
  for(const k in COL){const f=COL[k],seen={};
   db[k].forEach(function(x){const id=x[f];seen[id]=1;if(snap[k+'|'+id]!==JSON.stringify(x))ups.push({kind:k,id:id,data:x})});
@@ -809,7 +811,16 @@ sb.auth.onAuthStateChange(function(ev){if(ev==='PASSWORD_RECOVERY'){setTimeout(f
  const p=prompt('Digite sua nova senha (mínimo 8 caracteres):');
  if(p&&p.length>=8)sb.auth.updateUser({password:p}).then(function(r){if(!r.error)sb.rpc('save_my_pass',{p:p});toast(r.error?'⚠️ '+r.error.message:'🔑 Senha redefinida!')});
  else if(p)toast('A senha precisa de pelo menos 8 caracteres.')},300)}});
-async function refresh(){if(!authUid||saveT||ui.modal)return;const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))return;if(await pull()){await loadCreds();render()}}
+function formDirty(){if(typeof pendingImage!=='undefined'&&pendingImage)return true;
+ return [].slice.call(document.querySelectorAll('#app input,#app textarea')).some(function(el){const t=el.type;
+  if(t==='hidden'||t==='button'||t==='submit'||t==='file')return false;
+  if(t==='checkbox'||t==='radio')return el.checked!==el.defaultChecked;
+  return el.value!==el.defaultValue})}
+async function refresh(){if(!authUid||saveT||pushBusy||ui.modal)return;const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))return;
+ const d=await pull(true);if(!d||saveT||pushBusy)return;
+ const ks=Object.keys(d.snap);if(ks.length===Object.keys(snap).length&&ks.every(function(k){return snap[k]===d.snap[k]}))return; /* nada mudou: não mexe na tela */
+ snap=d.snap;Object.assign(db,d.n);await loadCreds();
+ if(!ui.modal&&!formDirty())render()}
 document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh()});setInterval(refresh,30000);
 render();
 sb.auth.getSession().then(async function(r){const s=r.data.session;if(!s)return;
