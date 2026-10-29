@@ -164,13 +164,13 @@ const SKILLS=[['expl','Informações explícitas'],['inf','Inferências'],['pers
 const CATS={avatar:'Avatar',symbol:'Símbolo',nameColor:'Cor do nome',textColor:'Cor da escrita',textEffect:'Efeito de escrita',theme:'Tema'};
 const DEFAULT_SHOP=[
  {id:'cartao',name:'Cartão +50 XP',price:80,desc:'Consumível: aplica +50 XP imediatamente.',icon:'⚡',consume:true},
- {id:'av_coruja',name:'Avatar Coruja',price:60,desc:'Um companheiro sábio para suas leituras.',icon:'🦉',effect:{type:'avatar',value:'🦉'}},
- {id:'av_dragao',name:'Avatar Dragão Literário',price:90,desc:'Guardião das histórias épicas.',icon:'🐉',effect:{type:'avatar',value:'🐉'}},
- {id:'av_mago',name:'Avatar Mago das Páginas',price:90,desc:'Transforma letras em magia.',icon:'🧙',effect:{type:'avatar',value:'🧙'}},
- {id:'av_raposa',name:'Avatar Raposa Leitora',price:70,desc:'Astuta e curiosa.',icon:'🦊',effect:{type:'avatar',value:'🦊'}},
+ {id:'av_coruja',name:'Avatar Coruja',price:60,desc:'Sábia e calculista: te acompanha nos problemas difíceis.',icon:'🦉',effect:{type:'avatar',value:'🦉'}},
+ {id:'av_dragao',name:'Avatar Dragão dos Números',price:90,desc:'Guardião das equações épicas.',icon:'🐉',effect:{type:'avatar',value:'🐉'}},
+ {id:'av_mago',name:'Avatar Mago da Álgebra',price:90,desc:'Transforma números em magia.',icon:'🧙',effect:{type:'avatar',value:'🧙'}},
+ {id:'av_raposa',name:'Avatar Raposa Esperta',price:70,desc:'Astuta para resolver qualquer desafio.',icon:'🦊',effect:{type:'avatar',value:'🦊'}},
  {id:'sy_chama',name:'Símbolo Chama Azul Mística',price:150,desc:'Símbolo roxo com chama azul que muda de cor ao lado do seu nome.',icon:'🔥',effect:{type:'symbol',value:{e:'🔥',anim:true}}},
- {id:'sy_estrela',name:'Símbolo Estrela da Liga',price:100,desc:'Brilhe no ranking.',icon:'⭐',effect:{type:'symbol',value:{e:'⭐'}}},
- {id:'sy_escudo',name:'Símbolo Escudo da Liga',price:110,desc:'Proteção e honra literária.',icon:'🛡️',effect:{type:'symbol',value:{e:'🛡️'}}},
+ {id:'sy_estrela',name:'Símbolo Estrela do MathXP',price:100,desc:'Brilhe no ranking.',icon:'⭐',effect:{type:'symbol',value:{e:'⭐'}}},
+ {id:'sy_escudo',name:'Símbolo Escudo do MathXP',price:110,desc:'Proteção e honra de quem domina os números.',icon:'🛡️',effect:{type:'symbol',value:{e:'🛡️'}}},
  {id:'nc_rubi',name:'Nome Rubi',price:60,desc:'Seu nome em vermelho vibrante.',icon:'🔴',effect:{type:'nameColor',value:'#e11d48'}},
  {id:'nc_esmeralda',name:'Nome Esmeralda',price:60,desc:'Seu nome em verde precioso.',icon:'🟢',effect:{type:'nameColor',value:'#059669'}},
  {id:'nc_oceano',name:'Nome Oceano',price:60,desc:'Seu nome em azul profundo.',icon:'🔵',effect:{type:'nameColor',value:'#0284c7'}},
@@ -179,36 +179,43 @@ const DEFAULT_SHOP=[
  {id:'tc_turquesa',name:'Escrita Turquesa',price:50,desc:'Suas respostas em turquesa.',icon:'🖊️',effect:{type:'textColor',value:'#0d9488'}},
  {id:'tc_carmim',name:'Escrita Carmim',price:50,desc:'Suas respostas em carmim.',icon:'🖋️',effect:{type:'textColor',value:'#be123c'}},
  {id:'fx_negrito',name:'Efeito Negrito Real',price:40,desc:'Respostas em negrito marcante.',icon:'🅱️',effect:{type:'textEffect',value:'negrito'}},
- {id:'fx_italico',name:'Efeito Itálico Clássico',price:40,desc:'Respostas com estilo literário.',icon:'✍️',effect:{type:'textEffect',value:'italico'}},
+ {id:'fx_italico',name:'Efeito Itálico Clássico',price:40,desc:'Respostas com estilo elegante.',icon:'✍️',effect:{type:'textEffect',value:'italico'}},
  {id:'fx_neon',name:'Efeito Neon Noturno',price:80,desc:'Respostas que brilham no escuro.',icon:'💡',effect:{type:'textEffect',value:'neon'}},
  {id:'fx_rainbow',name:'Efeito Arco-íris Mágico',price:120,desc:'Respostas com cores em movimento.',icon:'🌈',effect:{type:'textEffect',value:'rainbow'}},
- {id:'th_roxo',name:'Tema Roxo Estelar',price:120,desc:'Visual roxo clássico da Liga.',icon:'💜',effect:{type:'theme',value:{acc:'#7c3aed',soft:'#f3e8ff'}}},
- {id:'th_floresta',name:'Tema Floresta Encantada',price:120,desc:'Verde das matas dos contos.',icon:'🌲',effect:{type:'theme',value:{acc:'#059669',soft:'#d9f3e8'}}},
- {id:'th_oceano',name:'Tema Oceano Profundo',price:120,desc:'Azul das aventuras marítimas.',icon:'🌊',effect:{type:'theme',value:{acc:'#0284c7',soft:'#dbeafe'}}},
- {id:'th_brasas',name:'Tema Brasas do Dragão',price:120,desc:'Vermelho das fogueiras de história.',icon:'🐲',effect:{type:'theme',value:{acc:'#dc2626',soft:'#fee2e2'}}}];
+ {id:'th_roxo',name:'Tema Roxo Estelar',price:120,desc:'Visual roxo clássico do MathXP.',icon:'💜',effect:{type:'theme',value:{acc:'#7c3aed',soft:'#f3e8ff'}}},
+ {id:'th_floresta',name:'Tema Floresta Fractal',price:120,desc:'Verde das árvores de fractais.',icon:'🌲',effect:{type:'theme',value:{acc:'#059669',soft:'#d9f3e8'}}},
+ {id:'th_oceano',name:'Tema Oceano Profundo',price:120,desc:'Azul das ondas senoidais.',icon:'🌊',effect:{type:'theme',value:{acc:'#0284c7',soft:'#dbeafe'}}},
+ {id:'th_brasas',name:'Tema Vermelho Exponencial',price:120,desc:'Vermelho de quem cresce em ritmo exponencial.',icon:'🐲',effect:{type:'theme',value:{acc:'#dc2626',soft:'#fee2e2'}}},
+ {id:'sy_pi',name:'Símbolo Pi',price:100,desc:'O número mais famoso ao lado do seu nome.',icon:'π',effect:{type:'symbol',value:{e:'π'}}},
+ {id:'sy_soma',name:'Símbolo Somatório',price:110,desc:'Some pontos e brilhe no ranking.',icon:'∑',effect:{type:'symbol',value:{e:'∑'}}},
+ {id:'sy_raiz',name:'Símbolo Raiz Quadrada',price:100,desc:'Chegue à raiz de todos os problemas.',icon:'√',effect:{type:'symbol',value:{e:'√'}}},
+ {id:'av_robo',name:'Avatar Robô Calculadora',price:90,desc:'Faz contas na velocidade da luz.',icon:'🤖',effect:{type:'avatar',value:'🤖'}},
+ {id:'av_abaco',name:'Avatar Ábaco',price:70,desc:'O clássico da contagem.',icon:'🧮',effect:{type:'avatar',value:'🧮'}}];
 const DEFAULT_ACH=[
  {id:'m1',name:'Primeira Missão',desc:'Conclua sua primeira missão de leitura.',coins:10,cond:u=>doneCount(u)>=1},
  {id:'m3',name:'Leitor Constante',desc:'Conclua 3 missões.',coins:20,cond:u=>doneCount(u)>=3},
  {id:'m5',name:'Maratonista de Missões',desc:'Conclua 5 missões.',coins:30,cond:u=>doneCount(u)>=5},
- {id:'m10',name:'Lenda da Liga',desc:'Conclua 10 missões.',coins:50,cond:u=>doneCount(u)>=10},
+ {id:'m10',name:'Lenda do MathXP',desc:'Conclua 10 missões.',coins:50,cond:u=>doneCount(u)>=10},
  {id:'expl',name:'Olho Vivo',desc:'Acerte uma missão de informações explícitas.',coins:10,cond:u=>skillDone(u,'expl')>=1},
  {id:'inf',name:'Detetive de Inferências',desc:'Acerte uma missão de inferências.',coins:15,cond:u=>skillDone(u,'inf')>=1},
  {id:'pers',name:'Leitor de Personagens',desc:'Acerte uma missão de personagens e conflitos.',coins:15,cond:u=>skillDone(u,'pers')>=1},
  {id:'rec',name:'Caçador de Recursos',desc:'Acerte uma missão de recursos expressivos.',coins:15,cond:u=>skillDone(u,'rec')>=1},
  {id:'ev',name:'Mestre das Evidências',desc:'Acerte uma missão de interpretação com evidências.',coins:15,cond:u=>skillDone(u,'evid')>=1},
  {id:'b3',name:'Explorador de Bibliotecas',desc:'Conclua missões de 3 livros diferentes.',coins:25,cond:u=>booksDone(u)>=3},
- {id:'lv2',name:'Nível 2',desc:'Acumule 500 XP.',coins:25,cond:u=>u.xp>=500},
- {id:'lv3',name:'Nível 3',desc:'Acumule 1000 XP.',coins:40,cond:u=>u.xp>=1000},
+ {id:'lv2',name:'Nível 2',desc:'Acumule 100 XP.',coins:25,cond:u=>levelOf(u.xp)>=2},
+ {id:'lv3',name:'Nível 3',desc:'Acumule 150 XP.',coins:40,cond:u=>levelOf(u.xp)>=3},
+ {id:'lv4',name:'Nível 4',desc:'Acumule 200 XP.',coins:50,cond:u=>levelOf(u.xp)>=4},
+ {id:'lv5',name:'Nível 5',desc:'Acumule 300 XP.',coins:60,cond:u=>levelOf(u.xp)>=5},
  {id:'rich',name:'Cofre Cheio',desc:'Junte 100 moedas.',coins:10,cond:u=>u.coins>=100}];
 const PROF_ACH=[
  {id:'p1',name:'Primeira Publicação',desc:'Publique sua primeira missão.',coins:10,cond:u=>pubCount(u)>=1},
- {id:'p5',name:'Editor da Liga',desc:'Publique 5 missões.',coins:20,cond:u=>pubCount(u)>=5},
+ {id:'p5',name:'Editor do MathXP',desc:'Publique 5 missões.',coins:20,cond:u=>pubCount(u)>=5},
  {id:'p10',name:'Mestre das Trilhas',desc:'Publique 10 missões.',coins:30,cond:u=>pubCount(u)>=10},
  {id:'c10',name:'Avaliador Dedicado',desc:'Confirme 10 conclusões de alunos.',coins:15,cond:u=>confCount(u)>=10},
- {id:'c50',name:'Mentor da Liga',desc:'Confirme 50 conclusões de alunos.',coins:30,cond:u=>confCount(u)>=50},
+ {id:'c50',name:'Mentor do MathXP',desc:'Confirme 50 conclusões de alunos.',coins:30,cond:u=>confCount(u)>=50},
  {id:'t30',name:'Turmas Crescendo',desc:'Tenha 30 alunos vinculados no total.',coins:20,cond:u=>studentsTotal(u)>=30},
- {id:'plv2',name:'Nível 2',desc:'Acumule 500 XP.',coins:25,cond:u=>u.xp>=500},
- {id:'plv3',name:'Nível 3',desc:'Acumule 1000 XP.',coins:40,cond:u=>u.xp>=1000}];
+ {id:'plv2',name:'Nível 2',desc:'Acumule 100 XP.',coins:25,cond:u=>levelOf(u.xp)>=2},
+ {id:'plv3',name:'Nível 3',desc:'Acumule 150 XP.',coins:40,cond:u=>levelOf(u.xp)>=3}];
 let db=loadDB(), session=localStorage.getItem(SES_KEY)||null;
 let ui={authTab:'login',authError:'',sPage:'inicio',tPage:'visao',selClass:null,modal:null,reveal:{}};
 let pendingImage=null;
@@ -221,7 +228,10 @@ function achFor(u){return u.role==='professor'?PROF_ACH:allAch()}
 function eqVal(u,type){if(!u||!u.equipped)return null;const id=u.equipped[type];if(!id)return null;const it=allItems().find(i=>i.id===id);return it&&it.effect?it.effect.value:null}
 function displayName(s){const nc=eqVal(s,'nameColor');const sy=eqVal(s,'symbol');
  return`${sy?`<span class="${sy.anim?'sym-anim':''}" style="margin-right:4px">${sy.e}</span>`:''}<span style="${nc?'color:'+nc:''}">${s.name}</span>`}
-function levelOf(xp){return Math.floor(xp/500)+1}
+const LEVEL_XP=[0,100,150,200,300]; /* XP TOTAL para chegar aos níveis 1,2,3,4,5. Depois disso: +100 XP por nível */
+function xpFor(l){return l<=LEVEL_XP.length?LEVEL_XP[l-1]:LEVEL_XP[LEVEL_XP.length-1]+(l-LEVEL_XP.length)*100}
+function levelOf(xp){let l=1;while(xp>=xpFor(l+1))l++;return l}
+function lvInfo(xp){const l=levelOf(xp),a=xpFor(l),b=xpFor(l+1);return{l,cur:xp-a,need:b-a,left:b-xp}}
 function fmtDate(d){if(!d)return'—';return new Date(d+'T12:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'})}
 function missionById(id){return db.missions.find(m=>m.id===id)}
 function doneCount(u){return db.responses.filter(r=>r.studentId===u.id&&r.status==='ok').length}
@@ -270,7 +280,7 @@ function onCodeInput(){const v=document.getElementById('f_tcode').value.trim().t
  if(db.teacherCodes.includes(v)){box.innerHTML='<div class="ok-note">✓ Código válido — a conta será de <b>professor</b>.</div>';extra.style.display='block';if(lbl)lbl.textContent='professor'}
  else{box.innerHTML='<div class="err">Código não reconhecido. Deixe em branco para criar conta de <b>aluno</b>.</div>';extra.style.display='none';if(lbl)lbl.textContent='estudante'}}
 function doLogin(){const e=document.getElementById('l_email').value.trim().toLowerCase(),p=document.getElementById('l_pass').value;const u=db.users.find(x=>x.email===e&&x.pass===p);if(!u){ui.authError='E-mail ou senha incorretos.';return render()}session=u.id;localStorage.setItem(SES_KEY,session);ui.selClass=null;render()}
-function genClassCode(){let c;do{c='LIGA-'+Math.random().toString(36).slice(2,6).toUpperCase()}while(db.classes.some(x=>x.code===c));return c}
+function genClassCode(){let c;do{c='MXP-'+Math.random().toString(36).slice(2,6).toUpperCase()}while(db.classes.some(x=>x.code===c));return c}
 function doRegister(){const name=document.getElementById('f_name').value.trim(),email=document.getElementById('f_email').value.trim().toLowerCase(),pass=document.getElementById('f_pass').value,code=document.getElementById('f_tcode').value.trim().toUpperCase(),cname=document.getElementById('f_classname').value.trim();
  if(name.length<3)return setErr('Informe seu nome completo.');
  if(!email.includes('@'))return setErr('Informe um e-mail válido (Gmail).');
@@ -348,7 +358,7 @@ function unequip(type){const u=me();u.equipped=u.equipped||{};u.equipped[type]=n
 function toggleAchType(){const t=document.getElementById('g_type').value;document.getElementById('gNWrap').style.display=t==='manual'?'none':'block'}
 function createAch(){const name=document.getElementById('g_name').value.trim(),desc=document.getElementById('g_desc').value.trim(),coins=+document.getElementById('g_coins').value||0,type=document.getElementById('g_type').value,n=+document.getElementById('g_n').value||1;
  if(!name)return toast('Dê um nome à conquista.');
- db.achv.push({id:'A'+Date.now(),name,desc:desc||'Conquista especial da Liga.',coins,cond:{type,n}});save();teachReward(15,3,'🎖️ Conquista criada!');render()}
+ db.achv.push({id:'A'+Date.now(),name,desc:desc||'Conquista especial do MathXP.',coins,cond:{type,n}});save();teachReward(15,3,'🎖️ Conquista criada!');render()}
 function delAch(id){db.achv=db.achv.filter(a=>a.id!==id);save();toast('Conquista removida.');render()}
 function grantAch(uid,aid){const s=db.users.find(x=>x.id===uid);const a=allAch().find(x=>x.id===aid);if(!s||!a)return;if(s.achievements.includes(aid))return toast('Aluno já possui esta conquista.');s.achievements.push(aid);s.coins+=a.coins;save();teachReward(5,1,'🎖️ '+a.name+' concedida a '+s.name+'!');render()}
 function toggleItemCat(){const c=document.getElementById('i_cat').value;
@@ -419,12 +429,12 @@ function authHTML(){return`<div class="auth-wrap"><div class="auth">
  ${ui.authError?`<div class="err">${ui.authError}</div>`:''}
  <p class="tiny" style="margin-top:16px">Projeto de pesquisa <b>MATHXP</b> · gamificação e leitura<br>© <b>${BRAND.name}</b></p></div></div>`}
 /* ---- aluno ---- */
-function sInicio(u){const cls=classOf(u);const pend=cls?db.missions.filter(m=>m.classCode===cls.code&&['open','retry'].includes(statusOf(u,m))).length:0;const xpL=u.xp%500;
+function sInicio(u){const cls=classOf(u);const pend=cls?db.missions.filter(m=>m.classCode===cls.code&&['open','retry'].includes(statusOf(u,m))).length:0;const LVX=lvInfo(u.xp),xpL=LVX.cur;
  return`<h1>Olá, ${u.name.split(' ')[0]} 👋</h1><p class="muted">Pronto para continuar sua jornada de leitura?</p>
- ${!cls?`<div class="card" style="margin-top:18px"><h2>Entrar em uma turma</h2><p class="muted">Digite o código que seu professor compartilhou.</p><div class="row" style="margin-top:12px"><input id="join_code" placeholder="Ex.: LIGA-A1B2"><button class="btn sm" onclick="joinClass()">Vincular</button></div></div>`:''}
+ ${!cls?`<div class="card" style="margin-top:18px"><h2>Entrar em uma turma</h2><p class="muted">Digite o código que seu professor compartilhou.</p><div class="row" style="margin-top:12px"><input id="join_code" placeholder="Ex.: MXP-A1B2"><button class="btn sm" onclick="joinClass()">Vincular</button></div></div>`:''}
  <div class="card" style="margin-top:18px"><div class="spread"><div><span class="badge b-purple">NÍVEL ${levelOf(u.xp)}</span><h2 style="margin-top:8px">Seu progresso</h2></div><span class="badge b-green">${doneCount(u)} missões concluídas</span></div>
- <label style="margin-top:14px">Meta de XP</label><div class="bar"><i style="width:${(xpL/500)*100}%"></i></div>
- <p class="tiny" style="margin-top:6px;text-align:right">${u.xp} XP · faltam ${500-xpL} XP para o nível ${levelOf(u.xp)+1}</p></div>
+ <label style="margin-top:14px">Meta de XP</label><div class="bar"><i style="width:${(xpL/LVX.need)*100}%"></i></div>
+ <p class="tiny" style="margin-top:6px;text-align:right">${u.xp} XP · faltam ${LVX.left} XP para o nível ${LVX.l+1}</p></div>
  <div class="grid2" style="margin-top:14px">
  <div class="card"><h2>📬 Próximos passos</h2><p class="muted" style="margin-top:6px">${pend?pend+' missão(ões) disponível(is) para responder.':cls?'Nenhuma missão pendente. Acompanhe sua turma!':'Vincule-se a uma turma para receber missões.'}</p>${pend?`<button class="btn ghost sm" style="margin-top:12px" onclick="navS('jornada')">Ver missões</button>`:''}</div>
  <div class="card"><h2>📖 Diário de leitura</h2><p class="muted" style="margin-top:6px">${booksDone(u)} livro(s) com missões concluídas.</p></div></div>`}
@@ -457,13 +467,13 @@ function conqHTML(u){const list=achFor(u);const owned=u.inventory.map(id=>allIte
  ${owned.length?`<div class="grid2" style="margin-top:10px">${owned.map(it=>{const inUse=u.equipped&&u.equipped[it.effect.type]===it.id;return`<div class="card"><div class="row"><span style="font-size:24px">${it.icon}</span><div><b>${it.name}</b><br><span class="tiny">${CATS[it.effect.type]}</span></div></div><div style="margin-top:10px">${inUse?`<button class="btn ghost sm" onclick="unequip('${it.effect.type}')">Remover (em uso)</button>`:`<button class="btn sm" onclick="equip('${it.id}')">Equipar</button>`}</div></div>`}).join('')}</div>`:`<p class="muted" style="margin-top:8px">Nenhum item de personalização ainda — visite a loja!</p>`}
  <h2 style="margin-top:22px">🎒 Inventário</h2>
  ${u.inventory.length?`<div class="card" style="margin-top:10px">${u.inventory.map(id=>{const it=allItems().find(i=>i.id===id);return it?`<p style="padding:6px 0">${it.icon} ${it.name}</p>`:''}).join('')}</div>`:emptyHTML('🎒','Seu inventário está vazio','Visite a loja quando juntar suas primeiras moedas.')}`}
-function sPerfil(u){const cls=classOf(u);const xpL=u.xp%500;const av=eqVal(u,'avatar');
+function sPerfil(u){const cls=classOf(u);const LVX=lvInfo(u.xp),xpL=LVX.cur;const av=eqVal(u,'avatar');
  return`<div class="card" style="margin-top:8px;text-align:center">
  <div class="avatar" style="width:84px;height:84px;font-size:36px;margin:0 auto">${av||u.name[0].toUpperCase()}</div>
  <h1 style="margin-top:12px">${displayName(u)}</h1>
  <p class="muted">Nível ${levelOf(u.xp)} · ${u.xp} XP</p>
- <div class="bar" style="margin-top:14px"><i style="width:${(xpL/500)*100}%"></i></div>
- <p class="muted" style="margin-top:8px">${xpL}/500 XP para avançar de nível</p>
+ <div class="bar" style="margin-top:14px"><i style="width:${(xpL/LVX.need)*100}%"></i></div>
+ <p class="muted" style="margin-top:8px">${xpL}/${LVX.need} XP para avançar de nível</p>
  <div class="grid2" style="margin-top:18px;text-align:left">
  <div><span class="tiny">ID da conta</span><div class="row"><b>${u.id}</b><button class="btn ghost sm" onclick="copy('${u.id}')">copiar</button></div></div>
  <div><span class="tiny">E-mail</span><p><b>${u.email}</b></p></div>
@@ -478,7 +488,7 @@ function sPerfil(u){const cls=classOf(u);const xpL=u.xp%500;const av=eqVal(u,'av
  <button class="btn ghost" style="color:#b3261e" onclick="openDelAcc()">Excluir minha conta</button></div></div>`}
 function studentHTML(u){const pages={inicio:()=>sInicio(u),jornada:()=>sJornada(u),ranking:()=>sRanking(u),loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),perfil:()=>sPerfil(u)};
  const nav=[['inicio','🏠','Início'],['jornada','🧭','Jornada'],['ranking','🏆','Ranking'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['perfil','👤','Perfil']];
- return shellHTML(nav,ui.sPage,'navS',u,`<div class="page">${pages[ui.sPage]()}</div>`)}
+ return shellHTML(nav,ui.sPage,'navS',u,`<div class="page">${pages[ui.sPage]()}${ui.sPage==='inicio'?actCardHTML(u):''}</div>`)}
 /* ---- professor ---- */
 function tVisao(u){const c=selClass();if(!c)return emptyHTML('👥','Nenhuma turma','Crie uma turma para começar.');
  const sts=studentsOf(c.code),ms=db.missions.filter(m=>m.classCode===c.code),oks=db.responses.filter(r=>r.status==='ok'&&ms.some(m=>m.id===r.missionId)).length;
@@ -528,17 +538,21 @@ function tGestao(u){const c=selClass();const sts=studentsOf(c.code);const manual
  return`<h1>Loja & Conquistas · gestão</h1><p class="muted">Crie conquistas e itens da loja para motivar sua turma (e ganhe XP por isso).</p>
  <div class="grid2" style="margin-top:16px">
  <div class="card"><h2>🎖️ Nova conquista</h2>
- <label>Nome</label><input id="g_name" placeholder="Ex.: Voz do Anexo">
- <label>Descrição</label><input id="g_desc" placeholder="Ex.: Participou da leitura dramática">
+ <label>Nome</label><input id="g_name" placeholder="Ex.: Mestre da Tabuada">
+ <label>Descrição</label><input id="g_desc" placeholder="Ex.: Acertou toda a lista de frações">
  <div class="grid2"><div><label>Moedas</label><input id="g_coins" type="number" value="15"></div>
  <div><label>Condição</label><select id="g_type" onchange="toggleAchType()"><option value="missoes">Missões concluídas</option><option value="xp">XP acumulado</option><option value="livros">Livros diferentes</option><option value="manual">Manual (professor concede)</option></select></div></div>
  <div id="gNWrap"><label>Quantidade necessária</label><input id="g_n" type="number" value="1"></div>
  <button class="btn" style="margin-top:12px" onclick="createAch()">Criar conquista</button>
  ${db.achv.length?`<h2 style="margin-top:16px">Criadas por professores</h2>${db.achv.map(a=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div><b>${a.name}</b><br><span class="tiny">${a.desc} · +${a.coins} 🪙 · ${a.cond.type==='manual'?'manual':a.cond.type+' ≥ '+a.cond.n}</span></div><button class="btn ghost sm" onclick="delAch('${a.id}')">🗑</button></div>`).join('')}`:''}
- ${manuals.length?`<h2 style="margin-top:16px">Conceder conquista manual</h2>${manuals.map(a=>`<div class="row" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><select id="gs_${a.id}">${sts.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')||'<option value="">sem alunos</option>'}</select><button class="btn sm" ${sts.length?'':'disabled'} onclick="grantAch(document.getElementById('gs_${a.id}').value,'${a.id}')">🎖️ ${a.name}</button></div>`).join('')}`:''}</div>
+ <h2 style="margin-top:16px">🎖️ Dar conquista a um aluno</h2>
+ <p class="tiny">Vale para qualquer conquista, inclusive as automáticas. O aluno recebe as moedas dela.</p>
+ <label>Conquista</label><select id="gv_a">${allAch().map(a=>`<option value="${a.id}">${a.name} (+${a.coins} 🪙)</option>`).join('')}</select>
+ <label>Aluno</label><select id="gv_s">${sts.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')||'<option value="">sem alunos</option>'}</select>
+ <button class="btn" style="margin-top:12px" ${sts.length?'':'disabled'} onclick="grantAch(document.getElementById('gv_s').value,document.getElementById('gv_a').value)">Dar conquista</button></div>
  <div class="card"><h2>🛒 Novo item da loja</h2>
  <label>Nome</label><input id="i_name" placeholder="Ex.: Avatar Fênix">
- <label>Descrição</label><input id="i_desc" placeholder="Ex.: Renasce a cada leitura">
+ <label>Descrição</label><input id="i_desc" placeholder="Ex.: Renasce a cada desafio resolvido">
  <div class="grid2"><div><label>Preço (moedas)</label><input id="i_price" type="number" value="80"></div>
  <div><label>Ícone (emoji)</label><input id="i_icon" placeholder="🎁"></div></div>
  <label>Categoria</label><select id="i_cat" onchange="toggleItemCat()"><option value="avatar">Avatar</option><option value="symbol">Símbolo</option><option value="nameColor">Cor do nome</option><option value="textColor">Cor da escrita</option><option value="textEffect">Efeito de escrita</option><option value="theme">Tema</option></select>
@@ -548,13 +562,13 @@ function tGestao(u){const c=selClass();const sts=studentsOf(c.code);const manual
  <div id="wrapFx" style="display:none"><label>Efeito</label><select id="i_fx"><option value="negrito">Negrito</option><option value="italico">Itálico</option><option value="neon">Neon</option><option value="rainbow">Arco-íris</option></select></div>
  <button class="btn" style="margin-top:12px" onclick="createItem()">Adicionar à loja</button>
  ${db.shopItems.length?`<h2 style="margin-top:16px">Criados por professores</h2>${db.shopItems.map(i=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div>${i.icon} <b>${i.name}</b><br><span class="tiny">${CATS[i.effect.type]} · 🪙 ${i.price}</span></div><button class="btn ghost sm" onclick="delItem('${i.id}')">🗑</button></div>`).join('')}`:''}</div></div>`}
-function tPerfil(u){const xpL=u.xp%500;
+function tPerfil(u){const LVX=lvInfo(u.xp),xpL=LVX.cur;
  return`<div class="card" style="margin-top:8px;text-align:center">
  <div class="avatar" style="width:84px;height:84px;font-size:36px;margin:0 auto">${eqVal(u,'avatar')||u.name[0].toUpperCase()}</div>
  <h1 style="margin-top:12px">${displayName(u)}</h1>
  <p class="muted">Professor · ${u.id} · Nível ${levelOf(u.xp)}</p>
- <div class="bar" style="margin-top:14px"><i style="width:${(xpL/500)*100}%"></i></div>
- <p class="muted" style="margin-top:8px">${xpL}/500 XP para avançar de nível · 🪙 ${u.coins} moedas</p>
+ <div class="bar" style="margin-top:14px"><i style="width:${(xpL/LVX.need)*100}%"></i></div>
+ <p class="muted" style="margin-top:8px">${xpL}/${LVX.need} XP para avançar de nível · 🪙 ${u.coins} moedas</p>
  <p class="muted">${u.email} · ${myClasses().length} turma(s)</p>
  <div style="margin-top:18px;display:grid;gap:10px">
  <button class="btn ghost" onclick="navT('estudantes')">Ver minhas turmas e estudantes</button>
@@ -567,8 +581,38 @@ function tPerfil(u){const xpL=u.xp%500;
  <div class="card" style="margin-top:10px;overflow-x:auto"><table class="tbl"><tr><th>ID</th><th>Nome</th><th>Papel</th><th>E-mail</th><th>Senha</th><th>Ações</th></tr>
  ${db.users.map(x=>`<tr><td>${x.id}</td><td>${displayName(x)}</td><td>${x.role==='professor'?'<span class="badge b-purple">professor</span>':'<span class="badge b-gray">aluno</span>'}</td><td>${x.email}</td><td>${ui.reveal[x.id]?`${(window.creds||{})[x.uid]?'<code>'+String(window.creds[x.uid]).replace(/[<>&]/g,'')+'</code>':'<span class="tiny">ainda não disponível · aparece no próximo login · ou use redefinir</span>'}`:'••••••••'}</td><td><div class="row"><button class="btn ghost sm" onclick="toggleReveal('${x.id}')">${ui.reveal[x.id]?'ocultar':'ver'}</button><button class="btn ghost sm" onclick="openReset('${x.id}')">redefinir</button></div></td></tr>`).join('')}</table></div>
  <p class="tiny" style="margin-top:8px">⚠️ Protótipo de pesquisa: os dados ficam somente neste navegador.</p>`}
-function teacherHTML(u){const pages={visao:tVisao,estudantes:tEstudantes,jornada:tJornada,ranking:tRanking,rel:tRel,gestao:tGestao,loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),perfil:tPerfil};
- const nav=[['visao','📊','Visão geral'],['estudantes','👥','Estudantes'],['jornada','🧭','Jornada'],['ranking','🏆','Ranking'],['rel','📈','Relatórios'],['gestao','🎁','Gestão'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['perfil','👤','Perfil']];
+/* ================= ATIVIDADE EM SALA (recompensa manual do professor) ================= */
+function escAt(t){return String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function atToggleAll(){const b=[...document.querySelectorAll('.at_s')];const all=b.every(x=>x.checked);b.forEach(x=>x.checked=!all)}
+function grantActivity(){const c=selClass();if(!c)return;
+ const title=document.getElementById('at_title').value.trim(),xp=Math.max(0,Math.floor(+document.getElementById('at_xp').value||0)),coins=Math.max(0,Math.floor(+document.getElementById('at_coins').value||0));
+ const ids=[...document.querySelectorAll('.at_s:checked')].map(x=>x.value);
+ if(!title)return toast('Dê um nome à atividade.');
+ if(!xp&&!coins)return toast('Informe XP e/ou moedas.');
+ if(!ids.length)return toast('Marque pelo menos um aluno.');
+ const ts=Date.now(),date=new Date(ts-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);let n=0,ach=0;
+ ids.forEach((id,k)=>{const s=db.users.find(x=>x.id===id&&x.role==='aluno'&&x.classCode===c.code);if(!s)return;
+  s.xp+=xp;s.coins+=coins;(s.activities=s.activities||[]).push({id:'T'+ts+'_'+k,ts,date,title,xp,coins});
+  achFor(s).forEach(a=>{if(!s.achievements.includes(a.id)&&condOk(s,a)){s.achievements.push(a.id);s.coins+=a.coins;ach++}});n++});
+ save();toast('✅ Recompensa dada a '+n+' aluno(s): +'+xp+' XP, +'+coins+' 🪙'+(ach?' · '+ach+' conquista(s) nova(s)':''));render()}
+function undoActivity(uid,aid){const s=db.users.find(x=>x.id===uid);if(!s)return;const a=(s.activities||[]).find(x=>x.id===aid);if(!a)return;
+ if(!confirm('Desfazer "'+a.title+'" de '+s.name+'? Remove '+a.xp+' XP e '+a.coins+' moedas.'))return;
+ s.xp=Math.max(0,s.xp-a.xp);s.coins=Math.max(0,s.coins-a.coins);s.activities=s.activities.filter(x=>x.id!==aid);save();toast('Recompensa desfeita.');render()}
+function tAtividade(u){const c=selClass();if(!c)return emptyHTML('👥','Nenhuma turma','Crie uma turma para começar.');
+ const sts=studentsOf(c.code),log=[];sts.forEach(s=>(s.activities||[]).forEach(a=>log.push({s,a})));log.sort((x,y)=>y.a.ts-x.a.ts);
+ return`<h1>Atividade em sala</h1><p class="muted">Passou uma atividade na sala? Dê XP e moedas a quem fez, mesmo sem usar o site. Turma: <b>${c.name}</b>.</p>
+ <div class="grid2" style="margin-top:16px">
+ <div class="card"><h2>📝 Nova recompensa</h2>
+ <label>Atividade</label><input id="at_title" placeholder="Ex.: Lista de frações da página 32">
+ <div class="grid2"><div><label>XP</label><input id="at_xp" type="number" min="0" value="50"></div><div><label>Moedas</label><input id="at_coins" type="number" min="0" value="10"></div></div>
+ <div class="spread" style="margin-top:14px"><b>Alunos</b><button class="btn ghost sm" onclick="atToggleAll()">marcar / desmarcar todos</button></div>
+ ${sts.length?sts.map(s=>`<label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:400"><input type="checkbox" class="at_s" value="${s.id}" style="width:auto;margin:0"> ${displayName(s)}</label>`).join(''):'<p class="muted">Nenhum aluno nesta turma ainda.</p>'}
+ <button class="btn" style="margin-top:14px" ${sts.length?'':'disabled'} onclick="grantActivity()">Dar recompensa</button></div>
+ <div class="card"><h2>🕒 Últimas recompensas</h2>${log.length?log.slice(0,15).map(({s,a})=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div><b>${escAt(a.title)}</b><br><span class="tiny">${escAt(s.name)} · ${fmtDate(a.date)} · +${a.xp} XP · +${a.coins} 🪙</span></div><button class="btn ghost sm" title="Desfazer" onclick="undoActivity('${s.id}','${a.id}')">↩️</button></div>`).join(''):'<p class="muted">Nenhuma recompensa dada ainda.</p>'}</div></div>`}
+function actCardHTML(u){const l=(u.activities||[]).slice().sort((a,b)=>b.ts-a.ts).slice(0,5);if(!l.length)return'';
+ return`<div class="card" style="margin-top:14px"><h2>📝 Atividades em sala</h2><p class="muted">Recompensas que o professor deu pelas atividades feitas em aula.</p>${l.map(a=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div><b>${escAt(a.title)}</b><br><span class="tiny">${fmtDate(a.date)}</span></div><span class="badge b-purple">+${a.xp} XP · +${a.coins} 🪙</span></div>`).join('')}</div>`}
+function teacherHTML(u){const pages={visao:tVisao,estudantes:tEstudantes,jornada:tJornada,ranking:tRanking,rel:tRel,gestao:tGestao,atividade:tAtividade,loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),perfil:tPerfil};
+ const nav=[['visao','📊','Visão geral'],['estudantes','👥','Estudantes'],['jornada','🧭','Jornada'],['ranking','🏆','Ranking'],['rel','📈','Relatórios'],['gestao','🎁','Gestão'],['atividade','📝','Atividade'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['perfil','👤','Perfil']];
  return shellHTML(nav,ui.tPage,'navT',u,`<div class="page">${pages[ui.tPage](u)}</div>`)}
 /* ---- modal + render ---- */
 function modalHTML(){const m=ui.modal;
