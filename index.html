@@ -160,7 +160,7 @@ function brandFail(el,px){el.outerHTML=`<span class="sllogo" data-px="${px}" sty
 /* ================= DADOS ================= */
 const DB_KEY='ligaLeitoresDB_v2', SES_KEY='ligaLeitoresSession_v1';
 const TEACHER_CODE='ADM2026'; /* código secreto da coordenação — não exibido em nenhuma tela. Obs.: com o Supabase quem valida é a tabela teacher_codes do banco. */
-const SKILLS=[['expl','Informações explícitas'],['inf','Inferências'],['pers','Personagens e conflitos'],['rec','Recursos expressivos'],['evid','Interpretação com evidências']];
+const SKILLS=[['num','Números e operações'],['frac','Frações e decimais'],['alg','Álgebra e equações'],['geo','Geometria e medidas'],['prob','Problemas e raciocínio lógico']];
 const CATS={avatar:'Avatar',symbol:'Símbolo',nameColor:'Cor do nome',textColor:'Cor da escrita',textEffect:'Efeito de escrita',theme:'Tema'};
 const DEFAULT_SHOP=[
  {id:'cartao',name:'Cartão +50 XP',price:80,desc:'Consumível: aplica +50 XP imediatamente.',icon:'⚡',consume:true},
@@ -192,16 +192,18 @@ const DEFAULT_SHOP=[
  {id:'av_robo',name:'Avatar Robô Calculadora',price:90,desc:'Faz contas na velocidade da luz.',icon:'🤖',effect:{type:'avatar',value:'🤖'}},
  {id:'av_abaco',name:'Avatar Ábaco',price:70,desc:'O clássico da contagem.',icon:'🧮',effect:{type:'avatar',value:'🧮'}}];
 const DEFAULT_ACH=[
- {id:'m1',name:'Primeira Missão',desc:'Conclua sua primeira missão de leitura.',coins:10,cond:u=>doneCount(u)>=1},
- {id:'m3',name:'Leitor Constante',desc:'Conclua 3 missões.',coins:20,cond:u=>doneCount(u)>=3},
+ {id:'m1',name:'Primeira Missão',desc:'Conclua sua primeira missão de matemática.',coins:10,cond:u=>doneCount(u)>=1},
+ {id:'m3',name:'Calculista Constante',desc:'Conclua 3 missões.',coins:20,cond:u=>doneCount(u)>=3},
  {id:'m5',name:'Maratonista de Missões',desc:'Conclua 5 missões.',coins:30,cond:u=>doneCount(u)>=5},
  {id:'m10',name:'Lenda do MathXP',desc:'Conclua 10 missões.',coins:50,cond:u=>doneCount(u)>=10},
- {id:'expl',name:'Olho Vivo',desc:'Acerte uma missão de informações explícitas.',coins:10,cond:u=>skillDone(u,'expl')>=1},
- {id:'inf',name:'Detetive de Inferências',desc:'Acerte uma missão de inferências.',coins:15,cond:u=>skillDone(u,'inf')>=1},
- {id:'pers',name:'Leitor de Personagens',desc:'Acerte uma missão de personagens e conflitos.',coins:15,cond:u=>skillDone(u,'pers')>=1},
- {id:'rec',name:'Caçador de Recursos',desc:'Acerte uma missão de recursos expressivos.',coins:15,cond:u=>skillDone(u,'rec')>=1},
- {id:'ev',name:'Mestre das Evidências',desc:'Acerte uma missão de interpretação com evidências.',coins:15,cond:u=>skillDone(u,'evid')>=1},
- {id:'b3',name:'Explorador de Bibliotecas',desc:'Conclua missões de 3 livros diferentes.',coins:25,cond:u=>booksDone(u)>=3},
+ {id:'m20',name:'Calculadora Humana',desc:'Conclua 20 missões.',coins:80,cond:u=>doneCount(u)>=20},
+ {id:'num',name:'Mestre dos Números',desc:'Acerte uma missão de números e operações.',coins:10,cond:u=>skillDone(u,'num')>=1},
+ {id:'frac',name:'Rei das Frações',desc:'Acerte uma missão de frações e decimais.',coins:15,cond:u=>skillDone(u,'frac')>=1},
+ {id:'alg',name:'Caçador de Incógnitas',desc:'Acerte uma missão de álgebra e equações.',coins:15,cond:u=>skillDone(u,'alg')>=1},
+ {id:'geo',name:'Explorador de Formas',desc:'Acerte uma missão de geometria e medidas.',coins:15,cond:u=>skillDone(u,'geo')>=1},
+ {id:'prob',name:'Resolvedor de Problemas',desc:'Acerte uma missão de problemas e raciocínio lógico.',coins:15,cond:u=>skillDone(u,'prob')>=1},
+ {id:'all5',name:'Matemático Completo',desc:'Acerte pelo menos uma missão em cada área da matemática.',coins:50,cond:u=>SKILLS.every(k=>skillDone(u,k[0])>=1)},
+ {id:'b3',name:'Explorador de Assuntos',desc:'Conclua missões de 3 assuntos diferentes.',coins:25,cond:u=>booksDone(u)>=3},
  {id:'lv2',name:'Nível 2',desc:'Acumule 100 XP.',coins:25,cond:u=>levelOf(u.xp)>=2},
  {id:'lv3',name:'Nível 3',desc:'Acumule 150 XP.',coins:40,cond:u=>levelOf(u.xp)>=3},
  {id:'lv4',name:'Nível 4',desc:'Acumule 200 XP.',coins:50,cond:u=>levelOf(u.xp)>=4},
@@ -393,7 +395,7 @@ function rejectResp(rid){const r=db.responses.find(x=>x.id===rid);if(!r)return;r
 function toggleType(){const t=document.getElementById('f_type').value;document.getElementById('optsBox').style.display=t==='multipla'?'block':'none'}
 function publishMission(){const c=selClass();if(!c)return toast('Crie uma turma primeiro.');
  const book=document.getElementById('f_book').value.trim(),author=document.getElementById('f_author').value.trim(),title=document.getElementById('f_title').value.trim(),skill=document.getElementById('f_skill').value,type=document.getElementById('f_type').value,q=document.getElementById('f_q').value.trim(),dead=document.getElementById('f_dead').value,xp=+document.getElementById('f_xp').value||100,coins=+document.getElementById('f_coins').value||10,all=document.getElementById('f_all').checked,img=pendingImage;
- if(!book||!title||!q)return toast('Preencha livro, título e enunciado.');
+ if(!book||!title||!q)return toast('Preencha assunto, título e enunciado.');
  let opts=[],correct=0;
  if(type==='multipla'){opts=[0,1,2,3].map(i=>document.getElementById('f_o'+i).value.trim());if(opts.some(o=>!o))return toast('Preencha as 4 alternativas.');correct=+document.getElementById('f_correct').value}
  const targets=all?myClasses():[c];
@@ -427,27 +429,27 @@ function authHTML(){return`<div class="auth-wrap"><div class="auth">
  <div style="margin-top:14px"><button class="btn">Criar conta de <span id="roleLbl">estudante</span></button></div></form>
  <p class="tiny" style="margin-top:12px">Sem o código do professor, a conta será criada como <b>estudante</b>.<br>Professores: solicite o código à coordenação.</p>`}
  ${ui.authError?`<div class="err">${ui.authError}</div>`:''}
- <p class="tiny" style="margin-top:16px">Projeto de pesquisa <b>MATHXP</b> · gamificação e leitura<br>© <b>${BRAND.name}</b></p></div></div>`}
+ <p class="tiny" style="margin-top:16px">Projeto de pesquisa <b>MATHXP</b> · gamificação e matemática<br>© <b>${BRAND.name}</b></p></div></div>`}
 /* ---- aluno ---- */
 function sInicio(u){const cls=classOf(u);const pend=cls?db.missions.filter(m=>m.classCode===cls.code&&['open','retry'].includes(statusOf(u,m))).length:0;const LVX=lvInfo(u.xp),xpL=LVX.cur;
- return`<h1>Olá, ${u.name.split(' ')[0]} 👋</h1><p class="muted">Pronto para continuar sua jornada de leitura?</p>
+ return`<h1>Olá, ${u.name.split(' ')[0]} 👋</h1><p class="muted">Pronto para continuar sua jornada de matemática?</p>
  ${!cls?`<div class="card" style="margin-top:18px"><h2>Entrar em uma turma</h2><p class="muted">Digite o código que seu professor compartilhou.</p><div class="row" style="margin-top:12px"><input id="join_code" placeholder="Ex.: MXP-A1B2"><button class="btn sm" onclick="joinClass()">Vincular</button></div></div>`:''}
  <div class="card" style="margin-top:18px"><div class="spread"><div><span class="badge b-purple">NÍVEL ${levelOf(u.xp)}</span><h2 style="margin-top:8px">Seu progresso</h2></div><span class="badge b-green">${doneCount(u)} missões concluídas</span></div>
  <label style="margin-top:14px">Meta de XP</label><div class="bar"><i style="width:${(xpL/LVX.need)*100}%"></i></div>
  <p class="tiny" style="margin-top:6px;text-align:right">${u.xp} XP · faltam ${LVX.left} XP para o nível ${LVX.l+1}</p></div>
  <div class="grid2" style="margin-top:14px">
  <div class="card"><h2>📬 Próximos passos</h2><p class="muted" style="margin-top:6px">${pend?pend+' missão(ões) disponível(is) para responder.':cls?'Nenhuma missão pendente. Acompanhe sua turma!':'Vincule-se a uma turma para receber missões.'}</p>${pend?`<button class="btn ghost sm" style="margin-top:12px" onclick="navS('jornada')">Ver missões</button>`:''}</div>
- <div class="card"><h2>📖 Diário de leitura</h2><p class="muted" style="margin-top:6px">${booksDone(u)} livro(s) com missões concluídas.</p></div></div>`}
+ <div class="card"><h2>📖 Diário de estudos</h2><p class="muted" style="margin-top:6px">${booksDone(u)} assunto(s) com missões concluídas.</p></div></div>`}
 function sJornada(u){const cls=classOf(u);if(!cls)return emptyHTML('🧭','Nenhuma turma disponível','Sua jornada aparecerá quando você estiver vinculado a uma turma ativa.');
  const ms=db.missions.filter(m=>m.classCode===cls.code);
  const books=[...new Set(db.responses.filter(r=>r.studentId===u.id&&r.status==='ok').map(r=>missionById(r.missionId)).filter(m=>m).map(m=>m.book+' — '+m.author))];
- return`<h1>Jornada · ${cls.name}</h1><p class="muted">Missões de leitura publicadas pelo professor.</p>
+ return`<h1>Jornada · ${cls.name}</h1><p class="muted">Missões de matemática publicadas pelo professor.</p>
  ${ms.length?ms.map(m=>{const st=statusOf(u,m);const badge=st==='done'?'<span class="badge b-green">Concluída</span>':st==='pending'?'<span class="badge b-amber">Aguardando confirmação</span>':st==='retry'?'<span class="badge b-red">Tente novamente</span>':'<span class="badge b-purple">Disponível</span>';
  return`<div class="card" style="margin-top:14px"><div class="spread"><div class="row">${m.img?`<img src="${m.img}" class="thumb">`:''}<div><b>${m.title}</b><p class="muted">📖 ${m.book}${m.author?' · '+m.author:''}</p></div></div>${badge}</div>
  <div class="row" style="margin-top:10px"><span class="badge b-gray">${skillName(m.skill)}</span><span class="tiny">Prazo: ${fmtDate(m.deadline)}</span><span class="tiny">+${m.xp} XP · +${m.coins} 🪙</span></div>
  ${st!=='done'&&st!=='pending'?`<button class="btn sm" style="margin-top:12px" onclick="openAnswer('${m.id}')">${st==='retry'?'Refazer missão':'Responder missão'}</button>`:''}${st==='done'?`<button class="btn ghost sm" style="margin-top:12px" onclick="openPractice('${m.id}')">🔁 Praticar de novo (sem XP)</button>`:''}</div>`}).join(''):emptyHTML('🧭','Sua jornada está sendo preparada','As missões aparecerão aqui quando o professor publicar.')}
- <h2 style="margin-top:22px">📖 Diário de leitura</h2>
- ${books.length?`<div class="card" style="margin-top:10px">${books.map(b=>`<p style="padding:6px 0">✅ ${b}</p>`).join('')}</div>`:`<p class="muted" style="margin-top:6px">Nenhum livro concluído ainda.</p>`}`}
+ <h2 style="margin-top:22px">📖 Diário de estudos</h2>
+ ${books.length?`<div class="card" style="margin-top:10px">${books.map(b=>`<p style="padding:6px 0">✅ ${b}</p>`).join('')}</div>`:`<p class="muted" style="margin-top:6px">Nenhum assunto concluído ainda.</p>`}`}
 function rankRow(s,i,myId){const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`<span class="badge b-gray">${i+1}</span>`;
  return`<div class="spread" style="padding:12px 4px;border-bottom:1px solid #e3e6f0"><div class="row"><span style="width:34px;text-align:center;font-size:18px">${medal}</span><div><b>${displayName(s)}</b>${s.id===myId?' <span class="badge b-purple">você</span>':''}<br><span class="tiny">${s.id} · Nível ${levelOf(s.xp)}</span></div></div><b>${s.xp} XP</b></div>`}
 function sRanking(u){const cls=classOf(u);if(!cls)return emptyHTML('🏆','Ranking vazio','Vincule-se a uma turma para ver o ranking.');
@@ -486,8 +488,8 @@ function sPerfil(u){const cls=classOf(u);const LVX=lvInfo(u.xp),xpL=LVX.cur;cons
  <button class="btn ghost" onclick="openChPass()">Alterar senha</button>
  <button class="btn ghost" style="color:#b3261e" onclick="logout()">Sair da conta</button>
  <button class="btn ghost" style="color:#b3261e" onclick="openDelAcc()">Excluir minha conta</button></div></div>`}
-function studentHTML(u){const pages={inicio:()=>sInicio(u),jornada:()=>sJornada(u),ranking:()=>sRanking(u),loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),perfil:()=>sPerfil(u)};
- const nav=[['inicio','🏠','Início'],['jornada','🧭','Jornada'],['ranking','🏆','Ranking'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['perfil','👤','Perfil']];
+function studentHTML(u){const pages={inicio:()=>sInicio(u),jornada:()=>sJornada(u),ranking:()=>sRanking(u),grafico:()=>graficoHTML(u),loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),perfil:()=>sPerfil(u)};
+ const nav=[['inicio','🏠','Início'],['jornada','🧭','Jornada'],['ranking','🏆','Ranking'],['grafico','🧮','Gráficos'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['perfil','👤','Perfil']];
  return shellHTML(nav,ui.sPage,'navS',u,`<div class="page">${pages[ui.sPage]()}${ui.sPage==='inicio'?actCardHTML(u):''}</div>`)}
 /* ---- professor ---- */
 function tVisao(u){const c=selClass();if(!c)return emptyHTML('👥','Nenhuma turma','Crie uma turma para começar.');
@@ -510,16 +512,16 @@ function tEstudantes(u){const c=selClass();const sts=studentsOf(c.code);
  <div class="row"><button class="btn ghost sm" onclick="copy('${cl.code}')">copiar código</button><button class="btn ghost sm" title="Renomear turma" onclick="openRename('${cl.code}')">✏️</button>${cl.code===c.code?'<span class="badge b-purple">selecionada</span>':`<button class="btn ghost sm" onclick="setClass('${cl.code}')">selecionar</button>`}<button class="btn ghost sm" title="Excluir" onclick="deleteClass('${cl.code}')">🗑</button></div></div>`).join('')}
  <button class="btn sm" style="margin-top:12px" onclick="openNewClass()">＋ Nova turma</button></div>`}
 function tJornada(u){const c=selClass();const ms=db.missions.filter(m=>m.classCode===c.code);
- return`<h1>Jornada · publicar missões</h1><p class="muted">Cada missão é ligada a um livro e a uma habilidade de leitura. Publicar rende <b>+20 XP e +5 🪙</b>.</p>
+ return`<h1>Jornada · publicar missões</h1><p class="muted">Cada missão é ligada a um assunto e a uma habilidade de matemática. Publicar rende <b>+20 XP e +5 🪙</b>.</p>
  <div class="card" style="margin-top:16px"><h2>Nova missão</h2>
- <div class="grid2"><div><label>Livro (título)</label><input id="f_book" placeholder="Ex.: O Diário de Anne Frank"><label>Autor(a)</label><input id="f_author" placeholder="Ex.: Anne Frank"></div>
+ <div class="grid2"><div><label>Assunto (tema)</label><input id="f_book" placeholder="Ex.: Frações equivalentes"><label>Fonte (livro/página)</label><input id="f_author" placeholder="Ex.: Livro didático, pág. 32"></div>
  <div><label>Título da missão</label><input id="f_title" placeholder="Ex.: Operação Anexo Secreto"><label>Prazo</label><input id="f_dead" type="date"></div></div>
  <label>Habilidade avaliada</label><select id="f_skill">${SKILLS.map(s=>`<option value="${s[0]}">${s[1]}</option>`).join('')}</select>
  <label>Tipo de resposta</label><select id="f_type" onchange="toggleType()"><option value="multipla">Múltipla escolha</option><option value="escrita">Resposta escrita com evidências</option></select>
  <label>Imagem da missão (opcional)</label><input id="f_img" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="onMissionImage(this)">
  <p class="tiny" style="margin-top:4px">O aluno verá a imagem <b>centralizada, acima do enunciado</b>, com lupa para ampliar.</p>
  <div id="imgPreview"></div>
- <label>Enunciado</label><textarea id="f_q" placeholder="Descreva o desafio de leitura..."></textarea>
+ <label>Enunciado</label><textarea id="f_q" placeholder="Descreva o desafio de matemática..."></textarea>
  <div id="optsBox"><label>Alternativas</label>${[0,1,2,3].map(i=>`<input id="f_o${i}" style="margin-top:6px" placeholder="Alternativa ${i+1}">`).join('')}<label>Correta (nº)</label><select id="f_correct"><option value="0">1</option><option value="1">2</option><option value="2">3</option><option value="3">4</option></select></div>
  <div id="chapBox"></div><button type="button" class="btn ghost sm" style="margin-top:12px" onclick="addChapter()">＋ Mais capítulo</button>
  <div class="grid2"><div><label>XP</label><input id="f_xp" type="number" value="100"></div><div><label>Moedas</label><input id="f_coins" type="number" value="10"></div></div>
@@ -530,7 +532,7 @@ function tJornada(u){const c=selClass();const ms=db.missions.filter(m=>m.classCo
 function tRanking(u){const c=selClass();const list=studentsOf(c.code).sort((a,b)=>b.xp-a.xp||a.name.localeCompare(b.name));
  return`<h1>Ranking · ${c.name}</h1><p class="muted">Alunos com matrícula ativa, ordenados pelo XP acumulado.</p><div class="card" style="margin-top:16px">${list.length?list.map((s,i)=>rankRow(s,i,null)).join(''):'<p class="muted">Ranking vazio.</p>'}</div>`}
 function tRel(u){const c=selClass();const sts=studentsOf(c.code);
- return`<h1>Relatórios · ${c.name}</h1><p class="muted">Indicadores de participação e aprendizagem por habilidade de leitura.</p>
+ return`<h1>Relatórios · ${c.name}</h1><p class="muted">Indicadores de participação e aprendizagem por habilidade de matemática.</p>
  <div class="spread" style="margin-top:14px"><p class="muted">Participação = missões concluídas · Aprendizagem = acertos por habilidade.</p><button class="btn sm" onclick="exportCSV()">⬇ Exportar CSV</button></div>
  <div class="card" style="margin-top:14px;overflow-x:auto"><table class="tbl"><tr><th>ID</th><th>Aluno</th><th>Missões</th><th>XP</th>${SKILLS.map(s=>`<th>${s[1].split(' ')[0]}</th>`).join('')}</tr>
  ${sts.map(s=>`<tr><td>${s.id}</td><td>${displayName(s)}</td><td>${doneCount(s)}</td><td>${s.xp}</td>${SKILLS.map(sk=>`<td>${skillDone(s,sk[0])}</td>`).join('')}</tr>`).join('')||'<tr><td colspan="9" class="muted">Sem alunos.</td></tr>'}</table></div>`}
@@ -541,7 +543,7 @@ function tGestao(u){const c=selClass();const sts=studentsOf(c.code);const manual
  <label>Nome</label><input id="g_name" placeholder="Ex.: Mestre da Tabuada">
  <label>Descrição</label><input id="g_desc" placeholder="Ex.: Acertou toda a lista de frações">
  <div class="grid2"><div><label>Moedas</label><input id="g_coins" type="number" value="15"></div>
- <div><label>Condição</label><select id="g_type" onchange="toggleAchType()"><option value="missoes">Missões concluídas</option><option value="xp">XP acumulado</option><option value="livros">Livros diferentes</option><option value="manual">Manual (professor concede)</option></select></div></div>
+ <div><label>Condição</label><select id="g_type" onchange="toggleAchType()"><option value="missoes">Missões concluídas</option><option value="xp">XP acumulado</option><option value="livros">Assuntos diferentes</option><option value="manual">Manual (professor concede)</option></select></div></div>
  <div id="gNWrap"><label>Quantidade necessária</label><input id="g_n" type="number" value="1"></div>
  <button class="btn" style="margin-top:12px" onclick="createAch()">Criar conquista</button>
  ${db.achv.length?`<h2 style="margin-top:16px">Criadas por professores</h2>${db.achv.map(a=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div><b>${a.name}</b><br><span class="tiny">${a.desc} · +${a.coins} 🪙 · ${a.cond.type==='manual'?'manual':a.cond.type+' ≥ '+a.cond.n}</span></div><button class="btn ghost sm" onclick="delAch('${a.id}')">🗑</button></div>`).join('')}`:''}
@@ -611,8 +613,21 @@ function tAtividade(u){const c=selClass();if(!c)return emptyHTML('👥','Nenhuma
  <div class="card"><h2>🕒 Últimas recompensas</h2>${log.length?log.slice(0,15).map(({s,a})=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div><b>${escAt(a.title)}</b><br><span class="tiny">${escAt(s.name)} · ${fmtDate(a.date)} · +${a.xp} XP · +${a.coins} 🪙</span></div><button class="btn ghost sm" title="Desfazer" onclick="undoActivity('${s.id}','${a.id}')">↩️</button></div>`).join(''):'<p class="muted">Nenhuma recompensa dada ainda.</p>'}</div></div>`}
 function actCardHTML(u){const l=(u.activities||[]).slice().sort((a,b)=>b.ts-a.ts).slice(0,5);if(!l.length)return'';
  return`<div class="card" style="margin-top:14px"><h2>📝 Atividades em sala</h2><p class="muted">Recompensas que o professor deu pelas atividades feitas em aula.</p>${l.map(a=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div><b>${escAt(a.title)}</b><br><span class="tiny">${fmtDate(a.date)}</span></div><span class="badge b-purple">+${a.xp} XP · +${a.coins} 🪙</span></div>`).join('')}</div>`}
-function teacherHTML(u){const pages={visao:tVisao,estudantes:tEstudantes,jornada:tJornada,ranking:tRanking,rel:tRel,gestao:tGestao,atividade:tAtividade,loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),perfil:tPerfil};
- const nav=[['visao','📊','Visão geral'],['estudantes','👥','Estudantes'],['jornada','🧭','Jornada'],['ranking','🏆','Ranking'],['rel','📈','Relatórios'],['gestao','🎁','Gestão'],['atividade','📝','Atividade'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['perfil','👤','Perfil']];
+/* ================= GRÁFICOS (acertos e erros da turma) ================= */
+function perfStats(s){let ok=0,wr=0;db.responses.forEach(r=>{if(r.studentId!==s.id)return;if(r.status==='ok')ok++;else if(r.status==='wrong')wr++});return{s,ok,wr}}
+function barsHTML(rows,k,color,meId){const max=Math.max(1,...rows.map(r=>r[k]));
+ return rows.length?rows.map(r=>`<div style="margin-top:10px"><div class="spread"><span>${displayName(r.s)}${r.s.id===meId?' <span class="badge b-purple">você</span>':''}</span><b>${r[k]}</b></div><div class="bar"><i style="width:${r[k]/max*100}%;background:${color}"></i></div></div>`).join(''):'<p class="muted" style="margin-top:8px">Ainda sem dados.</p>'}
+function graficoHTML(u){const c=u.role==='professor'?selClass():classOf(u);
+ if(!c)return emptyHTML('🧮','Sem turma','Entre em uma turma para ver os gráficos.');
+ const rows=studentsOf(c.code).map(perfStats),by=k=>rows.filter(r=>r[k]>0).sort((a,b)=>b[k]-a[k]||a.s.name.localeCompare(b.s.name));
+ const tok=rows.reduce((n,r)=>n+r.ok,0),twr=rows.reduce((n,r)=>n+r.wr,0),pc=x=>x.ok+x.wr?Math.round(x.ok/(x.ok+x.wr)*100):0,my=u.role==='aluno'?rows.find(r=>r.s.id===u.id):null;
+ return`<h1>Gráficos · ${c.name}</h1><p class="muted">Quem mais acertou e quem mais errou nas missões da turma. Turma: ✅ ${tok} acertos · ❌ ${twr} erros · ${pc({ok:tok,wr:twr})}% de aproveitamento.</p>
+ ${my?`<div class="card" style="margin-top:14px"><h2>🙋 Seu desempenho</h2><p class="muted" style="margin-top:6px">✅ ${my.ok} acertos · ❌ ${my.wr} erros · ${pc(my)}% de aproveitamento</p></div>`:''}
+ <div class="grid2" style="margin-top:16px">
+ <div class="card"><h2>✅ Quem mais acertou</h2>${barsHTML(by('ok'),'ok','#059669',u.id)}</div>
+ <div class="card"><h2>❌ Quem mais errou</h2>${barsHTML(by('wr'),'wr','#e11d48',u.id)}</div></div>`}
+function teacherHTML(u){const pages={visao:tVisao,estudantes:tEstudantes,jornada:tJornada,ranking:tRanking,grafico:()=>graficoHTML(u),rel:tRel,gestao:tGestao,atividade:tAtividade,loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),perfil:tPerfil};
+ const nav=[['visao','📊','Visão geral'],['estudantes','👥','Estudantes'],['jornada','🧭','Jornada'],['ranking','🏆','Ranking'],['grafico','🧮','Gráficos'],['rel','📈','Relatórios'],['gestao','🎁','Gestão'],['atividade','📝','Atividade'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['perfil','👤','Perfil']];
  return shellHTML(nav,ui.tPage,'navT',u,`<div class="page">${pages[ui.tPage](u)}</div>`)}
 /* ---- modal + render ---- */
 function modalHTML(){const m=ui.modal;
@@ -655,14 +670,14 @@ function modalHTML(){const m=ui.modal;
  <span class="badge b-purple" style="margin-top:8px">${skillName(miss.skill)}</span>
  ${miss.img?`<div class="mimg-wrap"><img src="${miss.img}" class="mimg" onclick="openZoom(this.src)"></div><p class="tiny" style="margin-top:6px;text-align:center">🔍 Clique na imagem para ampliar</p>`:''}
  <p style="margin-top:14px;font-weight:600">${miss.q}</p>
- ${miss.type==='multipla'?miss.opts.map(o=>`<label class="opt" style="opacity:.85"><input type="radio" disabled> ${o}</label>`).join(''):`<label>Resposta escrita</label><textarea disabled placeholder="O aluno escreverá aqui a interpretação com evidências do texto..."></textarea>`}
+ ${miss.type==='multipla'?miss.opts.map(o=>`<label class="opt" style="opacity:.85"><input type="radio" disabled> ${o}</label>`).join(''):`<label>Resposta escrita</label><textarea disabled placeholder="O aluno escreverá aqui a resolução com o passo a passo..."></textarea>`}
  <p class="tiny" style="margin-top:12px">É assim que o estudante verá o desafio: imagem → enunciado → alternativas.</p></div></div>`}
  if(m.type==='answer'){return`<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
  <div class="spread"><h2>${miss.title}</h2><button class="btn ghost sm" onclick="closeModal()">fechar</button></div>
  <p class="muted">📖 ${miss.book}${miss.author?' · '+miss.author:''}</p><span class="badge b-purple" style="margin-top:8px">${skillName(miss.skill)}</span>${m.practice?'<p class="tiny" style="margin-top:10px;padding:8px 10px;background:#fff7e0;border-radius:8px">🔁 Modo treino: repita quantas vezes quiser. Não vale XP nem moedas e não vai para o professor.</p>':''}
  ${miss.img?`<div class="mimg-wrap"><img src="${miss.img}" class="mimg" onclick="openZoom(this.src)" alt="Imagem da missão"></div><p class="tiny" style="margin-top:6px;text-align:center">🔍 Clique na imagem para ampliar e ler os detalhes</p>`:''}
  <div class="cpage" data-i="0" style="display:block"><p style="margin-top:14px;font-weight:600">${miss.q}</p>
- ${miss.type==='multipla'?miss.opts.map((o,i)=>`<label class="opt"><input type="radio" name="opt" value="${i}"> ${o}</label>`).join(''):`<label>Sua resposta (cite evidências do texto)</label><textarea id="w_ans" placeholder="Escreva sua interpretação citando trechos do livro..."></textarea>`}
+ ${miss.type==='multipla'?miss.opts.map((o,i)=>`<label class="opt"><input type="radio" name="opt" value="${i}"> ${o}</label>`).join(''):`<label>Sua resposta (mostre o passo a passo)</label><textarea id="w_ans" placeholder="Escreva sua resolução mostrando o passo a passo..."></textarea>`}
  </div>${chapPages(miss)}<button id="sendBtn" class="btn" style="margin-top:16px${(miss.chapters||[]).length?';display:none':''}" onclick="submitAnswer('${miss.id}')">${m.practice?'Conferir respostas (treino)':'Enviar respostas'}</button></div></div>`}
  if(m.type==='conc'){const rs=db.responses.filter(r=>r.missionId===miss.id);
  return`<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
