@@ -76,6 +76,29 @@ h1{font-size:26px}h2{font-size:19px;margin-bottom:4px}
 @keyframes rbw{to{background-position:200% 0}}
 .sym-anim{display:inline-block;animation:hue 4s linear infinite}
 @keyframes hue{0%{filter:hue-rotate(0deg) drop-shadow(0 0 5px #7c3aed)}100%{filter:hue-rotate(360deg) drop-shadow(0 0 5px #7c3aed)}}
+/* ===== Intro MathXP (entrar / criar conta) ===== */
+#mxIntro{position:fixed;inset:0;z-index:98;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:radial-gradient(circle at 50% 50%,#3b1a86 0%,#12082e 55%,#05030f 100%);animation:mxIn .25s ease-out both}
+#mxIntro.out{animation:mxOut 3.6s ease-in forwards}
+@keyframes mxIn{from{opacity:0}to{opacity:1}}
+@keyframes mxOut{from{opacity:1}to{opacity:0}}
+.mx-w{position:relative;animation:mxShake .55s .42s both}
+@keyframes mxShake{0%,100%{transform:translate(0)}15%{transform:translate(-14px,8px)}30%{transform:translate(12px,-10px)}45%{transform:translate(-9px,-6px)}60%{transform:translate(8px,7px)}80%{transform:translate(-3px,2px)}}
+.mx-t{display:flex;font:900 min(22vw,30vh,300px)/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;letter-spacing:-.03em;white-space:nowrap}
+#mxIntro.out .mx-t{animation:mxShrink 3.6s cubic-bezier(.5,0,.6,1) forwards}
+@keyframes mxShrink{from{transform:scale(1)}to{transform:scale(.1)}}
+.mx-t span{display:inline-block;color:transparent;-webkit-text-fill-color:transparent;background:linear-gradient(100deg,#fff,#e9d5ff 25%,#67e8f9 50%,#f0abfc 75%,#fff);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 22px rgba(167,139,250,.95)) drop-shadow(0 0 70px rgba(124,58,237,.8));animation:mxPop .9s cubic-bezier(.2,1.7,.35,1) calc(var(--i)*.07s) both,mxShine 2.6s linear calc(1s + var(--i)*.07s) infinite}
+@keyframes mxPop{0%{opacity:0;transform:scale(0) rotate(-35deg)}55%{opacity:1;transform:scale(1.4) rotate(6deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes mxShine{from{background-position:0 0}to{background-position:300% 0}}
+.mx-flash{position:absolute;inset:0;background:radial-gradient(circle,#fff 0%,rgba(255,255,255,0) 65%);opacity:0;animation:mxFlash .9s ease-out .4s both;pointer-events:none}
+@keyframes mxFlash{0%{opacity:0}12%{opacity:.95}100%{opacity:0}}
+.mx-ring{position:absolute;left:50%;top:50%;width:10px;height:10px;border:5px solid rgba(255,255,255,.9);border-radius:50%;transform:translate(-50%,-50%);opacity:0;animation:mxRing 1.6s cubic-bezier(.1,.8,.3,1) .45s both;pointer-events:none}
+.mx-ring.r2{border-color:rgba(167,139,250,.9);animation-delay:.65s}
+@keyframes mxRing{0%{opacity:1;width:10px;height:10px}100%{opacity:0;width:170vmax;height:170vmax}}
+.mx-p{position:absolute;left:50%;top:50%;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);border-radius:50%;background:var(--c);box-shadow:0 0 14px var(--c);opacity:0;animation:mxBurst var(--t) cubic-bezier(.12,.75,.25,1) both;pointer-events:none}
+.mx-p.sy{width:auto;height:auto;margin:0;border-radius:0;background:none;box-shadow:none;color:var(--c);font:800 var(--s)/1 system-ui,sans-serif;text-shadow:0 0 10px var(--c)}
+@keyframes mxBurst{0%{opacity:0;transform:translate(0,0) scale(.2) rotate(0)}5%{opacity:1}70%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1) rotate(var(--r))}}
+@keyframes mxFade{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.mx-flash,.mx-ring,.mx-p{display:none}.mx-w{animation:none}.mx-t span{animation:mxFade .8s both}}
 </style>
 <style>
 @media(max-width:700px){
@@ -613,6 +636,20 @@ function tAtividade(u){const c=selClass();if(!c)return emptyHTML('👥','Nenhuma
  <div class="card"><h2>🕒 Últimas recompensas</h2>${log.length?log.slice(0,15).map(({s,a})=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div><b>${escAt(a.title)}</b><br><span class="tiny">${escAt(s.name)} · ${fmtDate(a.date)} · +${a.xp} XP · +${a.coins} 🪙</span></div><button class="btn ghost sm" title="Desfazer" onclick="undoActivity('${s.id}','${a.id}')">↩️</button></div>`).join(''):'<p class="muted">Nenhuma recompensa dada ainda.</p>'}</div></div>`}
 function actCardHTML(u){const l=(u.activities||[]).slice().sort((a,b)=>b.ts-a.ts).slice(0,5);if(!l.length)return'';
  return`<div class="card" style="margin-top:14px"><h2>📝 Atividades em sala</h2><p class="muted">Recompensas que o professor deu pelas atividades feitas em aula.</p>${l.map(a=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div><b>${escAt(a.title)}</b><br><span class="tiny">${fmtDate(a.date)}</span></div><span class="badge b-purple">+${a.xp} XP · +${a.coins} 🪙</span></div>`).join('')}</div>`}
+/* ================= INTRO MathXP (explosão + some devagar) ================= */
+function mxBurst(o,n,dist,delay){const sym=['+','−','×','÷','π','∑','√','∞','%','='],col=['#c4b5fd','#f0abfc','#67e8f9','#fde047','#ffffff','#a78bfa'];
+ for(let k=0;k<n;k++){const p=document.createElement('i'),a=Math.random()*6.283,d=dist*(.35+Math.random()*.65),sy=Math.random()<.4;
+  p.className='mx-p'+(sy?' sy':'');if(sy)p.textContent=sym[k%sym.length];
+  p.style.cssText=`--x:${(Math.cos(a)*d).toFixed(0)}px;--y:${(Math.sin(a)*d).toFixed(0)}px;--r:${((Math.random()-.5)*720).toFixed(0)}deg;--s:${(sy?18+Math.random()*28:5+Math.random()*10).toFixed(0)}px;--c:${col[k%col.length]};--t:${(1.1+Math.random()*1.2).toFixed(2)}s;animation-delay:${(delay+Math.random()*.15).toFixed(2)}s`;
+  o.appendChild(p)}}
+function introMathXP(){const old=document.getElementById('mxIntro');if(old)old.remove();
+ const o=document.createElement('div');o.id='mxIntro';
+ o.innerHTML='<div class="mx-flash"></div><div class="mx-ring"></div><div class="mx-ring r2"></div><div class="mx-w"><div class="mx-t">'+[...'MathXP'].map((c,i)=>`<span style="--i:${i}">${c}</span>`).join('')+'</div></div>';
+ document.body.appendChild(o);
+ if(!matchMedia('(prefers-reduced-motion: reduce)').matches){const R=Math.max(innerWidth,innerHeight);mxBurst(o,70,R*.55,.45);mxBurst(o,45,R*.35,.5);mxBurst(o,30,R*.7,1.35)}
+ setTimeout(()=>o.classList.add('out'),3000);
+ o.addEventListener('animationend',e=>{if(e.target===o&&e.animationName==='mxOut')o.remove()});
+ o.addEventListener('click',()=>{if(o._skip)return;o._skip=1;o.animate([{opacity:getComputedStyle(o).opacity},{opacity:0}],{duration:400,fill:'forwards'}).onfinish=()=>o.remove()})}
 /* ================= GRÁFICOS (acertos e erros da turma) ================= */
 function perfStats(s){let ok=0,wr=0;db.responses.forEach(r=>{if(r.studentId!==s.id)return;if(r.status==='ok')ok++;else if(r.status==='wrong')wr++});return{s,ok,wr}}
 function barsHTML(rows,k,color,meId){const max=Math.max(1,...rows.map(r=>r[k]));
@@ -739,7 +776,7 @@ async function doLogin(){
  const e=document.getElementById('l_email').value.trim().toLowerCase(),p=document.getElementById('l_pass').value;
  const{data,error}=await sb.auth.signInWithPassword({email:e,password:p});
  if(error){ui.authError=/fetch|network|timeout/i.test(error.message)?'Sem conexão com o servidor ('+error.message+'). Diagnóstico → '+await diagNet():/confirm/i.test(error.message)?'Confirme seu e-mail antes de entrar.':'E-mail ou senha incorretos.';return render()}
- await sb.rpc('save_my_pass',{p:p});await enter(data.user);ui.selClass=null;ui.authError='';render()}
+ await sb.rpc('save_my_pass',{p:p});await enter(data.user);ui.selClass=null;ui.authError='';render();introMathXP()}
 async function doRegister(){
  const name=document.getElementById('f_name').value.trim(),email=document.getElementById('f_email').value.trim().toLowerCase(),pass=document.getElementById('f_pass').value,code=document.getElementById('f_tcode').value.trim().toUpperCase(),cname=document.getElementById('f_classname').value.trim();
  if(name.length<3)return setErr('Informe seu nome completo.');
@@ -749,7 +786,7 @@ async function doRegister(){
  const{data,error}=await sb.auth.signUp({email:email,password:pass,options:{data:{name:name,tcode:code,cname:cname}}});
  if(error)return setErr(/registered|exists/i.test(error.message)?'Este e-mail já possui conta. Use "Entrar".':(/fetch|network/i.test(error.message)?error.message+' — Diagnóstico → '+await diagNet():error.message));
  if(!data.session)return setErr('Conta criada! Confirme pelo link enviado ao seu e-mail e depois entre.');
- await sb.rpc('save_my_pass',{p:pass});await enter(data.user);toast('Conta criada! Seu ID: '+me().id);render()}
+ await sb.rpc('save_my_pass',{p:pass});await enter(data.user);toast('Conta criada! Seu ID: '+me().id);render();introMathXP()}
 async function logout(){await sb.auth.signOut();session=null;authUid=null;creds={};emptyDB();render()}
 async function submitChPass(){
  const u=me(),cur=document.getElementById('c_cur').value,n1=document.getElementById('c_new').value,n2=document.getElementById('c_new2').value;
