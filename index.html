@@ -179,7 +179,7 @@ html[data-theme=dark] [style*="color:#b3261e"]{color:#f87171!important}
 /* ================= MARCA ================= */
 const BRAND={name:'MathXP',logo:'logo.png'};
 function logoImg(px){return `<img src="${BRAND.logo}" alt="${BRAND.name}" class="brandimg" data-px="${px}" decoding="sync" style="width:${px}px;height:${px}px" onerror="brandFail(this,${px})">`}
-function brandFail(el,px){el.outerHTML=`<span class="sllogo" data-px="${px}" style="font-size:${Math.round(px*0.55)}px;line-height:${px}px">SL</span>`}
+function brandFail(el,px){el.outerHTML=`<span class="sllogo" data-px="${px}" style="font-size:${Math.round(px*0.55)}px;line-height:${px}px">MX</span>`}
 /* ================= DADOS ================= */
 const DB_KEY='ligaLeitoresDB_v2', SES_KEY='ligaLeitoresSession_v1';
 const TEACHER_CODE='ADM2026'; /* código secreto da coordenação — não exibido em nenhuma tela. Obs.: com o Supabase quem valida é a tabela teacher_codes do banco. */
@@ -899,37 +899,49 @@ var creds={};
 /* ================= CONTAS DOS ALUNOS (o professor cria o login) ================= */
 function tContas(u){const c=selClass();
  if(!c)return emptyHTML('🔑','Crie uma turma primeiro','As contas criadas entram direto na turma selecionada.');
- const L=ui.contasLog||[],okL=L.filter(function(x){return x.ok});
+ const L=ui.contasLog||[],okL=L.filter(function(x){return x.ok}),f=ui.ctForm||{},pend=ui.contasPending||[];
  return `<h1>Contas dos alunos</h1><p class="muted">Crie o login de quem esqueceu o celular. O aluno entra em casa com o <b>e-mail</b> e a <b>senha</b> que você definir e já aparece na turma <b>${escH(c.name)}</b>.</p>
- <div class="card" style="margin-top:16px"><h2>➕ Criar contas</h2>
- <label>Um aluno por linha: <b>Nome; e-mail; senha</b></label>
- <textarea id="ct_lines" rows="6" placeholder="Ana Souza; ana.souza@gmail.com; matematica123&#10;Bruno Lima; bruno.lima@gmail.com; mathxp2026">${escH((ui.contasPending||[]).join('\n'))}</textarea>
- <p class="tiny muted" style="margin-top:6px">Senha com pelo menos 6 caracteres. O nome é o usuário que aparece no site.</p>
- <button class="btn" style="margin-top:12px" id="ct_btn" onclick="createStudents()">Criar contas</button></div>
+ <div class="card" style="margin-top:16px;max-width:560px"><h2>➕ Criar conta de estudante</h2>
+ <label>Nome</label><input id="ct_name" autocomplete="off" value="${escH(f.name||'')}">
+ <label>E-mail (Gmail)</label><input id="ct_email" type="email" autocomplete="off" value="${escH(f.email||'')}">
+ <label>Senha</label><input id="ct_pass" autocomplete="off" value="${escH(f.pass||'')}">
+ <p class="tiny muted" style="margin-top:6px">Use pelo menos 6 caracteres. A senha fica visível aqui para você poder passar ao aluno.</p>
+ <button class="btn" style="margin-top:12px;width:100%" id="ct_btn1" onclick="createOneStudent()">Criar conta de estudante</button></div>
  ${L.length?`<div class="card" style="margin-top:16px"><div class="spread"><h2>Resultado</h2>${okL.length?`<button class="btn ghost sm" onclick="copyContas()">📋 Copiar lista</button>`:''}</div>
- ${L.map(function(x){return x.ok?`<p style="margin-top:8px">✅ <b>${escH(x.name)}</b> · ${escH(x.email)} · senha: <code>${escH(x.pass)}</code></p>`:`<p style="margin-top:8px">❌ ${escH(x.line)} — ${escH(x.msg)}</p>`}).join('')}</div>`:''}`}
-async function createStudents(){const c=selClass();if(!c)return;
- const raw=document.getElementById('ct_lines').value.split(/\r?\n/).map(function(l){return l.trim()}).filter(Boolean);
- if(!raw.length)return toast('Escreva pelo menos um aluno.');
- if(raw.length>60)return toast('Crie no máximo 60 contas por vez.');
- const btn=document.getElementById('ct_btn');btn.disabled=true;btn.textContent='Criando…';
+ ${L.map(function(x){return x.ok?`<p style="margin-top:8px">✅ <b>${escH(x.name)}</b> · ${escH(x.email)} · senha: <code>${escH(x.pass)}</code></p>`:`<p style="margin-top:8px">❌ ${escH(x.line)} — ${escH(x.msg)}</p>`}).join('')}</div>`:''}
+ <details class="card" style="margin-top:16px"${pend.length?' open':''}><summary style="cursor:pointer;font-weight:700">Criar vários alunos de uma vez</summary>
+ <label style="margin-top:10px">Um aluno por linha: <b>Nome; e-mail; senha</b></label>
+ <textarea id="ct_lines" rows="6" placeholder="Ana Souza; ana.souza@gmail.com; matematica123&#10;Bruno Lima; bruno.lima@gmail.com; mathxp2026">${escH(pend.join('\n'))}</textarea>
+ <button class="btn" style="margin-top:12px" id="ct_btn" onclick="createBulk()">Criar contas</button></details>`}
+function createOneStudent(){const g=function(i){return document.getElementById(i).value.trim()},name=g('ct_name'),email=g('ct_email').toLowerCase(),pass=g('ct_pass');
+ const it={raw:name+'; '+email+'; '+pass,name:name,email:email,pass:pass};
+ if(name.length<2)it.err='escreva o nome do aluno';
+ else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))it.err='e-mail inválido';
+ else if(pass.length<6)it.err='a senha precisa de pelo menos 6 caracteres';
+ return createStudents([it],false)}
+function createBulk(){const raw=document.getElementById('ct_lines').value.split(/\r?\n/).map(function(l){return l.trim()}).filter(Boolean);
+ return createStudents(raw.map(function(line){const sep=line.indexOf(';')>=0?';':line.indexOf('\t')>=0?'\t':',',p=line.split(sep).map(function(x){return x.trim()});
+  return p.length<3||!p[0]||!p[1]||!p[2]?{raw:line,err:'use o formato: Nome; e-mail; senha'}:{raw:line,name:p[0],email:p[1].toLowerCase(),pass:p.slice(2).join(sep).trim()}}),true)}
+async function createStudents(items,bulk){const c=selClass();if(!c)return;
+ if(!items.length)return toast('Escreva pelo menos um aluno.');
+ if(items.length>60)return toast('Crie no máximo 60 contas por vez.');
+ const btn=document.getElementById(bulk?'ct_btn':'ct_btn1');if(btn){btn.disabled=true;btn.textContent='Criando…'}
  const log=[],failed=[];
- for(const line of raw){
-  const sep=line.indexOf(';')>=0?';':line.indexOf('\t')>=0?'\t':',',p=line.split(sep).map(function(x){return x.trim()});
-  if(p.length<3||!p[0]||!p[1]||!p[2]){log.push({ok:false,line:line,msg:'use o formato: Nome; e-mail; senha'});failed.push(line);continue}
-  const name=p[0],email=p[1].toLowerCase(),pass=p.slice(2).join(sep).trim();
-  const r=await sb.rpc('admin_create_student',{p_email:email,p_name:name,p_pass:pass});
-  if(r.error){log.push({ok:false,line:name+' ('+email+')',msg:r.error.message});failed.push(line);continue}
+ for(const it of items){
+  if(it.err){log.push({ok:false,line:it.raw,msg:it.err});failed.push(it);continue}
+  const r=await sb.rpc('admin_create_student',{p_email:it.email,p_name:it.name,p_pass:it.pass});
+  if(r.error){log.push({ok:false,line:it.name+' ('+it.email+')',msg:r.error.message});failed.push(it);continue}
   const uid=r.data;let row=null;
   for(let i=0;i<5&&!row;i++){
    const n=Math.max(0,...db.users.filter(function(x){return x.id.indexOf('AL-')===0}).map(function(x){return +x.id.slice(-4)}))+1,id='AL-2026-'+String(n).padStart(4,'0'),now=new Date().toISOString();
-   const cand={id:id,uid:uid,name:name,email:email,role:'aluno',xp:0,coins:0,classCode:c.code,inventory:[],achievements:[],equipped:{},createdAt:now,enrolledAt:now};
+   const cand={id:id,uid:uid,name:it.name,email:it.email,role:'aluno',xp:0,coins:0,classCode:c.code,inventory:[],achievements:[],equipped:{},createdAt:now,enrolledAt:now};
    const{error}=await sb.from('records').insert({kind:'users',id:id,data:cand});
    if(error){await pull()}else{row=cand;db.users.push(cand);snap['users|'+id]=JSON.stringify(cand)}}
-  creds[uid]=pass;
-  log.push(row?{ok:true,name:name,email:email,pass:pass}:{ok:false,line:name+' ('+email+')',msg:'a conta foi criada, mas o perfil não. Peça para o aluno entrar uma vez e usar o código da turma.'})}
- ui.contasLog=log;ui.contasPending=failed;
- toast('✅ '+log.filter(function(x){return x.ok}).length+' de '+raw.length+' conta(s) criada(s).');render()}
+  creds[uid]=it.pass;
+  log.push(row?{ok:true,name:it.name,email:it.email,pass:it.pass}:{ok:false,line:it.name+' ('+it.email+')',msg:'a conta foi criada, mas o perfil não. Peça para o aluno entrar uma vez e usar o código da turma.'})}
+ ui.contasLog=log;
+ if(bulk){ui.contasPending=failed.map(function(x){return x.raw})}else{ui.ctForm=failed.length?failed[0]:null}
+ toast('✅ '+log.filter(function(x){return x.ok}).length+' de '+items.length+' conta(s) criada(s).');render()}
 function copyContas(){const t=(ui.contasLog||[]).filter(function(x){return x.ok}).map(function(x){return x.name+' — '+x.email+' — senha: '+x.pass}).join('\n');
  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast('📋 Lista copiada!')},function(){toast('Não consegui copiar. Selecione o texto e copie.')})}
 async function loadCreds(){const u=me();if(!u||u.role!=='professor')return;
