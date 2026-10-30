@@ -252,7 +252,8 @@ function allAch(){return DEFAULT_ACH.concat(db.achv||[])}
 function achFor(u){return u.role==='professor'?PROF_ACH:allAch()}
 function eqVal(u,type){if(!u||!u.equipped)return null;const id=u.equipped[type];if(!id)return null;const it=allItems().find(i=>i.id===id);return it&&it.effect?it.effect.value:null}
 function displayName(s){const nc=eqVal(s,'nameColor');const sy=eqVal(s,'symbol');
- return`${sy?`<span class="${sy.anim?'sym-anim':''}" style="margin-right:4px">${sy.e}</span>`:''}<span style="${nc?'color:'+nc:''}">${s.name}</span>`}
+ return`${sy?`<span class="${sy.anim?'sym-anim':''}" style="margin-right:4px">${escH(sy.e)}</span>`:''}<span style="${nc?'color:'+nc:''}">${escH(s.name)}</span>`}
+function escH(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 const LEVEL_XP=[0,100,150,200,300]; /* XP TOTAL para chegar aos níveis 1,2,3,4,5. Depois disso: +100 XP por nível */
 function xpFor(l){return l<=LEVEL_XP.length?LEVEL_XP[l-1]:LEVEL_XP[LEVEL_XP.length-1]+(l-LEVEL_XP.length)*100}
 function levelOf(xp){let l=1;while(xp>=xpFor(l+1))l++;return l}
@@ -352,6 +353,11 @@ function submitRename(){const c=db.classes.find(x=>x.code===ui.modal.code);if(!c
  const n=document.getElementById('rn_name').value.trim();
  if(n.length<2)return toast('Informe um nome válido para a turma.');
  c.name=n;save();ui.modal=null;toast('✏️ Nome da turma atualizado!');render()}
+function delMission(id){const m=db.missions.find(x=>x.id===id);if(!m)return;
+ const n=db.responses.filter(r=>r.missionId===id).length;
+ if(!confirm('Excluir a missão "'+m.title+'"?'+(n?'\n\n'+n+' resposta(s) dos alunos também serão apagadas. O XP e as moedas já ganhos continuam com os alunos.':'')+'\n\nEsta ação não pode ser desfeita.'))return;
+ db.missions=db.missions.filter(x=>x.id!==id);db.responses=db.responses.filter(r=>r.missionId!==id);
+ save();toast('🗑️ Missão excluída.');render()}
 function deleteClass(code){const c=db.classes.find(x=>x.code===code);if(!c)return;
  if(studentsOf(code).length)return toast('Não é possível excluir turma com alunos vinculados.');
  if(myClasses().length<=1)return toast('Você precisa manter pelo menos uma turma.');
@@ -373,7 +379,9 @@ function checkAch(u){achFor(u).forEach(a=>{if(!u.achievements.includes(a.id)&&co
 function award(u,m){u.xp+=m.xp;u.coins+=m.coins;checkAch(u);save()}
 function teachReward(xp,coins,msg){const t=me();if(!t||t.role!=='professor')return;t.xp+=xp;t.coins+=coins;checkAch(t);if(msg)toast(msg+' (+'+xp+' XP, +'+coins+' 🪙)')}
 function joinClass(){const code=document.getElementById('join_code').value.trim().toUpperCase();const c=db.classes.find(c=>c.code===code);if(!c)return toast('Código de turma não encontrado.');const u=me();u.classCode=c.code;u.enrolledAt=new Date().toISOString();save();toast('Vinculado à turma '+c.name+'!');render()}
-function buy(id){const u=me(),it=allItems().find(i=>i.id===id);if(u.coins<it.price)return toast('Moedas insuficientes.');u.coins-=it.price;
+function buy(id){const u=me(),it=allItems().find(i=>i.id===id);if(!it)return toast('Item indisponível.');
+ if(!it.consume&&u.inventory.includes(it.id))return toast('Você já tem este item.');
+ if(u.coins<it.price)return toast('Moedas insuficientes.');u.coins-=it.price;
  if(it.consume){u.xp+=50;checkAch(u);toast('⚡ +50 XP aplicados!')}
  else{u.inventory.push(it.id);toast('🛒 '+it.name+' adquirido! Equipe em Conquistas → Personalização.')}
  save();render()}
@@ -425,8 +433,9 @@ function publishMission(){const c=selClass();if(!c)return toast('Crie uma turma 
  targets.forEach((t,i)=>db.missions.push({id:'M'+(Date.now()+i),classCode:t.code,book,author,title,skill,type,q,opts,correct,xp,coins,deadline:dead,img:img||null,createdAt:new Date().toISOString()}));
  pendingImage=null;save();teachReward(20,5,'📚 Missão publicada para '+targets.length+' turma(s)!');render()}
 function addStudent(){const c=selClass();const v=document.getElementById('add_st').value.trim().toLowerCase();const u=db.users.find(x=>x.role==='aluno'&&(x.id.toLowerCase()===v||x.email===v));if(!u)return toast('Aluno não encontrado por ID ou e-mail.');if(u.classCode===c.code)return toast('Aluno já vinculado a esta turma.');if(u.classCode)return toast('Aluno já pertence a outra turma.');u.classCode=c.code;u.enrolledAt=new Date().toISOString();save();toast('✅ '+u.name+' vinculado à '+c.name);render()}
-function exportCSV(){const c=selClass();const sts=studentsOf(c.code);let rows=[['ID','Nome','Missões concluídas','XP','Moedas'].concat(SKILLS.map(s=>s[1])).join(';')];
- sts.forEach(u=>{rows.push([u.id,u.name,doneCount(u),u.xp,u.coins].concat(SKILLS.map(s=>skillDone(u,s[0]))).join(';'))});
+function csvCell(v){if(typeof v==='string'&&/^[=+\-@]/.test(v))v="'"+v;v=String(v==null?'':v);return /[;"\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function exportCSV(){const c=selClass();const sts=studentsOf(c.code);let rows=[['ID','Nome','Missões concluídas','XP','Moedas'].concat(SKILLS.map(s=>s[1])).map(csvCell).join(';')];
+ sts.forEach(u=>{rows.push([u.id,u.name,doneCount(u),u.xp,u.coins].concat(SKILLS.map(s=>skillDone(u,s[0]))).map(csvCell).join(';'))});
  const blob=new Blob(['\uFEFF'+rows.join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='relatorio_'+c.code+'.csv';a.click();toast('CSV exportado!')}
 /* ================= TELAS ================= */
 function navS(p){ui.sPage=p;render()}
@@ -434,9 +443,9 @@ function navT(p){ui.tPage=p;render()}
 function shellHTML(nav,active,navFn,u,main){const av=eqVal(u,'avatar');
  return`<div class="shell"><aside class="side"><div class="logo">${logoImg(34)} ${BRAND.name}</div>
  ${nav.map(n=>`<button class="navb ${active===n[0]?'on':''}" onclick="${navFn}('${n[0]}')"><span>${n[1]}</span>${n[2]}</button>`).join('')}
- <div class="foot"><div class="avatar">${av||u.name[0].toUpperCase()}</div><div style="flex:1;min-width:0"><b style="font-size:13px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${displayName(u)}</b><span class="tiny">Nível ${levelOf(u.xp)} · ${u.id}</span></div><button class="tiny" style="text-decoration:underline" onclick="logout()">Sair</button></div></aside>
+ <div class="foot"><div class="avatar">${escH(av||u.name[0].toUpperCase())}</div><div style="flex:1;min-width:0"><b style="font-size:13px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${displayName(u)}</b><span class="tiny">Nível ${levelOf(u.xp)} · ${u.id}</span></div><button class="tiny" style="text-decoration:underline" onclick="logout()">Sair</button></div></aside>
  <main><div class="top"><span class="chip">⚡ ${u.xp} XP</span><span class="chip">🪙 ${u.coins}</span><span class="chip">${u.role==='professor'?'👩 Professor':' Estudante'}</span>
- ${u.role==='professor'&&myClasses().length?`<select style="width:auto;margin-left:auto" onchange="setClass(this.value)">${myClasses().map(c=>`<option value="${c.code}" ${selClass()&&selClass().code===c.code?'selected':''}>${c.name}</option>`).join('')}</select><button class="chip" title="Criar nova turma" onclick="openNewClass()">＋</button>`:''}</div>
+ ${u.role==='professor'&&myClasses().length?`<select style="width:auto;margin-left:auto" onchange="setClass(this.value)">${myClasses().map(c=>`<option value="${c.code}" ${selClass()&&selClass().code===c.code?'selected':''}>${escH(c.name)}</option>`).join('')}</select><button class="chip" title="Criar nova turma" onclick="openNewClass()">＋</button>`:''}</div>
  <div class="mobnav">${nav.map(n=>`<button class="navb ${active===n[0]?'on':''}" onclick="${navFn}('${n[0]}')"><span>${n[1]}</span>${n[2]}</button>`).join('')}</div>
  ${main}</main></div>`}
 function authHTML(){return`<div class="auth-wrap"><div class="auth">
@@ -455,7 +464,7 @@ function authHTML(){return`<div class="auth-wrap"><div class="auth">
  <p class="tiny" style="margin-top:16px">Projeto de pesquisa <b>MATHXP</b> · gamificação e matemática<br>© <b>${BRAND.name}</b></p></div></div>`}
 /* ---- aluno ---- */
 function sInicio(u){const cls=classOf(u);const pend=cls?db.missions.filter(m=>m.classCode===cls.code&&['open','retry'].includes(statusOf(u,m))).length:0;const LVX=lvInfo(u.xp),xpL=LVX.cur;
- return`<h1>Olá, ${u.name.split(' ')[0]} 👋</h1><p class="muted">Pronto para continuar sua jornada de matemática?</p>
+ return`<h1>Olá, ${escH(u.name.split(' ')[0])} 👋</h1><p class="muted">Pronto para continuar sua jornada de matemática?</p>
  ${!cls?`<div class="card" style="margin-top:18px"><h2>Entrar em uma turma</h2><p class="muted">Digite o código que seu professor compartilhou.</p><div class="row" style="margin-top:12px"><input id="join_code" placeholder="Ex.: MXP-A1B2"><button class="btn sm" onclick="joinClass()">Vincular</button></div></div>`:''}
  <div class="card" style="margin-top:18px"><div class="spread"><div><span class="badge b-purple">NÍVEL ${levelOf(u.xp)}</span><h2 style="margin-top:8px">Seu progresso</h2></div><span class="badge b-green">${doneCount(u)} missões concluídas</span></div>
  <label style="margin-top:14px">Meta de XP</label><div class="bar"><i style="width:${(xpL/LVX.need)*100}%"></i></div>
@@ -466,9 +475,9 @@ function sInicio(u){const cls=classOf(u);const pend=cls?db.missions.filter(m=>m.
 function sJornada(u){const cls=classOf(u);if(!cls)return emptyHTML('🧭','Nenhuma turma disponível','Sua jornada aparecerá quando você estiver vinculado a uma turma ativa.');
  const ms=db.missions.filter(m=>m.classCode===cls.code);
  const books=[...new Set(db.responses.filter(r=>r.studentId===u.id&&r.status==='ok').map(r=>missionById(r.missionId)).filter(m=>m).map(m=>m.book+' — '+m.author))];
- return`<h1>Jornada · ${cls.name}</h1><p class="muted">Missões de matemática publicadas pelo professor.</p>
+ return`<h1>Jornada · ${escH(cls.name)}</h1><p class="muted">Missões de matemática publicadas pelo professor.</p>
  ${ms.length?ms.map(m=>{const st=statusOf(u,m);const badge=st==='done'?'<span class="badge b-green">Concluída</span>':st==='pending'?'<span class="badge b-amber">Aguardando confirmação</span>':st==='retry'?'<span class="badge b-red">Tente novamente</span>':'<span class="badge b-purple">Disponível</span>';
- return`<div class="card" style="margin-top:14px"><div class="spread"><div class="row">${m.img?`<img src="${m.img}" class="thumb">`:''}<div><b>${m.title}</b><p class="muted">📖 ${m.book}${m.author?' · '+m.author:''}</p></div></div>${badge}</div>
+ return`<div class="card" style="margin-top:14px"><div class="spread"><div class="row">${m.img?`<img src="${escH(m.img)}" class="thumb">`:''}<div><b>${escH(m.title)}</b><p class="muted">📖 ${escH(m.book)}${escH(m.author?' · '+m.author:'')}</p></div></div>${badge}</div>
  <div class="row" style="margin-top:10px"><span class="badge b-gray">${skillName(m.skill)}</span><span class="tiny">Prazo: ${fmtDate(m.deadline)}</span><span class="tiny">+${m.xp} XP · +${m.coins} 🪙</span></div>
  ${st!=='done'&&st!=='pending'?`<button class="btn sm" style="margin-top:12px" onclick="openAnswer('${m.id}')">${st==='retry'?'Refazer missão':'Responder missão'}</button>`:''}${st==='done'?`<button class="btn ghost sm" style="margin-top:12px" onclick="openPractice('${m.id}')">🔁 Praticar de novo (sem XP)</button>`:''}</div>`}).join(''):emptyHTML('🧭','Sua jornada está sendo preparada','As missões aparecerão aqui quando o professor publicar.')}
  <h2 style="margin-top:22px">📖 Diário de estudos</h2>
@@ -477,32 +486,32 @@ function rankRow(s,i,myId){const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`<
  return`<div class="spread" style="padding:12px 4px;border-bottom:1px solid #e3e6f0"><div class="row"><span style="width:34px;text-align:center;font-size:18px">${medal}</span><div><b>${displayName(s)}</b>${s.id===myId?' <span class="badge b-purple">você</span>':''}<br><span class="tiny">${s.id} · Nível ${levelOf(s.xp)}</span></div></div><b>${s.xp} XP</b></div>`}
 function sRanking(u){const cls=classOf(u);if(!cls)return emptyHTML('🏆','Ranking vazio','Vincule-se a uma turma para ver o ranking.');
  const list=studentsOf(cls.code).sort((a,b)=>b.xp-a.xp||a.name.localeCompare(b.name));
- return`<h1>Ranking · ${cls.name}</h1><p class="muted">Alunos com matrícula ativa, ordenados pelo XP acumulado.</p>
+ return`<h1>Ranking · ${escH(cls.name)}</h1><p class="muted">Alunos com matrícula ativa, ordenados pelo XP acumulado.</p>
  <div class="card" style="margin-top:16px">${list.length?list.map((s,i)=>rankRow(s,i,u.id)).join(''):'<p class="muted">Ranking vazio.</p>'}</div>`}
 /* ---- loja e conquistas (aluno E professor) ---- */
 function shopHTML(u){const cls=u.role==='professor'?selClass():classOf(u);
  return`<h1>Loja de itens</h1><p class="muted">Use suas moedas em avatares, símbolos, cores, efeitos e temas.</p>
- ${!cls?emptyHTML('🛒','Nenhuma turma disponível','Sua loja ficará disponível quando você estiver matriculado em uma turma ativa.'):`<div class="grid3" style="margin-top:16px">${allItems().map(it=>{const owned=u.inventory.includes(it.id);return`<div class="card"><div class="row"><span style="font-size:26px">${it.icon}</span><div><b>${it.name}</b><p class="muted">${it.desc}</p>${it.effect?`<span class="badge b-gray" style="margin-top:6px">${CATS[it.effect.type]}</span>`:'<span class="badge b-amber" style="margin-top:6px">consumível</span>'}${owned?'<span class="badge b-green" style="margin-top:6px">adquirido</span>':''}</div></div><div class="spread" style="margin-top:12px"><span class="badge b-amber">🪙 ${it.price}</span>${owned&&!it.consume?'<span class="tiny">na mochila</span>':`<button class="btn sm" ${u.coins<it.price?'disabled':''} onclick="buy('${it.id}')">Comprar</button>`}</div></div>`}).join('')}</div>`}`}
+ ${!cls?emptyHTML('🛒','Nenhuma turma disponível','Sua loja ficará disponível quando você estiver matriculado em uma turma ativa.'):`<div class="grid3" style="margin-top:16px">${allItems().map(it=>{const owned=u.inventory.includes(it.id);return`<div class="card"><div class="row"><span style="font-size:26px">${escH(it.icon)}</span><div><b>${escH(it.name)}</b><p class="muted">${escH(it.desc)}</p>${it.effect?`<span class="badge b-gray" style="margin-top:6px">${CATS[it.effect.type]}</span>`:'<span class="badge b-amber" style="margin-top:6px">consumível</span>'}${owned?'<span class="badge b-green" style="margin-top:6px">adquirido</span>':''}</div></div><div class="spread" style="margin-top:12px"><span class="badge b-amber">🪙 ${it.price}</span>${owned&&!it.consume?'<span class="tiny">na mochila</span>':`<button class="btn sm" ${u.coins<it.price?'disabled':''} onclick="buy('${it.id}')">Comprar</button>`}</div></div>`}).join('')}</div>`}`}
 function conqHTML(u){const list=achFor(u);const owned=u.inventory.map(id=>allItems().find(i=>i.id===id)).filter(i=>i&&i.effect);
  return`<h1>Suas conquistas</h1><p class="muted">${u.role==='professor'?'Medalhas do professor pelo trabalho pedagógico.':'Medalhas, personalização e inventário da sua jornada.'}</p>
  <h2 style="margin-top:18px">🎖️ Medalhas (${u.achievements.length}/${list.length})</h2>
- <div class="grid2" style="margin-top:10px">${list.map(a=>{const has=u.achievements.includes(a.id);return`<div class="card" style="${has?'':'opacity:.55'}"><b>${has?'🎖️':'🔒'} ${a.name}</b><p class="muted">${a.desc}</p>${has?'<span class="badge b-green" style="margin-top:8px">conquistada</span>':`<span class="badge b-gray" style="margin-top:8px">+${a.coins} 🪙 ao conquistar</span>`}</div>`}).join('')}</div>
+ <div class="grid2" style="margin-top:10px">${list.map(a=>{const has=u.achievements.includes(a.id);return`<div class="card" style="${has?'':'opacity:.55'}"><b>${has?'🎖️':'🔒'} ${escH(a.name)}</b><p class="muted">${escH(a.desc)}</p>${has?'<span class="badge b-green" style="margin-top:8px">conquistada</span>':`<span class="badge b-gray" style="margin-top:8px">+${a.coins} 🪙 ao conquistar</span>`}</div>`}).join('')}</div>
  <h2 style="margin-top:22px">✨ Personalização</h2>
  <p class="muted">Equipe avatares, símbolos, cores, efeitos e temas que você comprou.</p>
- ${owned.length?`<div class="grid2" style="margin-top:10px">${owned.map(it=>{const inUse=u.equipped&&u.equipped[it.effect.type]===it.id;return`<div class="card"><div class="row"><span style="font-size:24px">${it.icon}</span><div><b>${it.name}</b><br><span class="tiny">${CATS[it.effect.type]}</span></div></div><div style="margin-top:10px">${inUse?`<button class="btn ghost sm" onclick="unequip('${it.effect.type}')">Remover (em uso)</button>`:`<button class="btn sm" onclick="equip('${it.id}')">Equipar</button>`}</div></div>`}).join('')}</div>`:`<p class="muted" style="margin-top:8px">Nenhum item de personalização ainda — visite a loja!</p>`}
+ ${owned.length?`<div class="grid2" style="margin-top:10px">${owned.map(it=>{const inUse=u.equipped&&u.equipped[it.effect.type]===it.id;return`<div class="card"><div class="row"><span style="font-size:24px">${escH(it.icon)}</span><div><b>${escH(it.name)}</b><br><span class="tiny">${CATS[it.effect.type]}</span></div></div><div style="margin-top:10px">${inUse?`<button class="btn ghost sm" onclick="unequip('${it.effect.type}')">Remover (em uso)</button>`:`<button class="btn sm" onclick="equip('${it.id}')">Equipar</button>`}</div></div>`}).join('')}</div>`:`<p class="muted" style="margin-top:8px">Nenhum item de personalização ainda — visite a loja!</p>`}
  <h2 style="margin-top:22px">🎒 Inventário</h2>
- ${u.inventory.length?`<div class="card" style="margin-top:10px">${u.inventory.map(id=>{const it=allItems().find(i=>i.id===id);return it?`<p style="padding:6px 0">${it.icon} ${it.name}</p>`:''}).join('')}</div>`:emptyHTML('🎒','Seu inventário está vazio','Visite a loja quando juntar suas primeiras moedas.')}`}
+ ${u.inventory.length?`<div class="card" style="margin-top:10px">${u.inventory.map(id=>{const it=allItems().find(i=>i.id===id);return it?`<p style="padding:6px 0">${escH(it.icon)} ${escH(it.name)}</p>`:''}).join('')}</div>`:emptyHTML('🎒','Seu inventário está vazio','Visite a loja quando juntar suas primeiras moedas.')}`}
 function sPerfil(u){const cls=classOf(u);const LVX=lvInfo(u.xp),xpL=LVX.cur;const av=eqVal(u,'avatar');
  return`<div class="card" style="margin-top:8px;text-align:center">
- <div class="avatar" style="width:84px;height:84px;font-size:36px;margin:0 auto">${av||u.name[0].toUpperCase()}</div>
+ <div class="avatar" style="width:84px;height:84px;font-size:36px;margin:0 auto">${escH(av||u.name[0].toUpperCase())}</div>
  <h1 style="margin-top:12px">${displayName(u)}</h1>
  <p class="muted">Nível ${levelOf(u.xp)} · ${u.xp} XP</p>
  <div class="bar" style="margin-top:14px"><i style="width:${(xpL/LVX.need)*100}%"></i></div>
  <p class="muted" style="margin-top:8px">${xpL}/${LVX.need} XP para avançar de nível</p>
  <div class="grid2" style="margin-top:18px;text-align:left">
  <div><span class="tiny">ID da conta</span><div class="row"><b>${u.id}</b><button class="btn ghost sm" onclick="copy('${u.id}')">copiar</button></div></div>
- <div><span class="tiny">E-mail</span><p><b>${u.email}</b></p></div>
- <div><span class="tiny">Turma</span><p><b>${cls?cls.name:'—'}</b>${cls?` <button class="btn ghost sm" onclick="copy('${cls.code}')">copiar código</button>`:''}</p></div>
+ <div><span class="tiny">E-mail</span><p><b>${escH(u.email)}</b></p></div>
+ <div><span class="tiny">Turma</span><p><b>${escH(cls?cls.name:'—')}</b>${cls?` <button class="btn ghost sm" onclick="copy('${cls.code}')">copiar código</button>`:''}</p></div>
  <div><span class="tiny">Moedas</span><p><b>🪙 ${u.coins}</b></p></div></div>
  <div style="margin-top:18px;display:grid;gap:10px">
  <button class="btn ghost" onclick="navS('ranking')">Ver ranking da turma</button>
@@ -517,30 +526,30 @@ function studentHTML(u){const pages={inicio:()=>sInicio(u),jornada:()=>sJornada(
 /* ---- professor ---- */
 function tVisao(u){const c=selClass();if(!c)return emptyHTML('👥','Nenhuma turma','Crie uma turma para começar.');
  const sts=studentsOf(c.code),ms=db.missions.filter(m=>m.classCode===c.code),oks=db.responses.filter(r=>r.status==='ok'&&ms.some(m=>m.id===r.missionId)).length;
- return`<h1>Olá, ${u.name.split(' ')[0]} 👋</h1><p class="muted">Organize as atividades e acompanhe ${c.name}. ${myClasses().length>1?'Use o seletor no topo para trocar de turma.':''}</p>
+ return`<h1>Olá, ${escH(u.name.split(' ')[0])} 👋</h1><p class="muted">Organize as atividades e acompanhe ${escH(c.name)}. ${myClasses().length>1?'Use o seletor no topo para trocar de turma.':''}</p>
  <div class="grid2" style="margin-top:16px">
  <div class="card"><span class="muted">Estudantes matriculados</span><h1 style="font-size:34px;margin:6px 0">${sts.length}</h1><span class="muted">Contas vinculadas a esta turma</span></div>
  <div class="card"><span class="muted">Missões publicadas</span><h1 style="font-size:34px;margin:6px 0">${ms.length}</h1><span class="muted">${oks} conclusões confirmadas</span></div></div>
- <div class="card" style="margin-top:14px"><div class="spread"><h2>Atividades em sala</h2><span class="tiny">Turma: <b>${c.name}</b> · Código: <b>${c.code}</b> <button class="btn ghost sm" onclick="copy('${c.code}')">copiar</button> <button class="btn ghost sm" title="Editar nome da turma" onclick="openRename('${c.code}')">✏️ editar nome</button></span></div>
+ <div class="card" style="margin-top:14px"><div class="spread"><h2>Atividades em sala</h2><span class="tiny">Turma: <b>${escH(c.name)}</b> · Código: <b>${c.code}</b> <button class="btn ghost sm" onclick="copy('${c.code}')">copiar</button> <button class="btn ghost sm" title="Editar nome da turma" onclick="openRename('${c.code}')">✏️ editar nome</button></span></div>
  <p class="muted">Abra uma atividade para consultar e confirmar conclusões.</p>
- ${ms.length?ms.map(m=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:12px;padding-top:12px"><div class="row">${m.img?`<img src="${m.img}" class="thumb" style="width:40px;height:40px">`:''}<div><b>${m.title}</b><p class="muted">${skillName(m.skill)} · prazo ${fmtDate(m.deadline)}</p></div></div><div class="row"><button class="btn ghost sm" onclick="openPreview('${m.id}')" title="Ver como o aluno vê">👁</button><button class="btn ghost sm" onclick="openConc('${m.id}')">Ver conclusões</button></div></div>`).join(''):'<p class="muted" style="margin-top:10px">Nenhuma missão publicada ainda.</p>'}</div>`}
+ ${ms.length?ms.map(m=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:12px;padding-top:12px"><div class="row">${m.img?`<img src="${escH(m.img)}" class="thumb" style="width:40px;height:40px">`:''}<div><b>${escH(m.title)}</b><p class="muted">${skillName(m.skill)} · prazo ${fmtDate(m.deadline)}</p></div></div><div class="row"><button class="btn ghost sm" onclick="openPreview('${m.id}')" title="Ver como o aluno vê">👁</button><button class="btn ghost sm" onclick="openConc('${m.id}')">Ver conclusões</button><button class="btn ghost sm" style="color:#e11d48;border-color:#e11d48" onclick="delMission('${m.id}')">🗑️ Excluir</button></div></div>`).join(''):'<p class="muted" style="margin-top:10px">Nenhuma missão publicada ainda.</p>'}</div>`}
 function tEstudantes(u){const c=selClass();const sts=studentsOf(c.code);
- return`<h1>Estudantes · ${c.name}</h1><p class="muted">Compartilhe o código da turma ou adicione por ID/e-mail.</p>
+ return`<h1>Estudantes · ${escH(c.name)}</h1><p class="muted">Compartilhe o código da turma ou adicione por ID/e-mail.</p>
  <div class="card" style="margin-top:16px"><div class="spread"><div><span class="tiny">Código de vinculação</span><h2>${c.code}</h2></div><div class="row"><button class="btn ghost sm" title="Editar nome da turma" onclick="openRename('${c.code}')">✏️ editar nome</button><button class="btn sm" onclick="copy('${c.code}')">copiar código</button></div></div></div>
  <div class="card" style="margin-top:14px"><label style="margin-top:0">Adicionar aluno (ID ou e-mail)</label><div class="row"><input id="add_st" placeholder="Ex.: AL-2026-0001 ou aluno@gmail.com"><button class="btn sm" onclick="addStudent()">Adicionar</button></div></div>
  <div class="card" style="margin-top:14px;overflow-x:auto"><table class="tbl"><tr><th>ID</th><th>Nome</th><th>Nível</th><th>XP</th><th>Missões</th><th></th></tr>
  ${sts.map(s=>`<tr><td>${s.id}</td><td>${displayName(s)}</td><td>${levelOf(s.xp)}</td><td>${s.xp}</td><td>${doneCount(s)}</td><td><button class="btn ghost sm" onclick="removeStudent('${s.id}')">remover da turma</button></td></tr>`).join('')||'<tr><td colspan="6" class="muted">Nenhum aluno vinculado ainda.</td></tr>'}</table></div>
  <h2 style="margin-top:22px">Minhas turmas (${myClasses().length})</h2>
- <div class="card" style="margin-top:10px">${myClasses().map(cl=>`<div class="spread" style="padding:10px 0;border-bottom:1px solid #e3e6f0"><div><b>${cl.name}</b> ${cl.subject?`<span class="badge b-gray">${cl.subject}</span>`:''}<br><span class="tiny">${cl.code} · ${studentsOf(cl.code).length} aluno(s) · ${cl.year}</span></div>
+ <div class="card" style="margin-top:10px">${myClasses().map(cl=>`<div class="spread" style="padding:10px 0;border-bottom:1px solid #e3e6f0"><div><b>${escH(cl.name)}</b> ${cl.subject?`<span class="badge b-gray">${escH(cl.subject)}</span>`:''}<br><span class="tiny">${cl.code} · ${studentsOf(cl.code).length} aluno(s) · ${cl.year}</span></div>
  <div class="row"><button class="btn ghost sm" onclick="copy('${cl.code}')">copiar código</button><button class="btn ghost sm" title="Renomear turma" onclick="openRename('${cl.code}')">✏️</button>${cl.code===c.code?'<span class="badge b-purple">selecionada</span>':`<button class="btn ghost sm" onclick="setClass('${cl.code}')">selecionar</button>`}<button class="btn ghost sm" title="Excluir" onclick="deleteClass('${cl.code}')">🗑</button></div></div>`).join('')}
  <button class="btn sm" style="margin-top:12px" onclick="openNewClass()">＋ Nova turma</button></div>`}
 function tJornada(u){const c=selClass();const ms=db.missions.filter(m=>m.classCode===c.code);
  return`<h1>Jornada · publicar missões</h1><p class="muted">Cada missão é ligada a um assunto e a uma habilidade de matemática. Publicar rende <b>+20 XP e +5 🪙</b>.</p>
  <div class="card" style="margin-top:16px"><h2>Nova missão</h2>
  <div class="grid2"><div><label>Assunto (tema)</label><input id="f_book" placeholder="Ex.: Frações equivalentes"><label>Fonte (livro/página)</label><input id="f_author" placeholder="Ex.: Livro didático, pág. 32"></div>
- <div><label>Título da missão</label><input id="f_title" placeholder="Ex.: Operação Anexo Secreto"><label>Prazo</label><input id="f_dead" type="date"></div></div>
+ <div><label>Título da missão</label><input id="f_title" placeholder="Ex.: Desafio das Frações"><label>Prazo</label><input id="f_dead" type="date"></div></div>
  <label>Habilidade avaliada</label><select id="f_skill">${SKILLS.map(s=>`<option value="${s[0]}">${s[1]}</option>`).join('')}</select>
- <label>Tipo de resposta</label><select id="f_type" onchange="toggleType()"><option value="multipla">Múltipla escolha</option><option value="escrita">Resposta escrita com evidências</option></select>
+ <label>Tipo de resposta</label><select id="f_type" onchange="toggleType()"><option value="multipla">Múltipla escolha</option><option value="escrita">Resposta escrita (passo a passo)</option></select>
  <label>Imagem da missão (opcional)</label><input id="f_img" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="onMissionImage(this)">
  <p class="tiny" style="margin-top:4px">O aluno verá a imagem <b>centralizada, acima do enunciado</b>, com lupa para ampliar.</p>
  <div id="imgPreview"></div>
@@ -551,11 +560,11 @@ function tJornada(u){const c=selClass();const ms=db.missions.filter(m=>m.classCo
  <label class="opt"><input id="f_all" type="checkbox"> Publicar para todas as minhas turmas (${myClasses().length})</label>
  <button class="btn" style="margin-top:14px" onclick="publishMission()">Publicar missão</button></div>
  <h2 style="margin-top:22px">Missões publicadas</h2>
- ${ms.length?ms.map(m=>{const sts=studentsOf(c.code);const done=sts.filter(s=>statusOf(s,m)==='done').length;return`<div class="card" style="margin-top:12px"><div class="spread"><div class="row">${m.img?`<img src="${m.img}" class="thumb">`:''}<div><b>${m.title}</b><p class="muted">📖 ${m.book} · ${skillName(m.skill)}</p></div></div><span class="badge b-purple">${done}/${sts.length} concluíram</span></div><div class="row" style="margin-top:8px"><span class="tiny">Prazo: ${fmtDate(m.deadline)}</span><button class="btn ghost sm" onclick="openPreview('${m.id}')">👁 Visão do aluno</button><button class="btn ghost sm" onclick="openConc('${m.id}')">Ver conclusões</button></div></div>`}).join(''):'<p class="muted" style="margin-top:8px">Nenhuma missão publicada.</p>'}`}
+ ${ms.length?ms.map(m=>{const sts=studentsOf(c.code);const done=sts.filter(s=>statusOf(s,m)==='done').length;return`<div class="card" style="margin-top:12px"><div class="spread"><div class="row">${m.img?`<img src="${escH(m.img)}" class="thumb">`:''}<div><b>${escH(m.title)}</b><p class="muted">📖 ${escH(m.book)} · ${skillName(m.skill)}</p></div></div><span class="badge b-purple">${done}/${sts.length} concluíram</span></div><div class="row" style="margin-top:8px"><span class="tiny">Prazo: ${fmtDate(m.deadline)}</span><button class="btn ghost sm" onclick="openPreview('${m.id}')">👁 Visão do aluno</button><button class="btn ghost sm" onclick="openConc('${m.id}')">Ver conclusões</button></div></div>`}).join(''):'<p class="muted" style="margin-top:8px">Nenhuma missão publicada.</p>'}`}
 function tRanking(u){const c=selClass();const list=studentsOf(c.code).sort((a,b)=>b.xp-a.xp||a.name.localeCompare(b.name));
- return`<h1>Ranking · ${c.name}</h1><p class="muted">Alunos com matrícula ativa, ordenados pelo XP acumulado.</p><div class="card" style="margin-top:16px">${list.length?list.map((s,i)=>rankRow(s,i,null)).join(''):'<p class="muted">Ranking vazio.</p>'}</div>`}
+ return`<h1>Ranking · ${escH(c.name)}</h1><p class="muted">Alunos com matrícula ativa, ordenados pelo XP acumulado.</p><div class="card" style="margin-top:16px">${list.length?list.map((s,i)=>rankRow(s,i,null)).join(''):'<p class="muted">Ranking vazio.</p>'}</div>`}
 function tRel(u){const c=selClass();const sts=studentsOf(c.code);
- return`<h1>Relatórios · ${c.name}</h1><p class="muted">Indicadores de participação e aprendizagem por habilidade de matemática.</p>
+ return`<h1>Relatórios · ${escH(c.name)}</h1><p class="muted">Indicadores de participação e aprendizagem por habilidade de matemática.</p>
  <div class="spread" style="margin-top:14px"><p class="muted">Participação = missões concluídas · Aprendizagem = acertos por habilidade.</p><button class="btn sm" onclick="exportCSV()">⬇ Exportar CSV</button></div>
  <div class="card" style="margin-top:14px;overflow-x:auto"><table class="tbl"><tr><th>ID</th><th>Aluno</th><th>Missões</th><th>XP</th>${SKILLS.map(s=>`<th>${s[1].split(' ')[0]}</th>`).join('')}</tr>
  ${sts.map(s=>`<tr><td>${s.id}</td><td>${displayName(s)}</td><td>${doneCount(s)}</td><td>${s.xp}</td>${SKILLS.map(sk=>`<td>${skillDone(s,sk[0])}</td>`).join('')}</tr>`).join('')||'<tr><td colspan="9" class="muted">Sem alunos.</td></tr>'}</table></div>`}
@@ -569,11 +578,11 @@ function tGestao(u){const c=selClass();const sts=studentsOf(c.code);const manual
  <div><label>Condição</label><select id="g_type" onchange="toggleAchType()"><option value="missoes">Missões concluídas</option><option value="xp">XP acumulado</option><option value="livros">Assuntos diferentes</option><option value="manual">Manual (professor concede)</option></select></div></div>
  <div id="gNWrap"><label>Quantidade necessária</label><input id="g_n" type="number" value="1"></div>
  <button class="btn" style="margin-top:12px" onclick="createAch()">Criar conquista</button>
- ${db.achv.length?`<h2 style="margin-top:16px">Criadas por professores</h2>${db.achv.map(a=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div><b>${a.name}</b><br><span class="tiny">${a.desc} · +${a.coins} 🪙 · ${a.cond.type==='manual'?'manual':a.cond.type+' ≥ '+a.cond.n}</span></div><button class="btn ghost sm" onclick="delAch('${a.id}')">🗑</button></div>`).join('')}`:''}
+ ${db.achv.length?`<h2 style="margin-top:16px">Criadas por professores</h2>${db.achv.map(a=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div><b>${escH(a.name)}</b><br><span class="tiny">${escH(a.desc)} · +${a.coins} 🪙 · ${a.cond.type==='manual'?'manual':a.cond.type+' ≥ '+a.cond.n}</span></div><button class="btn ghost sm" onclick="delAch('${a.id}')">🗑</button></div>`).join('')}`:''}
  <h2 style="margin-top:16px">🎖️ Dar conquista a um aluno</h2>
  <p class="tiny">Vale para qualquer conquista, inclusive as automáticas. O aluno recebe as moedas dela.</p>
- <label>Conquista</label><select id="gv_a">${allAch().map(a=>`<option value="${a.id}">${a.name} (+${a.coins} 🪙)</option>`).join('')}</select>
- <label>Aluno</label><select id="gv_s">${sts.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')||'<option value="">sem alunos</option>'}</select>
+ <label>Conquista</label><select id="gv_a">${allAch().map(a=>`<option value="${a.id}">${escH(a.name)} (+${a.coins} 🪙)</option>`).join('')}</select>
+ <label>Aluno</label><select id="gv_s">${sts.map(s=>`<option value="${s.id}">${escH(s.name)}</option>`).join('')||'<option value="">sem alunos</option>'}</select>
  <button class="btn" style="margin-top:12px" ${sts.length?'':'disabled'} onclick="grantAch(document.getElementById('gv_s').value,document.getElementById('gv_a').value)">Dar conquista</button></div>
  <div class="card"><h2>🛒 Novo item da loja</h2>
  <label>Nome</label><input id="i_name" placeholder="Ex.: Avatar Fênix">
@@ -586,15 +595,15 @@ function tGestao(u){const c=selClass();const sts=studentsOf(c.code);const manual
  <div id="wrapColor" style="display:none"><label>Cor</label><input id="i_color" type="color" value="#7c3aed"></div>
  <div id="wrapFx" style="display:none"><label>Efeito</label><select id="i_fx"><option value="negrito">Negrito</option><option value="italico">Itálico</option><option value="neon">Neon</option><option value="rainbow">Arco-íris</option></select></div>
  <button class="btn" style="margin-top:12px" onclick="createItem()">Adicionar à loja</button>
- ${db.shopItems.length?`<h2 style="margin-top:16px">Criados por professores</h2>${db.shopItems.map(i=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div>${i.icon} <b>${i.name}</b><br><span class="tiny">${CATS[i.effect.type]} · 🪙 ${i.price}</span></div><button class="btn ghost sm" onclick="delItem('${i.id}')">🗑</button></div>`).join('')}`:''}</div></div>`}
+ ${db.shopItems.length?`<h2 style="margin-top:16px">Criados por professores</h2>${db.shopItems.map(i=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div>${escH(i.icon)} <b>${escH(i.name)}</b><br><span class="tiny">${CATS[i.effect.type]} · 🪙 ${i.price}</span></div><button class="btn ghost sm" onclick="delItem('${i.id}')">🗑</button></div>`).join('')}`:''}</div></div>`}
 function tPerfil(u){const LVX=lvInfo(u.xp),xpL=LVX.cur;
  return`<div class="card" style="margin-top:8px;text-align:center">
- <div class="avatar" style="width:84px;height:84px;font-size:36px;margin:0 auto">${eqVal(u,'avatar')||u.name[0].toUpperCase()}</div>
+ <div class="avatar" style="width:84px;height:84px;font-size:36px;margin:0 auto">${escH(eqVal(u,'avatar')||u.name[0].toUpperCase())}</div>
  <h1 style="margin-top:12px">${displayName(u)}</h1>
  <p class="muted">Professor · ${u.id} · Nível ${levelOf(u.xp)}</p>
  <div class="bar" style="margin-top:14px"><i style="width:${(xpL/LVX.need)*100}%"></i></div>
  <p class="muted" style="margin-top:8px">${xpL}/${LVX.need} XP para avançar de nível · 🪙 ${u.coins} moedas</p>
- <p class="muted">${u.email} · ${myClasses().length} turma(s)</p>
+ <p class="muted">${escH(u.email)} · ${myClasses().length} turma(s)</p>
  <div style="margin-top:18px;display:grid;gap:10px">
  <button class="btn ghost" onclick="navT('estudantes')">Ver minhas turmas e estudantes</button>
  <button class="btn ghost" onclick="navT('loja')">Abrir loja · ${u.coins} moedas</button>
@@ -604,7 +613,7 @@ function tPerfil(u){const LVX=lvInfo(u.xp),xpL=LVX.cur;
  <h2 style="margin-top:24px">🔐 Contas cadastradas</h2>
  <p class="muted">Todas as pessoas com login na plataforma (visão exclusiva do professor): Gmail e senha para gestão escolar.</p>
  <div class="card" style="margin-top:10px;overflow-x:auto"><table class="tbl"><tr><th>ID</th><th>Nome</th><th>Papel</th><th>E-mail</th><th>Senha</th><th>Ações</th></tr>
- ${db.users.map(x=>`<tr><td>${x.id}</td><td>${displayName(x)}</td><td>${x.role==='professor'?'<span class="badge b-purple">professor</span>':'<span class="badge b-gray">aluno</span>'}</td><td>${x.email}</td><td>${ui.reveal[x.id]?`${(window.creds||{})[x.uid]?'<code>'+String(window.creds[x.uid]).replace(/[<>&]/g,'')+'</code>':'<span class="tiny">ainda não disponível · aparece no próximo login · ou use redefinir</span>'}`:'••••••••'}</td><td><div class="row"><button class="btn ghost sm" onclick="toggleReveal('${x.id}')">${ui.reveal[x.id]?'ocultar':'ver'}</button><button class="btn ghost sm" onclick="openReset('${x.id}')">redefinir</button></div></td></tr>`).join('')}</table></div>
+ ${db.users.map(x=>`<tr><td>${x.id}</td><td>${displayName(x)}</td><td>${x.role==='professor'?'<span class="badge b-purple">professor</span>':'<span class="badge b-gray">aluno</span>'}</td><td>${escH(x.email)}</td><td>${ui.reveal[x.id]?`${(window.creds||{})[x.uid]?'<code>'+String(window.creds[x.uid]).replace(/[<>&]/g,'')+'</code>':'<span class="tiny">ainda não disponível · aparece no próximo login · ou use redefinir</span>'}`:'••••••••'}</td><td><div class="row"><button class="btn ghost sm" onclick="toggleReveal('${x.id}')">${ui.reveal[x.id]?'ocultar':'ver'}</button><button class="btn ghost sm" onclick="openReset('${x.id}')">redefinir</button></div></td></tr>`).join('')}</table></div>
  <p class="tiny" style="margin-top:8px">⚠️ Protótipo de pesquisa: os dados ficam somente neste navegador.</p>`}
 /* ================= ATIVIDADE EM SALA (recompensa manual do professor) ================= */
 function escAt(t){return String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -625,7 +634,7 @@ function undoActivity(uid,aid){const s=db.users.find(x=>x.id===uid);if(!s)return
  s.xp=Math.max(0,s.xp-a.xp);s.coins=Math.max(0,s.coins-a.coins);s.activities=s.activities.filter(x=>x.id!==aid);save();toast('Recompensa desfeita.');render()}
 function tAtividade(u){const c=selClass();if(!c)return emptyHTML('👥','Nenhuma turma','Crie uma turma para começar.');
  const sts=studentsOf(c.code),log=[];sts.forEach(s=>(s.activities||[]).forEach(a=>log.push({s,a})));log.sort((x,y)=>y.a.ts-x.a.ts);
- return`<h1>Atividade em sala</h1><p class="muted">Passou uma atividade na sala? Dê XP e moedas a quem fez, mesmo sem usar o site. Turma: <b>${c.name}</b>.</p>
+ return`<h1>Atividade em sala</h1><p class="muted">Passou uma atividade na sala? Dê XP e moedas a quem fez, mesmo sem usar o site. Turma: <b>${escH(c.name)}</b>.</p>
  <div class="grid2" style="margin-top:16px">
  <div class="card"><h2>📝 Nova recompensa</h2>
  <label>Atividade</label><input id="at_title" placeholder="Ex.: Lista de frações da página 32">
@@ -658,13 +667,13 @@ function graficoHTML(u){const c=u.role==='professor'?selClass():classOf(u);
  if(!c)return emptyHTML('🧮','Sem turma','Entre em uma turma para ver os gráficos.');
  const rows=studentsOf(c.code).map(perfStats),by=k=>rows.filter(r=>r[k]>0).sort((a,b)=>b[k]-a[k]||a.s.name.localeCompare(b.s.name));
  const tok=rows.reduce((n,r)=>n+r.ok,0),twr=rows.reduce((n,r)=>n+r.wr,0),pc=x=>x.ok+x.wr?Math.round(x.ok/(x.ok+x.wr)*100):0,my=u.role==='aluno'?rows.find(r=>r.s.id===u.id):null;
- return`<h1>Gráficos · ${c.name}</h1><p class="muted">Quem mais acertou e quem mais errou nas missões da turma. Turma: ✅ ${tok} acertos · ❌ ${twr} erros · ${pc({ok:tok,wr:twr})}% de aproveitamento.</p>
+ return`<h1>Gráficos · ${escH(c.name)}</h1><p class="muted">Quem mais acertou e quem mais errou nas missões da turma. Turma: ✅ ${tok} acertos · ❌ ${twr} erros · ${pc({ok:tok,wr:twr})}% de aproveitamento.</p>
  ${my?`<div class="card" style="margin-top:14px"><h2>🙋 Seu desempenho</h2><p class="muted" style="margin-top:6px">✅ ${my.ok} acertos · ❌ ${my.wr} erros · ${pc(my)}% de aproveitamento</p></div>`:''}
  <div class="grid2" style="margin-top:16px">
  <div class="card"><h2>✅ Quem mais acertou</h2>${barsHTML(by('ok'),'ok','#059669',u.id)}</div>
  <div class="card"><h2>❌ Quem mais errou</h2>${barsHTML(by('wr'),'wr','#e11d48',u.id)}</div></div>`}
-function teacherHTML(u){const pages={visao:tVisao,estudantes:tEstudantes,jornada:tJornada,ranking:tRanking,grafico:()=>graficoHTML(u),rel:tRel,gestao:tGestao,atividade:tAtividade,loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),perfil:tPerfil};
- const nav=[['visao','📊','Visão geral'],['estudantes','👥','Estudantes'],['jornada','🧭','Jornada'],['ranking','🏆','Ranking'],['grafico','🧮','Gráficos'],['rel','📈','Relatórios'],['gestao','🎁','Gestão'],['atividade','📝','Atividade'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['perfil','👤','Perfil']];
+function teacherHTML(u){const pages={visao:tVisao,estudantes:tEstudantes,jornada:tJornada,ranking:tRanking,grafico:()=>graficoHTML(u),rel:tRel,gestao:tGestao,atividade:tAtividade,contas:tContas,loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),perfil:tPerfil};
+ const nav=[['visao','📊','Visão geral'],['estudantes','👥','Estudantes'],['jornada','🧭','Jornada'],['ranking','🏆','Ranking'],['grafico','🧮','Gráficos'],['rel','📈','Relatórios'],['gestao','🎁','Gestão'],['atividade','📝','Atividade'],['contas','🔑','Contas'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['perfil','👤','Perfil']];
  return shellHTML(nav,ui.tPage,'navT',u,`<div class="page">${pages[ui.tPage](u)}</div>`)}
 /* ---- modal + render ---- */
 function modalHTML(){const m=ui.modal;
@@ -676,7 +685,7 @@ function modalHTML(){const m=ui.modal;
  if(m.type==='rename'){const c=db.classes.find(x=>x.code===m.code);return`<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
  <div class="spread"><h2>Renomear turma</h2><button class="btn ghost sm" onclick="closeModal()">fechar</button></div>
  <p class="muted">Código da turma: <b>${c?c.code:''}</b> (o código não muda — os alunos continuam vinculados)</p>
- <label>Novo nome da turma</label><input id="rn_name" value="${c?c.name:''}">
+ <label>Novo nome da turma</label><input id="rn_name" value="${escH(c?c.name:'')}">
  <button class="btn" style="margin-top:14px" onclick="submitRename()">Salvar nome</button></div></div>`}
  if(m.type==='chpass'){return`<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
  <div class="spread"><h2>Alterar senha</h2><button class="btn ghost sm" onclick="closeModal()">fechar</button></div>
@@ -685,8 +694,8 @@ function modalHTML(){const m=ui.modal;
  <label>Confirmar nova senha</label><input id="c_new2" type="password">
  <button class="btn" style="margin-top:14px" onclick="submitChPass()">Salvar nova senha</button></div></div>`}
  if(m.type==='reset'){const x=db.users.find(u=>u.id===m.uid);return`<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
- <div class="spread"><h2>Redefinir senha · ${x?x.name:''}</h2><button class="btn ghost sm" onclick="closeModal()">fechar</button></div>
- <p class="muted">${x?x.id+' · '+x.email:''}</p>
+ <div class="spread"><h2>Redefinir senha · ${escH(x?x.name:'')}</h2><button class="btn ghost sm" onclick="closeModal()">fechar</button></div>
+ <p class="muted">${escH(x?x.id+' · '+x.email:'')}</p>
  <label>Nova senha (mín. 8 caracteres)</label><input id="r_pass" type="password">
  <label>Confirmar nova senha</label><input id="r_pass2" type="password">
  <button class="btn" style="margin-top:14px" onclick="submitReset()">Redefinir senha</button></div></div>`}
@@ -701,28 +710,28 @@ function modalHTML(){const m=ui.modal;
  <button class="btn" style="margin-top:14px" onclick="forgotSet()">Redefinir senha</button>`}</div></div>`}
  const miss=missionById(m.mid);if(!miss)return'';
  if(m.type==='preview'){return`<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
- <div class="spread"><h2>${miss.title}</h2><button class="btn ghost sm" onclick="closeModal()">fechar</button></div>
+ <div class="spread"><h2>${escH(miss.title)}</h2><button class="btn ghost sm" onclick="closeModal()">fechar</button></div>
  <span class="badge b-amber" style="margin-top:6px">👁 Prévia da visão do aluno · respostas não são salvas</span>
- <p class="muted" style="margin-top:8px">📖 ${miss.book}${miss.author?' · '+miss.author:''}</p>
+ <p class="muted" style="margin-top:8px">📖 ${escH(miss.book)}${escH(miss.author?' · '+miss.author:'')}</p>
  <span class="badge b-purple" style="margin-top:8px">${skillName(miss.skill)}</span>
- ${miss.img?`<div class="mimg-wrap"><img src="${miss.img}" class="mimg" onclick="openZoom(this.src)"></div><p class="tiny" style="margin-top:6px;text-align:center">🔍 Clique na imagem para ampliar</p>`:''}
- <p style="margin-top:14px;font-weight:600">${miss.q}</p>
- ${miss.type==='multipla'?miss.opts.map(o=>`<label class="opt" style="opacity:.85"><input type="radio" disabled> ${o}</label>`).join(''):`<label>Resposta escrita</label><textarea disabled placeholder="O aluno escreverá aqui a resolução com o passo a passo..."></textarea>`}
+ ${miss.img?`<div class="mimg-wrap"><img src="${escH(miss.img)}" class="mimg" onclick="openZoom(this.src)"></div><p class="tiny" style="margin-top:6px;text-align:center">🔍 Clique na imagem para ampliar</p>`:''}
+ <p style="margin-top:14px;font-weight:600">${escH(miss.q)}</p>
+ ${miss.type==='multipla'?miss.opts.map(o=>`<label class="opt" style="opacity:.85"><input type="radio" disabled> ${escH(o)}</label>`).join(''):`<label>Resposta escrita</label><textarea disabled placeholder="O aluno escreverá aqui a resolução com o passo a passo..."></textarea>`}
  <p class="tiny" style="margin-top:12px">É assim que o estudante verá o desafio: imagem → enunciado → alternativas.</p></div></div>`}
  if(m.type==='answer'){return`<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
- <div class="spread"><h2>${miss.title}</h2><button class="btn ghost sm" onclick="closeModal()">fechar</button></div>
- <p class="muted">📖 ${miss.book}${miss.author?' · '+miss.author:''}</p><span class="badge b-purple" style="margin-top:8px">${skillName(miss.skill)}</span>${m.practice?'<p class="tiny" style="margin-top:10px;padding:8px 10px;background:#fff7e0;border-radius:8px">🔁 Modo treino: repita quantas vezes quiser. Não vale XP nem moedas e não vai para o professor.</p>':''}
- ${miss.img?`<div class="mimg-wrap"><img src="${miss.img}" class="mimg" onclick="openZoom(this.src)" alt="Imagem da missão"></div><p class="tiny" style="margin-top:6px;text-align:center">🔍 Clique na imagem para ampliar e ler os detalhes</p>`:''}
- <div class="cpage" data-i="0" style="display:block"><p style="margin-top:14px;font-weight:600">${miss.q}</p>
- ${miss.type==='multipla'?miss.opts.map((o,i)=>`<label class="opt"><input type="radio" name="opt" value="${i}"> ${o}</label>`).join(''):`<label>Sua resposta (mostre o passo a passo)</label><textarea id="w_ans" placeholder="Escreva sua resolução mostrando o passo a passo..."></textarea>`}
+ <div class="spread"><h2>${escH(miss.title)}</h2><button class="btn ghost sm" onclick="closeModal()">fechar</button></div>
+ <p class="muted">📖 ${escH(miss.book)}${escH(miss.author?' · '+miss.author:'')}</p><span class="badge b-purple" style="margin-top:8px">${skillName(miss.skill)}</span>${m.practice?'<p class="tiny" style="margin-top:10px;padding:8px 10px;background:#fff7e0;border-radius:8px">🔁 Modo treino: repita quantas vezes quiser. Não vale XP nem moedas e não vai para o professor.</p>':''}
+ ${miss.img?`<div class="mimg-wrap"><img src="${escH(miss.img)}" class="mimg" onclick="openZoom(this.src)" alt="Imagem da missão"></div><p class="tiny" style="margin-top:6px;text-align:center">🔍 Clique na imagem para ampliar e ler os detalhes</p>`:''}
+ <div class="cpage" data-i="0" style="display:block"><p style="margin-top:14px;font-weight:600">${escH(miss.q)}</p>
+ ${miss.type==='multipla'?miss.opts.map((o,i)=>`<label class="opt"><input type="radio" name="opt" value="${i}"> ${escH(o)}</label>`).join(''):`<label>Sua resposta (mostre o passo a passo)</label><textarea id="w_ans" placeholder="Escreva sua resolução mostrando o passo a passo..."></textarea>`}
  </div>${chapPages(miss)}<button id="sendBtn" class="btn" style="margin-top:16px${(miss.chapters||[]).length?';display:none':''}" onclick="submitAnswer('${miss.id}')">${m.practice?'Conferir respostas (treino)':'Enviar respostas'}</button></div></div>`}
  if(m.type==='conc'){const rs=db.responses.filter(r=>r.missionId===miss.id);
  return`<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
- <div class="spread"><div class="row">${miss.img?`<img src="${miss.img}" class="thumb" style="width:44px;height:44px" onclick="openZoom('${miss.img}')">`:''}<h2>Conclusões · ${miss.title}</h2></div><button class="btn ghost sm" onclick="closeModal()">fechar</button></div>
+ <div class="spread"><div class="row">${miss.img?`<img src="${escH(miss.img)}" class="thumb" style="width:44px;height:44px" onclick="openZoom('${escH(miss.img)}')">`:''}<h2>Conclusões · ${escH(miss.title)}</h2></div><button class="btn ghost sm" onclick="closeModal()">fechar</button></div>
  ${rs.length?rs.map(r=>{const s=db.users.find(x=>x.id===r.studentId);const stb=r.status==='ok'?'<span class="badge b-green">confirmada</span>':r.status==='pending'?'<span class="badge b-amber">pendente</span>':r.status==='wrong'?'<span class="badge b-red">incorreta</span>':'<span class="badge b-gray">recusada</span>';
  const ansTxt=miss.type==='multipla'?('Alternativa '+(+r.answer+1)+': '+miss.opts[+r.answer]):r.answer;
  const tc=s?eqVal(s,'textColor'):null;const tf=s?eqVal(s,'textEffect'):null;
- return`<div class="card" style="margin-top:12px"><div class="spread"><b>${s?displayName(s):'?'} <span class="tiny">${s?s.id:''}</span></b>${stb}</div><p class="muted ${tf?'fx-'+tf:''}" style="margin-top:6px;${tc?'color:'+tc:''}">${ansTxt}</p>
+ return`<div class="card" style="margin-top:12px"><div class="spread"><b>${s?displayName(s):'?'} <span class="tiny">${s?s.id:''}</span></b>${stb}</div><p class="muted ${tf?'fx-'+tf:''}" style="margin-top:6px;${tc?'color:'+tc:''}">${escH(ansTxt)}</p>
  ${r.status==='pending'?`<div class="row" style="margin-top:10px"><button class="btn sm" onclick="confirmResp('${r.id}')">Confirmar conclusão</button><button class="btn ghost sm" onclick="rejectResp('${r.id}')">Recusar</button></div>`:''}</div>`}).join(''):'<p class="muted" style="margin-top:12px">Nenhuma resposta enviada ainda.</p>'}</div></div>`}
  return''}
 function applyTheme(){const u=me();const th=u?eqVal(u,'theme'):null;const r=document.documentElement.style;r.setProperty('--acc',th?th.acc:'#7c3aed');r.setProperty('--acc-soft',th?th.soft:'#f3e8ff')}
@@ -758,9 +767,10 @@ async function pushNow(){
   Object.keys(snap).forEach(function(key){if(key.indexOf(k+'|')===0&&!seen[key.slice(k.length+1)])dels.push(key)})}
  if(ups.length){const{error}=await sb.from('records').upsert(ups);if(error){toast('⚠️ Não salvou: '+error.message);return}
   ups.forEach(function(r){snap[r.kind+'|'+r.id]=JSON.stringify(r.data)})}
- for(const key of dels){const i=key.indexOf('|');
-  const{error}=await sb.from('records').delete().eq('kind',key.slice(0,i)).eq('id',key.slice(i+1));
-  if(error)toast('⚠️ Não apagou: '+error.message);else delete snap[key]}}
+ const by={};dels.forEach(function(key){const i=key.indexOf('|'),k=key.slice(0,i);(by[k]=by[k]||[]).push(key.slice(i+1))});
+ for(const k in by){const ids=by[k];for(let j=0;j<ids.length;j+=50){const part=ids.slice(j,j+50);
+  const{error}=await sb.from('records').delete().eq('kind',k).in('id',part);
+  if(error)toast('⚠️ Não apagou: '+error.message);else part.forEach(function(id){delete snap[k+'|'+id]})}}}
 function save(){clearTimeout(saveT);saveT=setTimeout(function(){saveT=null;push()},300)}
 async function enter(user){
  authUid=user.id;if(!(await pull()))return;
@@ -886,6 +896,42 @@ render=function(){
  document.querySelectorAll('[data-px]').forEach(function(n){const l=old[n.dataset.px];if(l&&l.length)n.replaceWith(l.shift())})};
 /* ===== SENHAS PELO SITE + CÓDIGO DO PROFESSOR NO SERVIDOR ===== */
 var creds={};
+/* ================= CONTAS DOS ALUNOS (o professor cria o login) ================= */
+function tContas(u){const c=selClass();
+ if(!c)return emptyHTML('🔑','Crie uma turma primeiro','As contas criadas entram direto na turma selecionada.');
+ const L=ui.contasLog||[],okL=L.filter(function(x){return x.ok});
+ return `<h1>Contas dos alunos</h1><p class="muted">Crie o login de quem esqueceu o celular. O aluno entra em casa com o <b>e-mail</b> e a <b>senha</b> que você definir e já aparece na turma <b>${escH(c.name)}</b>.</p>
+ <div class="card" style="margin-top:16px"><h2>➕ Criar contas</h2>
+ <label>Um aluno por linha: <b>Nome; e-mail; senha</b></label>
+ <textarea id="ct_lines" rows="6" placeholder="Ana Souza; ana.souza@gmail.com; matematica123&#10;Bruno Lima; bruno.lima@gmail.com; mathxp2026">${escH((ui.contasPending||[]).join('\n'))}</textarea>
+ <p class="tiny muted" style="margin-top:6px">Senha com pelo menos 6 caracteres. O nome é o usuário que aparece no site.</p>
+ <button class="btn" style="margin-top:12px" id="ct_btn" onclick="createStudents()">Criar contas</button></div>
+ ${L.length?`<div class="card" style="margin-top:16px"><div class="spread"><h2>Resultado</h2>${okL.length?`<button class="btn ghost sm" onclick="copyContas()">📋 Copiar lista</button>`:''}</div>
+ ${L.map(function(x){return x.ok?`<p style="margin-top:8px">✅ <b>${escH(x.name)}</b> · ${escH(x.email)} · senha: <code>${escH(x.pass)}</code></p>`:`<p style="margin-top:8px">❌ ${escH(x.line)} — ${escH(x.msg)}</p>`}).join('')}</div>`:''}`}
+async function createStudents(){const c=selClass();if(!c)return;
+ const raw=document.getElementById('ct_lines').value.split(/\r?\n/).map(function(l){return l.trim()}).filter(Boolean);
+ if(!raw.length)return toast('Escreva pelo menos um aluno.');
+ if(raw.length>60)return toast('Crie no máximo 60 contas por vez.');
+ const btn=document.getElementById('ct_btn');btn.disabled=true;btn.textContent='Criando…';
+ const log=[],failed=[];
+ for(const line of raw){
+  const sep=line.indexOf(';')>=0?';':line.indexOf('\t')>=0?'\t':',',p=line.split(sep).map(function(x){return x.trim()});
+  if(p.length<3||!p[0]||!p[1]||!p[2]){log.push({ok:false,line:line,msg:'use o formato: Nome; e-mail; senha'});failed.push(line);continue}
+  const name=p[0],email=p[1].toLowerCase(),pass=p.slice(2).join(sep).trim();
+  const r=await sb.rpc('admin_create_student',{p_email:email,p_name:name,p_pass:pass});
+  if(r.error){log.push({ok:false,line:name+' ('+email+')',msg:r.error.message});failed.push(line);continue}
+  const uid=r.data;let row=null;
+  for(let i=0;i<5&&!row;i++){
+   const n=Math.max(0,...db.users.filter(function(x){return x.id.indexOf('AL-')===0}).map(function(x){return +x.id.slice(-4)}))+1,id='AL-2026-'+String(n).padStart(4,'0'),now=new Date().toISOString();
+   const cand={id:id,uid:uid,name:name,email:email,role:'aluno',xp:0,coins:0,classCode:c.code,inventory:[],achievements:[],equipped:{},createdAt:now,enrolledAt:now};
+   const{error}=await sb.from('records').insert({kind:'users',id:id,data:cand});
+   if(error){await pull()}else{row=cand;db.users.push(cand);snap['users|'+id]=JSON.stringify(cand)}}
+  creds[uid]=pass;
+  log.push(row?{ok:true,name:name,email:email,pass:pass}:{ok:false,line:name+' ('+email+')',msg:'a conta foi criada, mas o perfil não. Peça para o aluno entrar uma vez e usar o código da turma.'})}
+ ui.contasLog=log;ui.contasPending=failed;
+ toast('✅ '+log.filter(function(x){return x.ok}).length+' de '+raw.length+' conta(s) criada(s).');render()}
+function copyContas(){const t=(ui.contasLog||[]).filter(function(x){return x.ok}).map(function(x){return x.name+' — '+x.email+' — senha: '+x.pass}).join('\n');
+ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast('📋 Lista copiada!')},function(){toast('Não consegui copiar. Selecione o texto e copie.')})}
 async function loadCreds(){const u=me();if(!u||u.role!=='professor')return;
  const r=await sb.from('credentials').select('uid,pass');creds={};(r.data||[]).forEach(function(c){creds[c.uid]=c.pass})}
 async function submitReset(){
