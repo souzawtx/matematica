@@ -659,7 +659,9 @@ function introMathXP(){const old=document.getElementById('mxIntro');if(old)old.r
  setTimeout(()=>o.classList.add('out'),3000);
  o.addEventListener('animationend',e=>{if(e.target===o&&e.animationName==='mxOut')o.remove()});
  o.addEventListener('click',()=>{if(o._skip)return;o._skip=1;o.animate([{opacity:getComputedStyle(o).opacity},{opacity:0}],{duration:400,fill:'forwards'}).onfinish=()=>o.remove()})}
-/* ================= SLIDES (aulas em slide para a turma) ================= */
+/* ================= SLIDES (aulas em slide para a turma: link ou arquivo) ================= */
+const SL_EXT=['pdf','ppt','pptx','pps','ppsx','png','jpg','jpeg','webp','gif'],SL_IMG=['png','jpg','jpeg','webp','gif'],
+ SL_MIME={pdf:'application/pdf',ppt:'application/vnd.ms-powerpoint',pps:'application/vnd.ms-powerpoint',pptx:'application/vnd.openxmlformats-officedocument.presentationml.presentation',ppsx:'application/vnd.openxmlformats-officedocument.presentationml.slideshow',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp',gif:'image/gif'};
 function slideEmbed(u){u=String(u||'').trim();let m;
  if(m=u.match(/docs\.google\.com\/presentation\/d\/(e\/)?([\w-]+)/))return 'https://docs.google.com/presentation/d/'+(m[1]||'')+m[2]+'/embed?start=false&loop=false&delayms=3000';
  if(m=u.match(/drive\.google\.com\/file\/d\/([\w-]+)/))return 'https://drive.google.com/file/d/'+m[1]+'/preview';
@@ -667,6 +669,14 @@ function slideEmbed(u){u=String(u||'').trim();let m;
  if(m=u.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([\w-]{6,})/))return 'https://www.youtube.com/embed/'+m[1];
  if(/^https:\/\/\S+\.pdf(\?\S*)?$/i.test(u))return u;
  return null}
+function slideBody(cur){const ext=(cur.ext||'').toLowerCase(),
+ fr=function(src,box){return `<iframe id="sl_frame" src="${escH(src)}" allowfullscreen ${box?'sandbox="allow-scripts allow-same-origin allow-popups allow-presentation" ':''}style="width:100%;aspect-ratio:16/9;border:0;border-radius:12px;margin-top:12px;background:#000"></iframe>`};
+ if(cur.path){
+  if(SL_IMG.indexOf(ext)>=0)return `<img src="${escH(cur.url)}" alt="${escH(cur.title)}" style="width:100%;border-radius:12px;margin-top:12px">`;
+  if(ext==='pdf')return fr(cur.url,false)+`<p class="tiny muted" style="margin-top:8px">Se o PDF não aparecer no celular, use “Baixar” ou “Nova aba”.</p>`;
+  return fr('https://view.officeapps.live.com/op/embed.aspx?src='+encodeURIComponent(cur.url),true)}
+ const e=slideEmbed(cur.url);
+ return e?fr(e,true):`<p class="muted" style="margin-top:12px">Este link não pode ser mostrado aqui dentro. Use o botão “Nova aba”.</p>`}
 function slidesHTML(u){const prof=u.role==='professor',c=prof?selClass():classOf(u);
  if(!c)return emptyHTML('🖥️','Sem turma',prof?'Crie uma turma para publicar slides.':'Entre em uma turma para ver os slides.');
  const list=(c.slides||[]).slice().sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0}),cur=ui.slideOpen&&list.find(function(x){return x.id===ui.slideOpen});
@@ -674,27 +684,38 @@ function slidesHTML(u){const prof=u.role==='professor',c=prof?selClass():classOf
  if(prof)form=`<div class="card" style="margin-top:16px;max-width:640px"><h2>➕ Publicar slide</h2>
  <label>Título</label><input id="sl_title" autocomplete="off" placeholder="Ex.: Aula 3 · Frações equivalentes">
  <label>Link do slide</label><input id="sl_url" autocomplete="off" placeholder="Cole o link (Google Slides, Canva, PDF…)">
+ <label>…ou envie um arquivo (PDF, PowerPoint ou imagem, até 25 MB)</label><input id="sl_file" type="file" accept=".pdf,.ppt,.pptx,.pps,.ppsx,.png,.jpg,.jpeg,.webp,.gif">
  <label>Descrição (opcional)</label><input id="sl_desc" autocomplete="off" placeholder="Ex.: Estudar antes da atividade">
  <label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="sl_all" style="width:auto"> Enviar para todas as minhas turmas</label>
- <p class="tiny muted" style="margin-top:6px">No Google Slides: Compartilhar → “Qualquer pessoa com o link” (leitor) e cole o link aqui. Outros links abrem em uma nova aba.</p>
- <button class="btn" style="margin-top:12px" onclick="addSlide()">Publicar slide</button></div>`;
- if(cur){const e=slideEmbed(cur.url);
-  viewer=`<div class="card" style="margin-top:16px"><div class="spread"><h2>${escH(cur.title)}</h2><div class="row"><button class="btn ghost sm" onclick="slideFull()">⛶ Tela cheia</button><a class="btn ghost sm" href="${escH(cur.url)}" target="_blank" rel="noopener noreferrer">↗ Nova aba</a><button class="btn ghost sm" onclick="ui.slideOpen=null;render()">✖ Fechar</button></div></div>
-  ${e?`<iframe id="sl_frame" src="${escH(e)}" allowfullscreen sandbox="allow-scripts allow-same-origin allow-popups allow-presentation" style="width:100%;aspect-ratio:16/9;border:0;border-radius:12px;margin-top:12px;background:#000"></iframe>`:`<p class="muted" style="margin-top:12px">Este link não pode ser mostrado aqui dentro. Use o botão “Nova aba”.</p>`}</div>`}
+ <p class="tiny muted" style="margin-top:6px">Sem link? Escolha o arquivo no computador ou no celular (se escolher os dois, vale o arquivo). No Google Slides: Compartilhar → “Qualquer pessoa com o link”.</p>
+ <button class="btn" style="margin-top:12px" id="sl_btn" onclick="addSlide()">Publicar slide</button></div>`;
+ if(cur){const body=slideBody(cur);
+  viewer=`<div class="card" style="margin-top:16px"><div class="spread"><h2>${escH(cur.title)}</h2><div class="row">${body.indexOf('<iframe')>=0?'<button class="btn ghost sm" onclick="slideFull()">⛶ Tela cheia</button>':''}<a class="btn ghost sm" href="${escH(cur.url)}" target="_blank" rel="noopener noreferrer">↗ Nova aba</a>${cur.path?`<a class="btn ghost sm" href="${escH(cur.url+'?download='+encodeURIComponent(cur.fname||'slide'))}">⬇ Baixar</a>`:''}<button class="btn ghost sm" onclick="ui.slideOpen=null;render()">✖ Fechar</button></div></div>${body}</div>`}
  return `<h1>Slides · ${escH(c.name)}</h1><p class="muted">${prof?'Publique os slides da aula para a turma. Os alunos veem aqui, no celular ou no computador.':'Slides das aulas da sua turma.'}</p>${form}${viewer}
- <div class="grid2" style="margin-top:16px">${list.map(function(x){return `<div class="card"><h2>${escH(x.title)}</h2>${x.desc?`<p class="muted" style="margin-top:4px">${escH(x.desc)}</p>`:''}<p class="tiny muted" style="margin-top:6px">${escH(fmtDate(x.date))}</p><div class="row" style="margin-top:10px"><button class="btn sm" onclick="openSlide('${x.id}')">▶️ Abrir</button>${prof?`<button class="btn ghost sm" style="color:#e11d48;border-color:#e11d48" onclick="delSlide('${x.id}')">🗑️ Excluir</button>`:''}</div></div>`}).join('')||'<p class="muted">Nenhum slide publicado ainda.</p>'}</div>`}
+ <div class="grid2" style="margin-top:16px">${list.map(function(x){return `<div class="card"><h2>${escH(x.title)}</h2>${x.desc?`<p class="muted" style="margin-top:4px">${escH(x.desc)}</p>`:''}<p class="tiny muted" style="margin-top:6px">${x.path?'📎 '+escH((x.ext||'').toUpperCase()):'🔗 Link'} · ${escH(fmtDate(x.date))}</p><div class="row" style="margin-top:10px"><button class="btn sm" onclick="openSlide('${x.id}')">▶️ Abrir</button>${prof?`<button class="btn ghost sm" style="color:#e11d48;border-color:#e11d48" onclick="delSlide('${x.id}')">🗑️ Excluir</button>`:''}</div></div>`}).join('')||'<p class="muted">Nenhum slide publicado ainda.</p>'}</div>`}
 function openSlide(id){ui.slideOpen=id;render()}
 function slideFull(){const f=document.getElementById('sl_frame');if(f&&f.requestFullscreen)f.requestFullscreen()}
-function addSlide(){const g=function(i){return document.getElementById(i).value.trim()},t=g('sl_title'),url=g('sl_url'),d=g('sl_desc'),all=document.getElementById('sl_all').checked;
+async function addSlide(){const g=function(i){return document.getElementById(i).value.trim()},t=g('sl_title'),d=g('sl_desc'),url=g('sl_url'),all=document.getElementById('sl_all').checked,fe=document.getElementById('sl_file'),f=fe&&fe.files&&fe.files[0];
  if(t.length<2)return toast('Dê um título ao slide.');
- if(!/^https:\/\/\S+$/i.test(url))return toast('Cole um link que comece com https://');
  const meu=me(),alvo=all?db.classes.filter(function(c){return c.teacherId===meu.id}):[selClass()].filter(Boolean);
  if(!alvo.length)return toast('Crie uma turma primeiro.');
- const sl={id:'S'+Date.now(),title:t,desc:d,url:url,date:new Date().toISOString().slice(0,10)};
+ const sl={id:'S'+Date.now(),title:t,desc:d,date:new Date().toISOString().slice(0,10)};
+ if(f){const ext=(f.name.split('.').pop()||'').toLowerCase();
+  if(SL_EXT.indexOf(ext)<0)return toast('Formato não aceito. Use PDF, PowerPoint (.pptx) ou imagem.');
+  if(f.size>25*1024*1024)return toast('Arquivo muito grande (máximo 25 MB). Dica: salve o PowerPoint como PDF.');
+  const btn=document.getElementById('sl_btn');if(btn){btn.disabled=true;btn.textContent='Enviando arquivo…'}
+  const path=meu.id+'/'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.'+ext;
+  const r=await sb.storage.from('slides').upload(path,f,{contentType:SL_MIME[ext],cacheControl:'3600',upsert:false});
+  if(r.error){if(btn){btn.disabled=false;btn.textContent='Publicar slide'}return toast('⚠️ Não consegui enviar o arquivo: '+r.error.message)}
+  sl.path=path;sl.ext=ext;sl.fname=f.name;sl.url=sb.storage.from('slides').getPublicUrl(path).data.publicUrl}
+ else{if(!/^https:\/\/\S+$/i.test(url))return toast('Cole um link https:// ou escolha um arquivo.');sl.url=url}
  alvo.forEach(function(c){c.slides=(c.slides||[]).concat([sl])});
  save();teachReward(5,1,'🖥️ Slide publicado para '+alvo.length+' turma(s)!');render()}
 function delSlide(id){const c=selClass();if(!c||!confirm('Excluir este slide da turma?'))return;
- c.slides=(c.slides||[]).filter(function(x){return x.id!==id});if(ui.slideOpen===id)ui.slideOpen=null;save();toast('🗑️ Slide excluído.');render()}
+ const sl=(c.slides||[]).find(function(x){return x.id===id});
+ c.slides=(c.slides||[]).filter(function(x){return x.id!==id});if(ui.slideOpen===id)ui.slideOpen=null;
+ if(sl&&sl.path&&!db.classes.some(function(k){return(k.slides||[]).some(function(x){return x.path===sl.path})})){sb.storage.from('slides').remove([sl.path]).then(function(){},function(){})}
+ save();toast('🗑️ Slide excluído.');render()}
 /* ================= GRÁFICOS (acertos e erros da turma) ================= */
 function perfStats(s){let ok=0,wr=0;db.responses.forEach(r=>{if(r.studentId!==s.id)return;if(r.status==='ok')ok++;else if(r.status==='wrong')wr++});return{s,ok,wr}}
 function barsHTML(rows,k,color,meId){const max=Math.max(1,...rows.map(r=>r[k]));
@@ -860,7 +881,7 @@ sb.auth.onAuthStateChange(function(ev){if(ev==='PASSWORD_RECOVERY'){setTimeout(f
 function formDirty(){if(typeof pendingImage!=='undefined'&&pendingImage)return true;
  if(document.querySelector('#app iframe'))return true;
  return [].slice.call(document.querySelectorAll('#app input,#app textarea')).some(function(el){const t=el.type;
-  if(t==='hidden'||t==='button'||t==='submit'||t==='file')return false;
+  if(t==='file')return !!(el.files&&el.files.length);if(t==='hidden'||t==='button'||t==='submit')return false;
   if(t==='checkbox'||t==='radio')return el.checked!==el.defaultChecked;
   return el.value!==el.defaultValue})}
 async function refresh(){if(!authUid||saveT||pushBusy||ui.modal)return;const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))return;
