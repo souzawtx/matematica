@@ -520,8 +520,8 @@ function sPerfil(u){const cls=classOf(u);const LVX=lvInfo(u.xp),xpL=LVX.cur;cons
  <button class="btn ghost" onclick="openChPass()">Alterar senha</button>
  <button class="btn ghost" style="color:#b3261e" onclick="logout()">Sair da conta</button>
  <button class="btn ghost" style="color:#b3261e" onclick="openDelAcc()">Excluir minha conta</button></div></div>`}
-function studentHTML(u){const pages={inicio:()=>sInicio(u),jornada:()=>sJornada(u),ranking:()=>sRanking(u),grafico:()=>graficoHTML(u),loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),perfil:()=>sPerfil(u)};
- const nav=[['inicio','🏠','Início'],['jornada','🧭','Jornada'],['ranking','🏆','Ranking'],['grafico','🧮','Gráficos'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['perfil','👤','Perfil']];
+function studentHTML(u){const pages={inicio:()=>sInicio(u),jornada:()=>sJornada(u),ranking:()=>sRanking(u),slides:()=>slidesHTML(u),grafico:()=>graficoHTML(u),loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),perfil:()=>sPerfil(u)};
+ const nav=[['inicio','🏠','Início'],['jornada','🧭','Jornada'],['slides','🖥️','Slides'],['ranking','🏆','Ranking'],['grafico','🧮','Gráficos'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['perfil','👤','Perfil']];
  return shellHTML(nav,ui.sPage,'navS',u,`<div class="page">${pages[ui.sPage]()}${ui.sPage==='inicio'?actCardHTML(u):''}</div>`)}
 /* ---- professor ---- */
 function tVisao(u){const c=selClass();if(!c)return emptyHTML('👥','Nenhuma turma','Crie uma turma para começar.');
@@ -659,6 +659,42 @@ function introMathXP(){const old=document.getElementById('mxIntro');if(old)old.r
  setTimeout(()=>o.classList.add('out'),3000);
  o.addEventListener('animationend',e=>{if(e.target===o&&e.animationName==='mxOut')o.remove()});
  o.addEventListener('click',()=>{if(o._skip)return;o._skip=1;o.animate([{opacity:getComputedStyle(o).opacity},{opacity:0}],{duration:400,fill:'forwards'}).onfinish=()=>o.remove()})}
+/* ================= SLIDES (aulas em slide para a turma) ================= */
+function slideEmbed(u){u=String(u||'').trim();let m;
+ if(m=u.match(/docs\.google\.com\/presentation\/d\/(e\/)?([\w-]+)/))return 'https://docs.google.com/presentation/d/'+(m[1]||'')+m[2]+'/embed?start=false&loop=false&delayms=3000';
+ if(m=u.match(/drive\.google\.com\/file\/d\/([\w-]+)/))return 'https://drive.google.com/file/d/'+m[1]+'/preview';
+ if(m=u.match(/canva\.com\/design\/([\w-]+)\/([\w-]+)\/(?:view|edit)/))return 'https://www.canva.com/design/'+m[1]+'/'+m[2]+'/view?embed';
+ if(m=u.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([\w-]{6,})/))return 'https://www.youtube.com/embed/'+m[1];
+ if(/^https:\/\/\S+\.pdf(\?\S*)?$/i.test(u))return u;
+ return null}
+function slidesHTML(u){const prof=u.role==='professor',c=prof?selClass():classOf(u);
+ if(!c)return emptyHTML('🖥️','Sem turma',prof?'Crie uma turma para publicar slides.':'Entre em uma turma para ver os slides.');
+ const list=(c.slides||[]).slice().sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0}),cur=ui.slideOpen&&list.find(function(x){return x.id===ui.slideOpen});
+ let form='',viewer='';
+ if(prof)form=`<div class="card" style="margin-top:16px;max-width:640px"><h2>➕ Publicar slide</h2>
+ <label>Título</label><input id="sl_title" autocomplete="off" placeholder="Ex.: Aula 3 · Frações equivalentes">
+ <label>Link do slide</label><input id="sl_url" autocomplete="off" placeholder="Cole o link (Google Slides, Canva, PDF…)">
+ <label>Descrição (opcional)</label><input id="sl_desc" autocomplete="off" placeholder="Ex.: Estudar antes da atividade">
+ <label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="sl_all" style="width:auto"> Enviar para todas as minhas turmas</label>
+ <p class="tiny muted" style="margin-top:6px">No Google Slides: Compartilhar → “Qualquer pessoa com o link” (leitor) e cole o link aqui. Outros links abrem em uma nova aba.</p>
+ <button class="btn" style="margin-top:12px" onclick="addSlide()">Publicar slide</button></div>`;
+ if(cur){const e=slideEmbed(cur.url);
+  viewer=`<div class="card" style="margin-top:16px"><div class="spread"><h2>${escH(cur.title)}</h2><div class="row"><button class="btn ghost sm" onclick="slideFull()">⛶ Tela cheia</button><a class="btn ghost sm" href="${escH(cur.url)}" target="_blank" rel="noopener noreferrer">↗ Nova aba</a><button class="btn ghost sm" onclick="ui.slideOpen=null;render()">✖ Fechar</button></div></div>
+  ${e?`<iframe id="sl_frame" src="${escH(e)}" allowfullscreen sandbox="allow-scripts allow-same-origin allow-popups allow-presentation" style="width:100%;aspect-ratio:16/9;border:0;border-radius:12px;margin-top:12px;background:#000"></iframe>`:`<p class="muted" style="margin-top:12px">Este link não pode ser mostrado aqui dentro. Use o botão “Nova aba”.</p>`}</div>`}
+ return `<h1>Slides · ${escH(c.name)}</h1><p class="muted">${prof?'Publique os slides da aula para a turma. Os alunos veem aqui, no celular ou no computador.':'Slides das aulas da sua turma.'}</p>${form}${viewer}
+ <div class="grid2" style="margin-top:16px">${list.map(function(x){return `<div class="card"><h2>${escH(x.title)}</h2>${x.desc?`<p class="muted" style="margin-top:4px">${escH(x.desc)}</p>`:''}<p class="tiny muted" style="margin-top:6px">${escH(fmtDate(x.date))}</p><div class="row" style="margin-top:10px"><button class="btn sm" onclick="openSlide('${x.id}')">▶️ Abrir</button>${prof?`<button class="btn ghost sm" style="color:#e11d48;border-color:#e11d48" onclick="delSlide('${x.id}')">🗑️ Excluir</button>`:''}</div></div>`}).join('')||'<p class="muted">Nenhum slide publicado ainda.</p>'}</div>`}
+function openSlide(id){ui.slideOpen=id;render()}
+function slideFull(){const f=document.getElementById('sl_frame');if(f&&f.requestFullscreen)f.requestFullscreen()}
+function addSlide(){const g=function(i){return document.getElementById(i).value.trim()},t=g('sl_title'),url=g('sl_url'),d=g('sl_desc'),all=document.getElementById('sl_all').checked;
+ if(t.length<2)return toast('Dê um título ao slide.');
+ if(!/^https:\/\/\S+$/i.test(url))return toast('Cole um link que comece com https://');
+ const meu=me(),alvo=all?db.classes.filter(function(c){return c.teacherId===meu.id}):[selClass()].filter(Boolean);
+ if(!alvo.length)return toast('Crie uma turma primeiro.');
+ const sl={id:'S'+Date.now(),title:t,desc:d,url:url,date:new Date().toISOString().slice(0,10)};
+ alvo.forEach(function(c){c.slides=(c.slides||[]).concat([sl])});
+ save();teachReward(5,1,'🖥️ Slide publicado para '+alvo.length+' turma(s)!');render()}
+function delSlide(id){const c=selClass();if(!c||!confirm('Excluir este slide da turma?'))return;
+ c.slides=(c.slides||[]).filter(function(x){return x.id!==id});if(ui.slideOpen===id)ui.slideOpen=null;save();toast('🗑️ Slide excluído.');render()}
 /* ================= GRÁFICOS (acertos e erros da turma) ================= */
 function perfStats(s){let ok=0,wr=0;db.responses.forEach(r=>{if(r.studentId!==s.id)return;if(r.status==='ok')ok++;else if(r.status==='wrong')wr++});return{s,ok,wr}}
 function barsHTML(rows,k,color,meId){const max=Math.max(1,...rows.map(r=>r[k]));
@@ -672,8 +708,8 @@ function graficoHTML(u){const c=u.role==='professor'?selClass():classOf(u);
  <div class="grid2" style="margin-top:16px">
  <div class="card"><h2>✅ Quem mais acertou</h2>${barsHTML(by('ok'),'ok','#059669',u.id)}</div>
  <div class="card"><h2>❌ Quem mais errou</h2>${barsHTML(by('wr'),'wr','#e11d48',u.id)}</div></div>`}
-function teacherHTML(u){const pages={visao:tVisao,estudantes:tEstudantes,jornada:tJornada,ranking:tRanking,grafico:()=>graficoHTML(u),rel:tRel,gestao:tGestao,atividade:tAtividade,contas:tContas,loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),perfil:tPerfil};
- const nav=[['visao','📊','Visão geral'],['estudantes','👥','Estudantes'],['jornada','🧭','Jornada'],['ranking','🏆','Ranking'],['grafico','🧮','Gráficos'],['rel','📈','Relatórios'],['gestao','🎁','Gestão'],['atividade','📝','Atividade'],['contas','🔑','Contas'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['perfil','👤','Perfil']];
+function teacherHTML(u){const pages={visao:tVisao,estudantes:tEstudantes,jornada:tJornada,ranking:tRanking,slides:()=>slidesHTML(u),grafico:()=>graficoHTML(u),rel:tRel,gestao:tGestao,atividade:tAtividade,contas:tContas,loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),perfil:tPerfil};
+ const nav=[['visao','📊','Visão geral'],['estudantes','👥','Estudantes'],['jornada','🧭','Jornada'],['slides','🖥️','Slides'],['ranking','🏆','Ranking'],['grafico','🧮','Gráficos'],['rel','📈','Relatórios'],['gestao','🎁','Gestão'],['atividade','📝','Atividade'],['contas','🔑','Contas'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['perfil','👤','Perfil']];
  return shellHTML(nav,ui.tPage,'navT',u,`<div class="page">${pages[ui.tPage](u)}</div>`)}
 /* ---- modal + render ---- */
 function modalHTML(){const m=ui.modal;
@@ -822,6 +858,7 @@ sb.auth.onAuthStateChange(function(ev){if(ev==='PASSWORD_RECOVERY'){setTimeout(f
  if(p&&p.length>=8)sb.auth.updateUser({password:p}).then(function(r){if(!r.error)sb.rpc('save_my_pass',{p:p});toast(r.error?'⚠️ '+r.error.message:'🔑 Senha redefinida!')});
  else if(p)toast('A senha precisa de pelo menos 8 caracteres.')},300)}});
 function formDirty(){if(typeof pendingImage!=='undefined'&&pendingImage)return true;
+ if(document.querySelector('#app iframe'))return true;
  return [].slice.call(document.querySelectorAll('#app input,#app textarea')).some(function(el){const t=el.type;
   if(t==='hidden'||t==='button'||t==='submit'||t==='file')return false;
   if(t==='checkbox'||t==='radio')return el.checked!==el.defaultChecked;
