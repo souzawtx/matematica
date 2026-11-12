@@ -99,6 +99,38 @@ h1{font-size:26px}h2{font-size:19px;margin-bottom:4px}
 @keyframes mxBurst{0%{opacity:0;transform:translate(0,0) scale(.2) rotate(0)}5%{opacity:1}70%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1) rotate(var(--r))}}
 @keyframes mxFade{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.mx-flash,.mx-ring,.mx-p{display:none}.mx-w{animation:none}.mx-t span{animation:mxFade .8s both}}
+/* ===== Papel de parede MathXP (aba Bem-vindo) ===== */
+.wp{position:relative;border-radius:22px;overflow:hidden;color:#fff;background:#0a023f}
+.wp-hero{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;width:100%;aspect-ratio:16/9;min-height:360px;max-height:82vh;padding:24px 16px;background:url('wallpaper.jpg') center/cover no-repeat,radial-gradient(circle at 20% 15%,rgba(124,58,237,.9) 0,transparent 45%),radial-gradient(circle at 85% 30%,rgba(6,182,212,.6) 0,transparent 40%),linear-gradient(135deg,#1e1b4b,#312e81 55%,#0f172a)}
+.wp-hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:56px;background:linear-gradient(180deg,transparent,#0a023f);pointer-events:none}
+.wp-hero>*{position:relative;z-index:1}
+.wp-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:99px;background:rgba(15,10,50,.55);border:1px solid rgba(255,255,255,.25);font-weight:700;font-size:13px;color:#fff;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.wp-body{padding:4px clamp(12px,3vw,28px) 36px}
+.wp-card{max-width:860px;margin:0 auto;padding:24px 26px;border-radius:20px;background:rgba(14,9,48,.72);border:1px solid rgba(255,255,255,.14);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);line-height:1.7;text-align:left}
+.wp-card h2{color:#fff;font-size:clamp(22px,4vw,30px);margin:4px 0 2px}
+.wp-card h3{color:#fff;font-size:clamp(18px,3vw,22px);margin:30px 0 8px;padding-left:12px;border-left:4px solid #a78bfa}
+.wp-card h4{color:#e9d5ff;font-size:16px;margin:20px 0 4px}
+.wp-card p{color:rgba(255,255,255,.92);margin:8px 0}
+.wp-card ul,.wp-card ol{margin:8px 0 8px 22px;color:rgba(255,255,255,.92)}
+.wp-card b{color:#fff}
+@media (max-width:700px){.wp-hero{aspect-ratio:auto;min-height:540px;max-height:none;justify-content:flex-end;padding-bottom:46px;background-position:4% center,0 0,0 0,0 0}}
+/* ===== Personagem RPG ===== */
+.cr-wrap{display:grid;grid-template-columns:minmax(280px,380px) 1fr;gap:16px;margin-top:14px;align-items:start}
+@media (max-width:900px){.cr-wrap{grid-template-columns:1fr}}
+.cr-stage{display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px 16px;border-radius:20px;background:radial-gradient(circle at 50% 32%,#5b34c4 0,#2a1462 58%,#150a33 100%);border:1px solid rgba(167,139,250,.4);position:relative;overflow:hidden;color:#fff}
+.cr-stage::before{content:"";position:absolute;left:16%;right:16%;bottom:128px;height:26px;border-radius:50%;background:radial-gradient(ellipse,rgba(196,167,255,.55),transparent 70%);pointer-events:none}
+.cr-stage canvas{position:relative;z-index:1;width:min(300px,62vw);height:auto;aspect-ratio:40/56;image-rendering:pixelated;image-rendering:-moz-crisp-edges;image-rendering:crisp-edges;image-rendering:pixelated;filter:drop-shadow(0 10px 14px rgba(0,0,0,.5))}
+.cr-stage input{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff}
+.cr-tabs{display:flex;flex-wrap:wrap;gap:6px}
+.cr-tab{border:1px solid rgba(124,58,237,.35);background:transparent;color:inherit;border-radius:99px;padding:6px 12px;font-weight:700;font-size:13px;cursor:pointer}
+.cr-tab.on{background:#7c3aed;color:#fff;border-color:transparent}
+.cr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px;margin-top:14px}
+.cr-i{position:relative;border:2px solid rgba(124,58,237,.25);border-radius:14px;padding:8px 6px;text-align:center;cursor:pointer;background:rgba(124,58,237,.07);transition:transform .12s,box-shadow .12s}
+.cr-i:hover{transform:translateY(-2px)}
+.cr-i img{width:84px;height:84px;object-fit:contain;image-rendering:pixelated;display:block;margin:0 auto 4px}
+.cr-i.on{border-color:#a78bfa;box-shadow:0 0 0 2px rgba(124,58,237,.3),0 0 16px rgba(167,139,250,.55)}
+.cr-i.lk{opacity:.55}
+.cr-i .n{font-size:12.5px;font-weight:800;line-height:1.2}.cr-i .r{font-size:11px;font-weight:800;margin-top:3px}.cr-i .d{font-size:10.5px;opacity:.75;line-height:1.25;margin-top:2px}
 </style>
 <style>
 @media(max-width:700px){
@@ -242,7 +274,7 @@ const PROF_ACH=[
  {id:'plv2',name:'Nível 2',desc:'Acumule 100 XP.',coins:25,cond:u=>levelOf(u.xp)>=2},
  {id:'plv3',name:'Nível 3',desc:'Acumule 150 XP.',coins:40,cond:u=>levelOf(u.xp)>=3}];
 let db=loadDB(), session=localStorage.getItem(SES_KEY)||null;
-let ui={authTab:'login',authError:'',sPage:'inicio',tPage:'visao',selClass:null,modal:null,reveal:{}};
+let ui={authTab:'login',authError:'',sPage:'bemvindo',tPage:'bemvindo',selClass:null,modal:null,reveal:{}};
 let pendingImage=null;
 function loadDB(){try{const d=JSON.parse(localStorage.getItem(DB_KEY));if(d&&d.users){d.teacherCodes=[TEACHER_CODE];d.shopItems=d.shopItems||[];d.achv=d.achv||[];return d}}catch(e){}return{users:[],classes:[],missions:[],responses:[],teacherCodes:[TEACHER_CODE],counters:{aluno:0,professor:0},shopItems:[],achv:[]}}
 function save(){try{localStorage.setItem(DB_KEY,JSON.stringify(db))}catch(e){toast('⚠️ Armazenamento do navegador cheio: remova missões com imagem.')}}
@@ -254,6 +286,17 @@ function eqVal(u,type){if(!u||!u.equipped)return null;const id=u.equipped[type];
 function displayName(s){const nc=eqVal(s,'nameColor');const sy=eqVal(s,'symbol');
  return`${sy?`<span class="${sy.anim?'sym-anim':''}" style="margin-right:4px">${escH(sy.e)}</span>`:''}<span style="${nc?'color:'+nc:''}">${escH(s.name)}</span>`}
 function escH(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+/* ================= AVATAR E FOTO DE PERFIL ================= */
+const AV_FREE=['🦊','🐼','🐯','🦁','🐸','🐵','🦉','🐙','🦄','🐲','🤖','👾','🚀','⭐','🔥','⚡','🎯','🧠','🧮','📐','📏','🎓','🏆','😎','🤓','🐱','🐶','🦋'];
+function photoOK(p){return typeof p==='string'&&typeof SB_URL!=='undefined'&&p.indexOf(SB_URL+'/storage/v1/object/public/avatars/')===0}
+function avatarInner(u){if(photoOK(u.photo)&&!u.photoOff)return `<img src="${escH(u.photo)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">`;
+ if(u.char&&u.avatarMode!=='emoji'&&typeof mxPix==='function')return mxAvatarImg(u);
+ return escH(u.avatar||eqVal(u,'avatar')||(u.name||'?')[0].toUpperCase())}
+function avatarBox(u,px){return `<div class="avatar" style="width:${px}px;height:${px}px;font-size:${Math.round(px*.45)}px;overflow:hidden">${avatarInner(u)}</div>`}
+function avatarEditor(u){const pbtn=`<div class="row" style="justify-content:center;margin-top:10px"><button class="btn sm" onclick="goPersonagem()">🧙 ${u.char?'Editar personagem':'Criar personagem'}</button></div>`,own=(u.inventory||[]).map(function(id){return allItems().find(function(i){return i.id===id})}).filter(function(i){return i&&i.effect&&i.effect.type==='avatar'}).map(function(i){return i.effect.value}),
+ all=AV_FREE.concat(own.filter(function(e){return AV_FREE.indexOf(e)<0})),has=photoOK(u.photo);
+ return pbtn+`<div class="row" style="justify-content:center;margin-top:10px;flex-wrap:wrap"><label class="btn sm" style="cursor:pointer;margin:0">📷 ${has?'Trocar foto':'Escolher foto'}<input type="file" accept="image/*" style="display:none" onchange="setPhoto(this)"></label>${has&&!u.photoOff?'<button class="btn ghost sm" onclick="removePhoto()">Remover foto</button>':''}${has&&u.photoOff?'<button class="btn ghost sm" onclick="usePhoto()">Usar minha foto</button>':''}</div>
+ <details style="margin-top:10px"><summary style="cursor:pointer;font-weight:700">Escolher avatar</summary><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px">${all.map(function(e){return `<button class="btn ghost sm" style="font-size:22px;padding:6px 10px${u.avatar===e&&(!has||u.photoOff)?';outline:2px solid var(--acc)':''}" onclick="setAvatar('${e}')">${e}</button>`}).join('')}</div></details>`}
 const LEVEL_XP=[0,100,150,200,300]; /* XP TOTAL para chegar aos níveis 1,2,3,4,5. Depois disso: +100 XP por nível */
 function xpFor(l){return l<=LEVEL_XP.length?LEVEL_XP[l-1]:LEVEL_XP[LEVEL_XP.length-1]+(l-LEVEL_XP.length)*100}
 function levelOf(xp){let l=1;while(xp>=xpFor(l+1))l++;return l}
@@ -272,7 +315,7 @@ function studentsTotal(u){return myCodes(u).reduce((t,c)=>t+studentsOf(c).length
 function selClass(){return db.classes.find(c=>c.code===ui.selClass)||myClasses()[0]}
 function classOf(u){return db.classes.find(c=>c.code===u.classCode)}
 function skillName(s){const k=SKILLS.find(x=>x[0]===s);return k?k[1]:s}
-function statusOf(u,m){const rs=db.responses.filter(r=>r.missionId===m.id&&r.studentId===u.id);if(rs.some(r=>r.status==='ok'))return'done';if(rs.some(r=>r.status==='pending'))return'pending';if(rs.some(r=>r.status==='wrong'))return'retry';return'open'}
+function statusOf(u,m){const rs=db.responses.filter(r=>r.missionId===m.id&&r.studentId===u.id);if(rs.some(r=>r.status==='ok'))return'done';if(rs.some(r=>r.status==='pending'))return'pending';const w=rs.filter(r=>r.status==='wrong');if(w.length)return w.some(r=>!r.released)?'failed':'retry';return'open'}
 function toast(msg){const d=document.createElement('div');d.className='toast';d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),2800)}
 function copy(txt){if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>toast('Copiado: '+txt));else toast(txt)}
 function emptyHTML(icon,t,d){return`<div class="empty" style="margin-top:18px"><div class="ico">${icon}</div><b>${t}</b><p class="muted" style="margin-top:6px">${d}</p></div>`}
@@ -385,8 +428,8 @@ function buy(id){const u=me(),it=allItems().find(i=>i.id===id);if(!it)return toa
  if(it.consume){u.xp+=50;checkAch(u);toast('⚡ +50 XP aplicados!')}
  else{u.inventory.push(it.id);toast('🛒 '+it.name+' adquirido! Equipe em Conquistas → Personalização.')}
  save();render()}
-function equip(itemId){const u=me();const it=allItems().find(i=>i.id===itemId);if(!it||!it.effect)return;if(!u.inventory.includes(itemId))return;u.equipped=u.equipped||{};u.equipped[it.effect.type]=itemId;save();toast('✨ Item equipado!');render()}
-function unequip(type){const u=me();u.equipped=u.equipped||{};u.equipped[type]=null;save();render()}
+function equip(itemId){const u=me();const it=allItems().find(i=>i.id===itemId);if(!it||!it.effect)return;if(!u.inventory.includes(itemId))return;u.equipped=u.equipped||{};u.equipped[it.effect.type]=itemId;if(it.effect.type==='avatar'){u.avatar=it.effect.value;u.avatarMode='emoji';u.photoOff=1}save();toast('✨ Item equipado!');render()}
+function unequip(type){const u=me();u.equipped=u.equipped||{};u.equipped[type]=null;if(type==='avatar')u.avatar='';save();render()}
 /* ================= GESTÃO (professor) ================= */
 function toggleAchType(){const t=document.getElementById('g_type').value;document.getElementById('gNWrap').style.display=t==='manual'?'none':'block'}
 function createAch(){const name=document.getElementById('g_name').value.trim(),desc=document.getElementById('g_desc').value.trim(),coins=+document.getElementById('g_coins').value||0,type=document.getElementById('g_type').value,n=+document.getElementById('g_n').value||1;
@@ -415,13 +458,15 @@ function openConc(mid){ui.modal={type:'conc',mid};render()}
 function openPreview(mid){ui.modal={type:'preview',mid};render()}
 function closeModal(){ui.modal=null;render()}
 function submitAnswer(mid){const m=missionById(mid),u=me();let ans;
+ if(['done','pending','failed'].includes(statusOf(u,m)))return toast('Esta missão já foi respondida.');
  if(m.type==='multipla'){const sel=document.querySelector('input[name=opt]:checked');if(!sel)return toast('Escolha uma alternativa.');ans=sel.value;
   if(+sel.value===m.correct){db.responses.push({id:'R'+Date.now(),missionId:mid,studentId:u.id,answer:ans,status:'ok',date:new Date().toISOString()});award(u,m);toast('✅ Resposta correta! +'+m.xp+' XP, +'+m.coins+' moedas')}
-  else{db.responses.push({id:'R'+Date.now(),missionId:mid,studentId:u.id,answer:ans,status:'wrong',date:new Date().toISOString()});toast('❌ Resposta incorreta. Tente novamente.')}}
+  else{db.responses.push({id:'R'+Date.now(),missionId:mid,studentId:u.id,answer:ans,status:'wrong',date:new Date().toISOString()});toast('❌ Resposta incorreta. Esta missão foi encerrada.')}}
  else{ans=document.getElementById('w_ans').value.trim();if(ans.length<10)return toast('Escreva uma resposta com pelo menos 10 caracteres.');
   db.responses.push({id:'R'+Date.now(),missionId:mid,studentId:u.id,answer:ans,status:'pending',date:new Date().toISOString()});toast('📨 Enviado! Aguarde a confirmação do professor.')}
  save();ui.modal=null;render()}
 function confirmResp(rid){const r=db.responses.find(x=>x.id===rid);if(!r||r.status!=='pending')return;r.status='ok';const u=db.users.find(x=>x.id===r.studentId),m=missionById(r.missionId);award(u,m);teachReward(10,2,'✅ Conclusão confirmada! Aluno recebeu XP e você também');render()}
+function releaseTry(rid){const r=db.responses.find(x=>x.id===rid);if(!r||r.status!=='wrong')return;r.released=true;save();toast('🔓 Nova tentativa liberada para o aluno.');render()}
 function rejectResp(rid){const r=db.responses.find(x=>x.id===rid);if(!r)return;r.status='rejected';save();toast('Conclusão recusada — aluno poderá refazer.');render()}
 function toggleType(){const t=document.getElementById('f_type').value;document.getElementById('optsBox').style.display=t==='multipla'?'block':'none'}
 function publishMission(){const c=selClass();if(!c)return toast('Crie uma turma primeiro.');
@@ -443,8 +488,8 @@ function navT(p){ui.tPage=p;render()}
 function shellHTML(nav,active,navFn,u,main){const av=eqVal(u,'avatar');
  return`<div class="shell"><aside class="side"><div class="logo">${logoImg(34)} ${BRAND.name}</div>
  ${nav.map(n=>`<button class="navb ${active===n[0]?'on':''}" onclick="${navFn}('${n[0]}')"><span>${n[1]}</span>${n[2]}</button>`).join('')}
- <div class="foot"><div class="avatar">${escH(av||u.name[0].toUpperCase())}</div><div style="flex:1;min-width:0"><b style="font-size:13px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${displayName(u)}</b><span class="tiny">Nível ${levelOf(u.xp)} · ${u.id}</span></div><button class="tiny" style="text-decoration:underline" onclick="logout()">Sair</button></div></aside>
- <main><div class="top"><span class="chip">⚡ ${u.xp} XP</span><span class="chip">🪙 ${u.coins}</span><span class="chip">${u.role==='professor'?'👩 Professor':' Estudante'}</span>
+ <div class="foot"><div class="avatar" style="overflow:hidden">${avatarInner(u)}</div><div style="flex:1;min-width:0"><b style="font-size:13px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${displayName(u)}</b><span class="tiny">Nível ${levelOf(u.xp)} · ${u.id}</span></div><button class="tiny" style="text-decoration:underline" onclick="logout()">Sair</button></div></aside>
+ <main><div class="top"><span class="chip" style="padding:3px 12px 3px 4px;display:inline-flex;align-items:center;gap:6px"><span style="width:26px;height:26px;display:inline-block">${avatarBox(u,26)}</span>${escH(u.name.split(' ')[0])}</span><span class="chip">⚡ ${u.xp} XP</span><span class="chip">🪙 ${u.coins}</span><span class="chip">${u.role==='professor'?'👩 Professor':' Estudante'}</span>
  ${u.role==='professor'&&myClasses().length?`<select style="width:auto;margin-left:auto" onchange="setClass(this.value)">${myClasses().map(c=>`<option value="${c.code}" ${selClass()&&selClass().code===c.code?'selected':''}>${escH(c.name)}</option>`).join('')}</select><button class="chip" title="Criar nova turma" onclick="openNewClass()">＋</button>`:''}</div>
  <div class="mobnav">${nav.map(n=>`<button class="navb ${active===n[0]?'on':''}" onclick="${navFn}('${n[0]}')"><span>${n[1]}</span>${n[2]}</button>`).join('')}</div>
  ${main}</main></div>`}
@@ -464,7 +509,7 @@ function authHTML(){return`<div class="auth-wrap"><div class="auth">
  <p class="tiny" style="margin-top:16px">Projeto de pesquisa <b>MATHXP</b> · gamificação e matemática<br>© <b>${BRAND.name}</b></p></div></div>`}
 /* ---- aluno ---- */
 function sInicio(u){const cls=classOf(u);const pend=cls?db.missions.filter(m=>m.classCode===cls.code&&['open','retry'].includes(statusOf(u,m))).length:0;const LVX=lvInfo(u.xp),xpL=LVX.cur;
- return`<h1>Olá, ${escH(u.name.split(' ')[0])} 👋</h1><p class="muted">Pronto para continuar sua jornada de matemática?</p>
+ return`<div class="row" style="gap:14px;align-items:center">${avatarBox(u,60)}<div><h1>Olá, ${escH(u.name.split(' ')[0])} 👋</h1><p class="muted">Pronto para continuar sua jornada de matemática?</p></div></div>
  ${!cls?`<div class="card" style="margin-top:18px"><h2>Entrar em uma turma</h2><p class="muted">Digite o código que seu professor compartilhou.</p><div class="row" style="margin-top:12px"><input id="join_code" placeholder="Ex.: MXP-A1B2"><button class="btn sm" onclick="joinClass()">Vincular</button></div></div>`:''}
  <div class="card" style="margin-top:18px"><div class="spread"><div><span class="badge b-purple">NÍVEL ${levelOf(u.xp)}</span><h2 style="margin-top:8px">Seu progresso</h2></div><span class="badge b-green">${doneCount(u)} missões concluídas</span></div>
  <label style="margin-top:14px">Meta de XP</label><div class="bar"><i style="width:${(xpL/LVX.need)*100}%"></i></div>
@@ -476,24 +521,24 @@ function sJornada(u){const cls=classOf(u);if(!cls)return emptyHTML('🧭','Nenhu
  const ms=db.missions.filter(m=>m.classCode===cls.code);
  const books=[...new Set(db.responses.filter(r=>r.studentId===u.id&&r.status==='ok').map(r=>missionById(r.missionId)).filter(m=>m).map(m=>m.book+' — '+m.author))];
  return`<h1>Jornada · ${escH(cls.name)}</h1><p class="muted">Missões de matemática publicadas pelo professor.</p>
- ${ms.length?ms.map(m=>{const st=statusOf(u,m);const badge=st==='done'?'<span class="badge b-green">Concluída</span>':st==='pending'?'<span class="badge b-amber">Aguardando confirmação</span>':st==='retry'?'<span class="badge b-red">Tente novamente</span>':'<span class="badge b-purple">Disponível</span>';
+ ${ms.length?ms.map(m=>{const st=statusOf(u,m);const badge=st==='done'?'<span class="badge b-green">Concluída</span>':st==='pending'?'<span class="badge b-amber">Aguardando confirmação</span>':st==='retry'?'<span class="badge b-amber">Nova tentativa liberada</span>':st==='failed'?'<span class="badge b-red">Errou · sem nova tentativa</span>':'<span class="badge b-purple">Disponível</span>';
  return`<div class="card" style="margin-top:14px"><div class="spread"><div class="row">${m.img?`<img src="${escH(m.img)}" class="thumb">`:''}<div><b>${escH(m.title)}</b><p class="muted">📖 ${escH(m.book)}${escH(m.author?' · '+m.author:'')}</p></div></div>${badge}</div>
  <div class="row" style="margin-top:10px"><span class="badge b-gray">${skillName(m.skill)}</span><span class="tiny">Prazo: ${fmtDate(m.deadline)}</span><span class="tiny">+${m.xp} XP · +${m.coins} 🪙</span></div>
- ${st!=='done'&&st!=='pending'?`<button class="btn sm" style="margin-top:12px" onclick="openAnswer('${m.id}')">${st==='retry'?'Refazer missão':'Responder missão'}</button>`:''}${st==='done'?`<button class="btn ghost sm" style="margin-top:12px" onclick="openPractice('${m.id}')">🔁 Praticar de novo (sem XP)</button>`:''}</div>`}).join(''):emptyHTML('🧭','Sua jornada está sendo preparada','As missões aparecerão aqui quando o professor publicar.')}
+ ${st!=='done'&&st!=='pending'&&st!=='failed'?`<button class="btn sm" style="margin-top:12px" onclick="openAnswer('${m.id}')">${st==='retry'?'Refazer missão':'Responder missão'}</button>`:''}${st==='done'||st==='failed'?`<button class="btn ghost sm" style="margin-top:12px" onclick="openPractice('${m.id}')">🔁 Praticar de novo (sem XP)</button>`:''}${st==='failed'?'<p class="tiny muted" style="margin-top:10px">Você errou esta missão. Peça ao professor para liberar outra tentativa ou treine sem XP.</p>':''}</div>`}).join(''):emptyHTML('🧭','Sua jornada está sendo preparada','As missões aparecerão aqui quando o professor publicar.')}
  <h2 style="margin-top:22px">📖 Diário de estudos</h2>
  ${books.length?`<div class="card" style="margin-top:10px">${books.map(b=>`<p style="padding:6px 0">✅ ${b}</p>`).join('')}</div>`:`<p class="muted" style="margin-top:6px">Nenhum assunto concluído ainda.</p>`}`}
 function rankRow(s,i,myId){const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`<span class="badge b-gray">${i+1}</span>`;
- return`<div class="spread" style="padding:12px 4px;border-bottom:1px solid #e3e6f0"><div class="row"><span style="width:34px;text-align:center;font-size:18px">${medal}</span><div><b>${displayName(s)}</b>${s.id===myId?' <span class="badge b-purple">você</span>':''}<br><span class="tiny">${s.id} · Nível ${levelOf(s.xp)}</span></div></div><b>${s.xp} XP</b></div>`}
+ return`<div class="spread" style="padding:12px 4px;border-bottom:1px solid #e3e6f0"><div class="row"><span style="width:34px;text-align:center;font-size:18px">${medal}</span><div class="avatar" style="overflow:hidden">${avatarInner(s)}</div><div><b>${displayName(s)}</b>${s.id===myId?' <span class="badge b-purple">você</span>':''}<br><span class="tiny">${s.id} · Nível ${levelOf(s.xp)}</span></div></div><b>${s.xp} XP</b></div>`}
 function sRanking(u){const cls=classOf(u);if(!cls)return emptyHTML('🏆','Ranking vazio','Vincule-se a uma turma para ver o ranking.');
  const list=studentsOf(cls.code).sort((a,b)=>b.xp-a.xp||a.name.localeCompare(b.name));
  return`<h1>Ranking · ${escH(cls.name)}</h1><p class="muted">Alunos com matrícula ativa, ordenados pelo XP acumulado.</p>
  <div class="card" style="margin-top:16px">${list.length?list.map((s,i)=>rankRow(s,i,u.id)).join(''):'<p class="muted">Ranking vazio.</p>'}</div>`}
 /* ---- loja e conquistas (aluno E professor) ---- */
 function shopHTML(u){const cls=u.role==='professor'?selClass():classOf(u);
- return`<h1>Loja de itens</h1><p class="muted">Use suas moedas em avatares, símbolos, cores, efeitos e temas.</p>
+ return`<h1>Loja de itens</h1>${avatarStrip(u)}<p class="muted">Use suas moedas em avatares, símbolos, cores, efeitos e temas.</p>
  ${!cls?emptyHTML('🛒','Nenhuma turma disponível','Sua loja ficará disponível quando você estiver matriculado em uma turma ativa.'):`<div class="grid3" style="margin-top:16px">${allItems().map(it=>{const owned=u.inventory.includes(it.id);return`<div class="card"><div class="row"><span style="font-size:26px">${escH(it.icon)}</span><div><b>${escH(it.name)}</b><p class="muted">${escH(it.desc)}</p>${it.effect?`<span class="badge b-gray" style="margin-top:6px">${CATS[it.effect.type]}</span>`:'<span class="badge b-amber" style="margin-top:6px">consumível</span>'}${owned?'<span class="badge b-green" style="margin-top:6px">adquirido</span>':''}</div></div><div class="spread" style="margin-top:12px"><span class="badge b-amber">🪙 ${it.price}</span>${owned&&!it.consume?'<span class="tiny">na mochila</span>':`<button class="btn sm" ${u.coins<it.price?'disabled':''} onclick="buy('${it.id}')">Comprar</button>`}</div></div>`}).join('')}</div>`}`}
 function conqHTML(u){const list=achFor(u);const owned=u.inventory.map(id=>allItems().find(i=>i.id===id)).filter(i=>i&&i.effect);
- return`<h1>Suas conquistas</h1><p class="muted">${u.role==='professor'?'Medalhas do professor pelo trabalho pedagógico.':'Medalhas, personalização e inventário da sua jornada.'}</p>
+ return`<h1>Suas conquistas</h1>${avatarStrip(u)}<p class="muted">${u.role==='professor'?'Medalhas do professor pelo trabalho pedagógico.':'Medalhas, personalização e inventário da sua jornada.'}</p>
  <h2 style="margin-top:18px">🎖️ Medalhas (${u.achievements.length}/${list.length})</h2>
  <div class="grid2" style="margin-top:10px">${list.map(a=>{const has=u.achievements.includes(a.id);return`<div class="card" style="${has?'':'opacity:.55'}"><b>${has?'🎖️':'🔒'} ${escH(a.name)}</b><p class="muted">${escH(a.desc)}</p>${has?'<span class="badge b-green" style="margin-top:8px">conquistada</span>':`<span class="badge b-gray" style="margin-top:8px">+${a.coins} 🪙 ao conquistar</span>`}</div>`}).join('')}</div>
  <h2 style="margin-top:22px">✨ Personalização</h2>
@@ -503,7 +548,7 @@ function conqHTML(u){const list=achFor(u);const owned=u.inventory.map(id=>allIte
  ${u.inventory.length?`<div class="card" style="margin-top:10px">${u.inventory.map(id=>{const it=allItems().find(i=>i.id===id);return it?`<p style="padding:6px 0">${escH(it.icon)} ${escH(it.name)}</p>`:''}).join('')}</div>`:emptyHTML('🎒','Seu inventário está vazio','Visite a loja quando juntar suas primeiras moedas.')}`}
 function sPerfil(u){const cls=classOf(u);const LVX=lvInfo(u.xp),xpL=LVX.cur;const av=eqVal(u,'avatar');
  return`<div class="card" style="margin-top:8px;text-align:center">
- <div class="avatar" style="width:84px;height:84px;font-size:36px;margin:0 auto">${escH(av||u.name[0].toUpperCase())}</div>
+ <div class="avatar" style="width:84px;height:84px;font-size:36px;margin:0 auto;overflow:hidden">${avatarInner(u)}</div>${avatarEditor(u)}
  <h1 style="margin-top:12px">${displayName(u)}</h1>
  <p class="muted">Nível ${levelOf(u.xp)} · ${u.xp} XP</p>
  <div class="bar" style="margin-top:14px"><i style="width:${(xpL/LVX.need)*100}%"></i></div>
@@ -520,13 +565,13 @@ function sPerfil(u){const cls=classOf(u);const LVX=lvInfo(u.xp),xpL=LVX.cur;cons
  <button class="btn ghost" onclick="openChPass()">Alterar senha</button>
  <button class="btn ghost" style="color:#b3261e" onclick="logout()">Sair da conta</button>
  <button class="btn ghost" style="color:#b3261e" onclick="openDelAcc()">Excluir minha conta</button></div></div>`}
-function studentHTML(u){const pages={inicio:()=>sInicio(u),jornada:()=>sJornada(u),ranking:()=>sRanking(u),slides:()=>slidesHTML(u),grafico:()=>graficoHTML(u),loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),perfil:()=>sPerfil(u)};
- const nav=[['inicio','🏠','Início'],['jornada','🧭','Jornada'],['slides','🖥️','Slides'],['ranking','🏆','Ranking'],['grafico','🧮','Gráficos'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['perfil','👤','Perfil']];
+function studentHTML(u){const pages={bemvindo:()=>bemvindoHTML(u),inicio:()=>sInicio(u),jornada:()=>sJornada(u),ranking:()=>sRanking(u),slides:()=>slidesHTML(u),grafico:()=>graficoHTML(u),loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),personagem:()=>personagemHTML(u),perfil:()=>sPerfil(u)};
+ const nav=[['bemvindo','🚀','Bem-vindo'],['inicio','🏠','Início'],['jornada','🧭','Jornada'],['slides','🖥️','Slides'],['ranking','🏆','Ranking'],['grafico','🧮','Gráficos'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['personagem','🧙','Personagem'],['perfil','👤','Perfil']];
  return shellHTML(nav,ui.sPage,'navS',u,`<div class="page">${pages[ui.sPage]()}${ui.sPage==='inicio'?actCardHTML(u):''}</div>`)}
 /* ---- professor ---- */
 function tVisao(u){const c=selClass();if(!c)return emptyHTML('👥','Nenhuma turma','Crie uma turma para começar.');
  const sts=studentsOf(c.code),ms=db.missions.filter(m=>m.classCode===c.code),oks=db.responses.filter(r=>r.status==='ok'&&ms.some(m=>m.id===r.missionId)).length;
- return`<h1>Olá, ${escH(u.name.split(' ')[0])} 👋</h1><p class="muted">Organize as atividades e acompanhe ${escH(c.name)}. ${myClasses().length>1?'Use o seletor no topo para trocar de turma.':''}</p>
+ return`<div class="row" style="gap:14px;align-items:center">${avatarBox(u,60)}<div><h1>Olá, ${escH(u.name.split(' ')[0])} 👋</h1><p class="muted">Organize as atividades e acompanhe ${escH(c.name)}. ${myClasses().length>1?'Use o seletor no topo para trocar de turma.':''}</p></div></div>
  <div class="grid2" style="margin-top:16px">
  <div class="card"><span class="muted">Estudantes matriculados</span><h1 style="font-size:34px;margin:6px 0">${sts.length}</h1><span class="muted">Contas vinculadas a esta turma</span></div>
  <div class="card"><span class="muted">Missões publicadas</span><h1 style="font-size:34px;margin:6px 0">${ms.length}</h1><span class="muted">${oks} conclusões confirmadas</span></div></div>
@@ -598,7 +643,7 @@ function tGestao(u){const c=selClass();const sts=studentsOf(c.code);const manual
  ${db.shopItems.length?`<h2 style="margin-top:16px">Criados por professores</h2>${db.shopItems.map(i=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div>${escH(i.icon)} <b>${escH(i.name)}</b><br><span class="tiny">${CATS[i.effect.type]} · 🪙 ${i.price}</span></div><button class="btn ghost sm" onclick="delItem('${i.id}')">🗑</button></div>`).join('')}`:''}</div></div>`}
 function tPerfil(u){const LVX=lvInfo(u.xp),xpL=LVX.cur;
  return`<div class="card" style="margin-top:8px;text-align:center">
- <div class="avatar" style="width:84px;height:84px;font-size:36px;margin:0 auto">${escH(eqVal(u,'avatar')||u.name[0].toUpperCase())}</div>
+ <div class="avatar" style="width:84px;height:84px;font-size:36px;margin:0 auto;overflow:hidden">${avatarInner(u)}</div>${avatarEditor(u)}
  <h1 style="margin-top:12px">${displayName(u)}</h1>
  <p class="muted">Professor · ${u.id} · Nível ${levelOf(u.xp)}</p>
  <div class="bar" style="margin-top:14px"><i style="width:${(xpL/LVX.need)*100}%"></i></div>
@@ -659,6 +704,517 @@ function introMathXP(){const old=document.getElementById('mxIntro');if(old)old.r
  setTimeout(()=>o.classList.add('out'),3000);
  o.addEventListener('animationend',e=>{if(e.target===o&&e.animationName==='mxOut')o.remove()});
  o.addEventListener('click',()=>{if(o._skip)return;o._skip=1;o.animate([{opacity:getComputedStyle(o).opacity},{opacity:0}],{duration:400,fill:'forwards'}).onfinish=()=>o.remove()})}
+/* ================= PERSONAGEM RPG — PIXEL ART (motor de desenho) ================= */
+const MW=40,MH=56;
+const MX_SKIN=[0xffe3d0,0xf8cfae,0xeeb68e,0xd89c70,0xbf8658,0xa06a42,0x7b4b2b,0x573221];
+const MX_HCOL=[0x1d1520,0x4a2b1a,0x7a4a2a,0xb06a3a,0xe8c46a,0xc9462a,0xb9bfd0,0x3b6fe0,0xf06fb0,0x8a4be0];
+const MX_OUTF=[
+ {k:'jacket',t:0x6d28d9,r:0xfbbf24,p:0x26214d,s:0x2a1f4a,e:1},{k:'vest',t:0x5f8a3d,r:0xc9a14a,p:0x7a5a36,s:0x4a3322,v:0x8a6a3a},
+ {k:'hoodie',t:0x8b5cf6,r:0xe9d5ff,p:0x33437a,s:0xf1f5f9},{k:'tunic',t:0x2563eb,r:0xfbbf24,p:0x5a4632,s:0x3a2a1a,cape:0xb91c1c},
+ {k:'coat',t:0xf4f6ff,r:0x4aa8e8,p:0x3b4660,s:0x2c3347},{k:'robe',t:0x5b21b6,r:0xfbbf24,p:0x4c1d95,s:0x3a1a6b,st:1},
+ {k:'armor',t:0xaeb8cc,r:0xfbbf24,p:0x6b7488,s:0x4b5266},{k:'jacket',t:0x151b2e,r:0x22d3ee,p:0x1f2937,s:0x0b1020,n:1},
+ {k:'suit',t:0xeef2f9,r:0xa78bfa,p:0xeef2f9,s:0x7c3aed},{k:'robe',t:0xb91c1c,r:0xfbbf24,p:0x7f1d1d,s:0x5a1010,st:2}];
+function mxTone(c,f){let r=c>>16&255,g=c>>8&255,b=c&255;if(f<1){r*=f*.96;g*=f*.96;b*=Math.min(1,f*1.07)}else{const t=f-1;r+=(255-r)*t*1.1;g+=(255-g)*t;b+=(255-b)*t*.9}return(Math.min(255,r)|0)<<16|(Math.min(255,g)|0)<<8|(Math.min(255,b)|0)}
+function mxPix(cf,back,fr){
+ const b=new Int32Array(MW*MH).fill(-1);let OY=0;
+ const mk=()=>new Uint8Array(MW*MH),
+  S=(m,x,y)=>{y+=OY;if(x>=0&&x<MW&&y>=0&&y<MH)m[y*MW+x]=1},
+  R=(m,x,y,w,h)=>{for(let j=0;j<h;j++)for(let i=0;i<w;i++)S(m,x+i,y+j)},
+  E=(m,cx,cy,rx,ry)=>{for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){const a=(x+.5-cx)/rx,q=(y+.5-cy)/ry;if(a*a+q*q<=1)S(m,x,y)}},
+  Z=(m,x,y,w,h)=>{for(let j=0;j<h;j++)for(let i=0;i<w;i++){const yy=y+j+OY,xx=x+i;if(xx>=0&&xx<MW&&yy>=0&&yy<MH)m[yy*MW+xx]=0}},
+  Mi=m=>{for(let y=0;y<MH;y++)for(let x=0;x<20;x++)if(m[y*MW+x])m[y*MW+39-x]=1},
+  P=(x,y,c)=>{y+=OY;if(x>=0&&x<MW&&y>=0&&y<MH)b[y*MW+x]=c},
+  C=(m,c,o)=>{let x0=99,x1=-1,y0=99,y1=-1;
+   for(let y=0;y<MH;y++)for(let x=0;x<MW;x++)if(m[y*MW+x]){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+   if(x1<0)return;const W=x1-x0,H=y1-y0,sh=mxTone(c,.76),hi=mxTone(c,1.16),rim=o.rim?mxTone(c,o.rim):0;
+   for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){if(!m[y*MW+x])continue;
+    const e=!(m[y*MW+x-1]&&m[y*MW+x+1]&&m[(y-1)*MW+x]&&m[(y+1)*MW+x]);let k=c;
+    if(o.rim&&e)k=rim;else if(!o.flat&&(x>x0+W*.76||y>y0+H*.82))k=sh;else if(!o.flat&&y<=y0+1&&x<x0+W*.5)k=hi;
+    b[y*MW+x]=k}},
+  D=(c,o,fn)=>{const m=mk();fn(m);C(m,c,o||{})};
+ const w=fr==null?-1:fr%4,bob=(w===1||w===3)?-1:0,lfL=w===1?2:0,lfR=w===3?2:0,swL=w===1?1:w===3?-1:0,swR=-swL,
+  f=cf.model==='f',sk=MX_SKIN[cf.skin]??MX_SKIN[2],hc=MX_HCOL[cf.hcol]??MX_HCOL[1],ac=cf.acc||{},o=MX_OUTF[cf.outfit]||MX_OUTF[0],
+  skS=mxTone(sk,.8),hcD=mxTone(hc,.5),ink=0x15131f,gold=0xfbbf24,eff=[];
+ /* ---------- camadas de trás (capa, asas, mochila, espada) ---------- */
+ const BK=()=>{const k=ac.back,cape=o.cape||(k===1?0xdc2626:0);
+  if(cape){D(cape,{rim:.5},m=>{for(let y=24;y<=46;y++){const h=7+((y-24)*.16|0);R(m,20-h,y,2*h,1)}});
+   if(back)for(let y=28;y<46;y+=1){P(16,y,mxTone(cape,.8));P(23,y,mxTone(cape,.8))}}
+  if(k===2||k===4){const n=k===4,c=n?0x22d3ee:0xf4f7ff;
+   D(c,{rim:n?.4:.62},m=>{for(let y=15;y<=38;y++){const t=(y-15)/23,wd=Math.round(2+9*Math.sin(Math.PI*Math.min(1,t*1.05)));R(m,12-wd,y,wd,1)}Mi(m)});
+   const m2=mk();for(let y=20;y<=34;y++){const wd=Math.round(1+5*Math.sin(Math.PI*(y-20)/14));R(m2,12-wd,y,wd,1)}Mi(m2);C(m2,n?0xf472b6:0xdbe4f5,{rim:.7});
+   for(let y=19;y<37;y+=3){P(7+((y*3)%3),y,n?0x0e7490:0xb8c4dc);P(32-((y*3)%3),y,n?0x0e7490:0xb8c4dc)}}
+  if(k===0){if(!back){D(0x8b5a2b,{rim:.5},m=>{R(m,12,26,2,9);R(m,26,26,2,9)})}
+   else{D(0x8b5a2b,{rim:.5},m=>R(m,13,25,14,12));D(0x6b431c,{rim:.5},m=>R(m,13,25,14,4));P(19,29,gold);P(20,29,gold);D(0x6b431c,{flat:true},m=>{R(m,14,34,12,1)})}}
+  if(k===3&&back){D(0xd5dde9,{rim:.5},m=>{for(let i=0;i<17;i++)R(m,12+i,38-i,2,2)});D(0x6b431c,{rim:.5},m=>{for(let i=0;i<8;i++)R(m,17+i,26+(7-i),1,3)});D(gold,{rim:.5},m=>R(m,25,19,6,1));D(0x6b431c,{rim:.5},m=>R(m,27,16,2,4))}
+  if(k===3&&!back){D(0x6b431c,{rim:.5},m=>R(m,27,19,2,5));D(gold,{rim:.5},m=>R(m,25,23,6,1));P(27,18,gold);P(28,18,gold)}};
+ /* ---------- pernas, calçados ---------- */
+ const leg=(x,lift)=>{OY=-lift;const sx=x<19?x-1:x;
+  if(o.k!=='robe'){D(sk,{flat:true},m=>R(m,x,41,5,6));D(o.p,{rim:.5},m=>R(m,x,37,5,o.k==='armor'?9:10));
+   if(o.k==='armor'){D(o.t,{rim:.55},m=>R(m,x,41,5,3));P(x+1,42,o.r)}}
+  D(o.s,{rim:.6},m=>R(m,sx,47,6,4));P(x<19?x+1:x+3,48,mxTone(o.s,1.5));OY=0};
+ /* ---------- tronco + roupa ---------- */
+ const torso=m=>{R(m,13,24,14,3);if(f){R(m,14,27,12,3);R(m,15,30,10,4);R(m,14,34,12,4)}else R(m,14,27,12,11)};
+ const dress=()=>{OY=bob;const k=o.k;
+  if(k==='robe'){D(o.t,{rim:.5},m=>{R(m,13,24,14,3);R(m,14,27,12,5);for(let y=32;y<=47;y++){const h=6+((y-32)*.4|0);R(m,20-h,y,2*h,1)}});
+   D(o.r,{flat:true},m=>{R(m,14,31,12,2);for(let y=0;y<16;y++){const h=6+(y*.4|0);S(m,20-h,32+y);S(m,19+h,32+y)}R(m,7,46,26,0)});
+   D(o.r,{flat:true},m=>R(m,10,47,20,1));
+   if(!back){D(o.r,{flat:true},m=>{R(m,19,27,2,5)});P(19,32,0xfff3c4);P(20,32,0xfff3c4)}
+   if(o.st===1)[[16,35],[23,38],[18,42],[22,44],[15,40],[25,35]].forEach(a=>P(a[0],a[1],o.r));
+   if(o.st===2){D(0xfdf6e3,{rim:.7},m=>R(m,14,24,12,2));[[16,24],[19,25],[23,24]].forEach(a=>P(a[0],a[1],ink));D(0xfdf6e3,{rim:.7},m=>R(m,13,45,14,3));[[15,46],[19,47],[24,46]].forEach(a=>P(a[0],a[1],ink))}
+  }else if(k==='coat'){D(o.t,{rim:.5},m=>{R(m,13,24,14,3);R(m,14,27,12,17)});
+   D(o.r,{flat:true},m=>R(m,18,25,4,19));D(o.t,{rim:.55},m=>{R(m,14,27,4,17);R(m,22,27,4,17)});
+   if(!back){D(mxTone(o.t,.85),{rim:.6},m=>{R(m,15,35,3,3);R(m,22,35,3,3)});P(19,29,0x9aa3b8);P(19,33,0x9aa3b8)}
+  }else{D(o.t,{rim:.5},torso);
+   if(k==='jacket'){D(0xf1ecff,{flat:true},m=>R(m,19,25,2,12));if(!back){D(o.r,{flat:true},m=>{R(m,17,24,2,3);R(m,21,24,2,3)});P(19,29,o.r);P(20,32,o.r);P(19,35,o.r);if(o.e){[[15,29],[16,29],[17,29],[15,30],[17,30],[15,31],[17,31]].forEach(a=>P(a[0],a[1],o.r))}}else P(19,30,mxTone(o.t,.7))
+    D(o.r,{flat:true},m=>R(m,14,f?37:36,12,1))}
+   if(k==='vest'){D(o.v,{rim:.5},m=>{R(m,14,26,4,11);R(m,22,26,4,11)});D(0x3a2a1a,{flat:true},m=>R(m,14,35,12,2));P(19,35,gold);P(20,35,gold);if(back)D(o.v,{rim:.5},m=>R(m,14,26,12,10))}
+   if(k==='hoodie'){D(mxTone(o.t,.88),{rim:.5},m=>R(m,14,22,12,3));if(!back){D(mxTone(o.t,.84),{rim:.55},m=>R(m,16,31,8,4));P(18,26,o.r);P(18,28,o.r);P(21,26,o.r);P(21,28,o.r)}else D(mxTone(o.t,.88),{rim:.5},m=>R(m,13,22,14,6))}
+   if(k==='tunic'){D(o.s,{flat:true},m=>R(m,14,34,12,2));P(19,34,o.r);P(20,34,o.r);if(!back){P(18,24,o.r);P(21,24,o.r);P(19,25,o.r);P(20,25,o.r)}else{P(16,24,o.r);P(23,24,o.r)}}
+   if(k==='armor'){D(o.p,{flat:true},m=>R(m,19,26,2,9));D(o.r,{flat:true},m=>{R(m,14,34,12,1);R(m,14,24,1,3);R(m,25,24,1,3)});if(!back){D(mxTone(o.t,1.12),{flat:true},m=>{R(m,15,27,4,6);R(m,21,27,4,6)})}D(o.t,{rim:.5},m=>{R(m,9,23,5,4);R(m,26,23,5,4)});P(11,24,o.r);P(28,24,o.r)}
+   if(k==='suit'){D(o.s,{flat:true},m=>{R(m,14,26,2,11);R(m,24,26,2,11)});D(o.r,{flat:true},m=>R(m,15,23,10,2));if(!back)D(gold,{rim:.45},m=>E(m,20,31,2.4,2.4))}}
+  OY=0};
+ /* ---------- braços e mãos ---------- */
+ const arm=(x,sw)=>{OY=bob+sw;const k=o.k,short=k==='vest',sc=k==='armor'?o.t:k==='coat'?o.t:o.t;
+  if(k==='robe'){D(sc,{rim:.5},m=>R(m,x-1,25,5,10));if(k==='robe')D(o.r,{flat:true},m=>R(m,x-1,34,5,1));D(sk,{flat:true},m=>R(m,x,36,3,3))}
+  else if(short){D(sc,{rim:.5},m=>R(m,x,25,3,5));D(sk,{flat:true},m=>R(m,x,30,3,9))}
+  else{D(sc,{rim:.5},m=>R(m,x,25,3,k==='suit'||k==='jacket'?11:10));if(k==='armor'||k==='suit')D(o.r,{flat:true},m=>R(m,x,35,3,1));D(sk,{flat:true},m=>R(m,x,36,3,3))}
+  P(x+1,38,skS);OY=0};
+ /* ---------- cabeça ---------- */
+ const headF=()=>{OY=bob;D(mxTone(sk,.86),{flat:true},m=>R(m,18,21,4,4));
+  D(sk,{},m=>{E(m,20,15.5,8.2,7.7);R(m,11,15,1,3);R(m,28,15,1,3)});
+  if(!back){const ey=[0x2a1a3a];
+   [[15,23]].forEach(()=>{[15,23].forEach(x=>{P(x,16,0x2a1a3a);P(x+1,16,0x2a1a3a);P(x,17,0xffffff);P(x+1,17,0x2a1a3a);P(x,18,0x2a1a3a);P(x+1,18,0x4b3a6a)})});
+   [14,22].forEach(x=>{for(let i=0;i<4;i++)P(x+i,14,hcD)});
+   P(20,19,skS);P(19,21,0x8a3a4a);P(20,21,0x8a3a4a);P(18,20,skS);P(21,20,skS);P(14,19,0xf3a5a5);P(25,19,0xf3a5a5);
+   if(f){P(14,15,0x2a1a3a);P(25,15,0x2a1a3a)}}
+  OY=0};
+ /* ---------- cabelo ---------- */
+ const hair=()=>{OY=bob;const m=mk(),s=cf.hair|0;
+  if(s===6){const t=mk();if(!back){E(t,20,14.3,9,8.4);Z(t,13,13,14,12);Z(t,11,19,18,6)}else{E(t,20,14.6,9.1,8.8);R(t,11,17,18,6)}C(t,mxTone(hc,.68),{flat:true})}
+  if(!back){
+   if(s===5)E(m,20,13.4,11.8,10.4);else if(s!==6)E(m,20,14.3,9,8.4);
+   if(s===6){R(m,19,2,2,2);R(m,18,4,4,3);R(m,17,7,6,6)}
+   else{Z(m,13,13,14,12);Z(m,11,19,18,6);if(s===5)Z(m,11,21,18,4);
+    if(s===0||s===3||s===4||s===8){R(m,13,13,6,1);R(m,20,13,4,1);R(m,24,13,3,1);R(m,14,14,2,1);R(m,23,14,2,1)}
+    if(s===1){R(m,13,13,3,2);R(m,17,13,2,1);R(m,20,13,3,2);R(m,24,13,3,1);R(m,12,4,2,3);R(m,15,2,2,5);R(m,19,1,3,6);R(m,23,2,2,5);R(m,26,4,2,3)}
+    if(s===2){R(m,13,13,7,1);R(m,21,13,6,1);R(m,13,14,2,1);R(m,25,14,2,1);R(m,10,13,3,18);R(m,27,13,3,18)}
+    if(s===3){R(m,28,11,3,3);R(m,29,14,2,8)}
+    if(s===4){E(m,20,4.7,3.9,3.5);}
+    if(s===5){R(m,13,13,3,1);R(m,24,13,3,1)}
+    if(s===7){R(m,13,13,14,3);R(m,10,13,4,13);R(m,26,13,4,13)}
+    if(s===8){R(m,10,17,3,17);R(m,27,17,3,17)}
+    if(s===9){R(m,13,13,10,3);R(m,13,16,5,3);R(m,27,13,3,16)}}
+  }else{
+   if(s===5)E(m,20,13.6,11.8,10.8);else if(s!==6)E(m,20,14.6,9.1,8.8);
+   if(s===6){R(m,19,2,2,2);R(m,18,4,4,3);R(m,17,7,6,15)}
+   else{R(m,11,17,18,6);
+    if(s===1){R(m,12,4,2,3);R(m,15,2,2,5);R(m,19,1,3,6);R(m,23,2,2,5);R(m,26,4,2,3)}
+    if(s===2)R(m,10,17,20,15);if(s===3){R(m,17,14,6,22);Z(m,17,34,2,2)}if(s===4)E(m,20,4.7,3.9,3.5);
+    if(s===5)R(m,9,17,22,7);if(s===7)R(m,10,15,20,11);if(s===8){R(m,10,17,3,17);R(m,27,17,3,17)}if(s===9)R(m,10,17,20,14)}}
+  C(m,hc,{rim:.52});
+  if(s===3){const t=mk();R(t,29,12,2,3);C(t,gold,{rim:.5})}
+  if(s===8){[19,22,25,28,31].forEach(y=>{P(11,y,hcD);P(28,y,hcD)});D(0xc9462a,{flat:true},m2=>{R(m2,10,34,3,1);R(m2,27,34,3,1)})}
+  OY=0};
+ /* ---------- acessórios ---------- */
+ const FACE=[
+  ()=>{D(0x2d2a4a,{flat:true},m=>{R(m,13,15,6,5);R(m,21,15,6,5);R(m,19,16,2,1);Z(m,14,16,4,3);Z(m,22,16,4,3)});P(14,16,0xcfe8ff);P(22,16,0xcfe8ff)},
+  ()=>{D(0x15131f,{rim:.6},m=>{R(m,13,15,6,4);R(m,21,15,6,4);R(m,19,15,2,1)});P(14,16,0x7c7a99);P(22,16,0x7c7a99)},
+  ()=>{D(0x22d3ee,{flat:true},m=>{R(m,13,15,6,5);Z(m,14,16,4,3)});D(0xf472b6,{flat:true},m=>{R(m,21,15,6,5);Z(m,22,16,4,3)});D(0xffffff,{flat:true},m=>R(m,19,16,2,1));P(14,16,0xd8fbff);P(22,16,0xffe0f0)},
+  ()=>{D(ink,{rim:.6},m=>R(m,14,15,5,5));D(ink,{flat:true},m=>{for(let x=12;x<=27;x++)S(m,x,13-((x-12)/8|0)+1)})},
+  ()=>{D(0xf97316,{rim:.5},m=>{R(m,13,14,14,6);R(m,13,10,3,5);R(m,24,10,3,5);Z(m,14,16,4,3);Z(m,22,16,4,3);Z(m,18,17,4,3)});D(0xffffff,{flat:true},m=>{R(m,13,19,3,2);R(m,24,19,3,2)});D(ink,{flat:true},m=>{R(m,14,10,1,2);R(m,25,10,1,2)});P(15,16,0x2a1a3a);P(16,17,0x2a1a3a);P(23,16,0x2a1a3a);P(24,17,0x2a1a3a)}];
+ const HEAD=[
+  ()=>{D(0x7c3aed,{rim:.5},m=>{E(m,20,11.4,9.4,5.6);Z(m,10,12,20,8)});if(!back){D(0x5b21b6,{rim:.5},m=>R(m,11,12,18,2))}P(19,9,gold);P(20,9,gold);P(19,10,gold);P(20,10,gold)},
+  ()=>{D(0x1f1b3a,{rim:.6},m=>{R(m,9,5,22,3);R(m,13,8,14,4)});D(gold,{flat:true},m=>{R(m,29,6,1,7);R(m,28,12,3,2)})},
+  ()=>{D(0x4c1d95,{rim:.5},m=>{for(let i=0;i<9;i++)R(m,19-i,1+i,2+2*i,1)});D(0x3b1478,{rim:.5},m=>E(m,20,10.4,12,2.2));D(gold,{flat:true},m=>R(m,13,8,14,1));P(17,4,gold);P(22,6,gold);P(19,2,0xfff3c4)},
+  ()=>{D(gold,{rim:.45},m=>{R(m,12,7,16,4);R(m,12,5,2,2);R(m,19,4,2,3);R(m,26,5,2,2)});P(16,9,0xef4444);P(20,9,0x22d3ee);P(24,9,0xef4444);P(13,7,0xfff3c4);P(20,5,0xfff3c4)},
+  ()=>{D(0x2b2b3d,{rim:.5},m=>{for(let x=11;x<=28;x++){const y=Math.round(14-6.8*Math.sqrt(Math.max(0,1-Math.pow((x+.5-20)/9,2))));S(m,x,y);S(m,x,y+1)}});D(0x7c3aed,{rim:.5},m=>{R(m,9,14,4,6);R(m,27,14,4,6)});D(0x22d3ee,{flat:true},m=>{R(m,10,15,2,4);R(m,28,15,2,4)})}];
+ const BODY=[
+  ()=>{D(0x7c3aed,{rim:.5},m=>{R(m,16,24,3,3);R(m,21,24,3,3)});D(gold,{flat:true},m=>R(m,19,25,2,2))},
+  ()=>{D(0xdc2626,{rim:.5},m=>{R(m,13,22,14,3);if(!back)R(m,22,25,3,9)});if(!back){P(23,28,0xfff1f1);P(23,31,0xfff1f1)}},
+  ()=>{if(back)return;D(0x2563eb,{flat:true},m=>{for(let i=0;i<7;i++){S(m,15+i,24+i);S(m,24-i,24+i)}});D(gold,{rim:.45},m=>E(m,20,32,2.7,2.7));P(19,31,0xfff3c4)},
+  ()=>{D(0xe5e7eb,{flat:true},m=>{for(let i=0;i<5;i++){S(m,15+i,24+i);S(m,24-i,24+i)}});if(!back){D(0x22d3ee,{rim:.5},m=>{R(m,19,30,2,3);S(m,19,29);S(m,20,29)});P(19,30,0xd8fbff)}},
+  ()=>{D(0x7c3aed,{rim:.5},m=>{for(let i=0;i<12;i++)R(m,13+i,24+i,3,2)});D(gold,{flat:true},m=>{for(let i=0;i<12;i++)S(m,13+i,23+i)})}];
+ const SPEC=[
+  ()=>{D(0xf97316,{rim:.5},m=>{E(m,7,47.4,4,2.8);E(m,10.5,44.4,2.6,2.4);R(m,9,41,2,3);R(m,12,41,2,3)});D(0xfff1e6,{flat:true},m=>E(m,8,48,2,1.4));D(0xffffff,{flat:true},m=>R(m,2,45,2,2));P(11,44,0x2a1a3a)},
+  ()=>{},
+  ()=>{OY=bob;D(0x4b5563,{rim:.5},m=>R(m,28,31,5,7));D(0x86efac,{flat:true},m=>R(m,29,32,3,2));[[29,35],[31,35],[29,36],[31,36]].forEach(a=>P(a[0],a[1],0xf59e0b));OY=0},
+  ()=>{},()=>{}];
+ const BODYSP=()=>{if(ac.spec===0)SPEC[0]();if(ac.spec===2)SPEC[2]()};
+ /* ---------- montagem ---------- */
+ if(!back)BK();
+ leg(14,lfL);leg(21,lfR);
+ dress();
+ if(o.cape&&back||false){}
+ arm(10,swL);arm(27,swR);
+ headF();hair();
+ if(!back&&ac.face>=0)FACE[ac.face]&&(OY=bob,FACE[ac.face](),OY=0);
+ if(ac.head>=0&&HEAD[ac.head]){OY=bob;HEAD[ac.head]();OY=0}
+ if(ac.body>=0&&BODY[ac.body]){OY=bob;BODY[ac.body]();OY=0}
+ if(back)BK();
+ if(ac.back===0&&!back){OY=bob;D(0x6b431c,{rim:.5},m=>{R(m,15,24,2,10);R(m,23,24,2,10)});OY=0}
+ if(ac.back===1&&!back){OY=bob;P(16,24,gold);P(23,24,gold);OY=0}
+ BODYSP();
+ /* contorno externo */
+ const o2=b.slice();for(let y=0;y<MH;y++)for(let x=0;x<MW;x++)if(b[y*MW+x]<0&&((x>0&&b[y*MW+x-1]>=0)||(x<MW-1&&b[y*MW+x+1]>=0)||(y>0&&b[(y-1)*MW+x]>=0)||(y<MH-1&&b[(y+1)*MW+x]>=0)))o2[y*MW+x]=0x1b1033;
+ /* efeitos (sem contorno): aura, orbe, estrelas */
+ const F=(x,y,c)=>{if(x>=0&&x<MW&&y>=0&&y<MH&&o2[y*MW+x]<0)o2[y*MW+x]=c};
+ if(ac.spec===1){for(let y=2;y<MH;y++)for(let x=0;x<MW;x++){const dx=(x+.5-20)/17,dy=(y+.5-30)/27,d=dx*dx+dy*dy;if(d>.55&&d<1&&((x+y+(w<0?0:w))%2===0))F(x,y,d<.8?0xfde68a:0xfbbf24)}}
+ const tw=w<0?0:w%2;
+ if(ac.spec===3){const cy=13+tw;for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){const a=x+.5-33.5,q=y+.5-cy,d=a*a+q*q;if(d<=18.5)F(x,y,d<=11?0x7c3aed:gold)}[[32,cy-1],[33,cy-1],[34,cy-1],[33,cy],[33,cy-2],[33,cy+1]].forEach(a=>F(a[0],a[1]|0,0xffffff))}
+ if(ac.spec===4){[[5,11],[34,7],[3,29],[36,25]].forEach((a,i)=>{const c=(i+tw)%2?0xfff3c4:gold;F(a[0],a[1],c);F(a[0]-1,a[1],gold);F(a[0]+1,a[1],gold);F(a[0],a[1]-1,gold);F(a[0],a[1]+1,gold);if((i+tw)%2){F(a[0]-2,a[1],0xfde68a);F(a[0]+2,a[1],0xfde68a)}})}
+ if(ac.spec===3||ac.spec===4||ac.spec===1){/* efeitos já aplicados */}
+ const out=new Uint8ClampedArray(MW*MH*4);for(let i=0;i<MW*MH;i++){const c=o2[i];if(c>=0){out[i*4]=c>>16&255;out[i*4+1]=c>>8&255;out[i*4+2]=c&255;out[i*4+3]=255}}
+ return out}
+
+/* ================= PERSONAGEM RPG: catálogo, editor e integração ================= */
+const MX_RAR=[['Grátis','#94a3b8'],['Comum','#22c55e'],['Raro','#3b82f6'],['Épico','#a855f7'],['Lendário','#f59e0b']];
+const MX_CAT={
+ hair:[['Curto',0,0,1,'Prático e clássico.'],['Espetado',0,0,1,'Cheio de energia.'],['Longo',0,0,1,'Liso e solto.'],['Rabo de Cavalo',0,0,1,'Pronto para a ação.'],['Coque',0,0,1,'Elegante e leve.'],['Cacheado',1,40,2,'Muito volume e estilo.'],['Moicano',2,90,3,'Ousado e radical!'],['Chanel',0,0,1,'Franja reta e moderna.'],['Tranças',2,90,3,'Duas tranças longas.'],['Franja Lateral',1,50,2,'Misterioso e estiloso.']],
+ hcol:[['Preto',0,0,1,'Cor natural.'],['Castanho Escuro',0,0,1,'Cor natural.'],['Castanho',0,0,1,'Cor natural.'],['Cobre',0,0,1,'Tom acobreado.'],['Loiro',0,0,1,'Cor natural.'],['Ruivo',0,0,1,'Chamas no cabelo.'],['Prata',1,30,2,'Brilho metálico.'],['Azul Elétrico',2,80,3,'Cor de neon.'],['Rosa Neon',2,80,3,'Cor de neon.'],['Violeta Galáctico',3,200,5,'A cor do MathXP.']],
+ outfit:[['Uniforme MathXP',0,0,1,'O uniforme oficial dos aventureiros.'],['Explorador',0,0,1,'Colete de expedição.'],['Moletom Roxo',1,60,2,'Confortável para estudar.'],['Capa de Aventureiro',1,80,2,'Capa vermelha e túnica azul.'],['Jaleco de Cientista',1,70,3,'Para experimentos de laboratório.'],['Manto do Mago',3,250,5,'Manto estrelado dos magos dos números.'],['Armadura Pitágoras',3,300,6,'Proteção digna de um cavaleiro.'],['Jaqueta Neon',2,150,4,'Linhas de neon ciano.'],['Traje Espacial',4,500,8,'Para explorar a galáxia da Matemática.'],['Traje Real Dourado',4,600,9,'Roupa da realeza dos números.']],
+ head:[['Boné MathXP',0,0,1,'Boné roxo com o emblema.'],['Capelo de Formatura',1,50,2,'Para futuros formandos.'],['Chapéu de Mago',2,120,4,'Chapéu pontudo estrelado.'],['Coroa Dourada',4,450,8,'Coroa de ouro com joias.'],['Fone Gamer',1,60,3,'Fone com luzes ciano.']],
+ face:[['Óculos de Grau',0,0,1,'Óculos de estudioso.'],['Óculos Escuros',1,50,2,'Visual descolado.'],['Óculos Neon',2,110,4,'Lentes ciano e rosa.'],['Tapa-olho',1,40,2,'Aventura pirata.'],['Máscara de Raposa',3,220,6,'Máscara laranja misteriosa.']],
+ body:[['Gravata Borboleta',0,0,1,'Elegância roxa.'],['Cachecol',1,50,2,'Cachecol vermelho listrado.'],['Medalha de Ouro',2,130,4,'Prêmio dos campeões.'],['Colar de Cristal',3,240,6,'Cristal ciano brilhante.'],['Faixa MathXP',1,60,3,'Faixa roxa com borda dourada.']],
+ back:[['Mochila',0,0,1,'Mochila de aventureiro.'],['Capa Vermelha',1,70,3,'Capa de herói.'],['Asas de Anjo',3,320,6,'Asas brancas e macias.'],['Espada nas Costas',2,140,5,'Espada de treino.'],['Asas Neon',4,550,9,'Asas de energia pura.']],
+ spec:[['Pet Raposa',2,160,5,'Uma raposinha companheira.'],['Aura Dourada',4,700,10,'Brilho dourado ao redor.'],['Calculadora Mágica',1,60,2,'Faz contas na velocidade da luz.'],['Orbe de XP',3,260,7,'Moeda de XP flutuante.'],['Estrelas Orbitantes',2,120,4,'Estrelas que giram por perto.']]};
+const MX_TABS=[['model','Modelo'],['skin','Pele'],['hair','Cabelo'],['hcol','Cor do cabelo'],['outfit','Roupas'],['head','Cabeça'],['face','Rosto'],['body','Corpo'],['back','Costas'],['spec','Especiais'],['inv','Inventário']];
+function mxDef(){return{model:'m',skin:2,hair:0,hcol:1,outfit:0,acc:{head:-1,face:-1,body:-1,back:-1,spec:-1},name:''}}
+function mxNorm(c){const d=mxDef(),x=Object.assign({},d,c||{});x.acc=Object.assign({},d.acc,(c&&c.acc)||{});return x}
+function mxItem(cat,i){const a=MX_CAT[cat]&&MX_CAT[cat][i];return a?{cat:cat,i:i,id:cat+i,name:a[0],rar:a[1],price:a[2],lvl:a[3],desc:a[4]}:null}
+function mxOwned(u,it){return it.price===0||(u.rpgInv||[]).indexOf(it.id)>=0}
+function mxLocked(u,it){return levelOf(u.xp)<it.lvl}
+const MX_CACHE={};
+function mxURL(cf,back,fr,crop,sc){const k=JSON.stringify([cf,back,fr,crop,sc]);if(MX_CACHE[k])return MX_CACHE[k];
+ const px=mxPix(cf,back,fr),a=document.createElement('canvas');a.width=MW;a.height=MH;const g=a.getContext('2d'),im=g.createImageData(MW,MH);im.data.set(px);g.putImageData(im,0,0);
+ const c=crop||[0,2,40,52],o=document.createElement('canvas');o.width=c[2]*sc;o.height=c[3]*sc;const h=o.getContext('2d');h.imageSmoothingEnabled=false;h.drawImage(a,c[0],c[1],c[2],c[3],0,0,o.width,o.height);
+ const url=o.toDataURL('image/png');if(Object.keys(MX_CACHE).length>500)for(const x in MX_CACHE){delete MX_CACHE[x];break}MX_CACHE[k]=url;return url}
+function mxAvatarImg(u){return `<img src="${mxURL(mxNorm(u.char),false,null,[6,3,28,28],4)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;image-rendering:pixelated;background:linear-gradient(160deg,#4c2a9e,#2a1660)">`}
+function avatarStrip(u){const nm=u.char&&u.char.name?u.char.name:u.name;
+ return `<div class="row" style="gap:12px;align-items:center;margin:6px 0 14px"><div style="width:52px;height:52px">${avatarBox(u,52)}</div><div><b>${escH(nm)}</b><div class="tiny muted">Nível ${levelOf(u.xp)} · 🪙 ${u.coins}</div></div><button class="btn ghost sm" onclick="${u.role==='professor'?"navT('personagem')":"navS('personagem')"}">🧙 Personagem</button></div>`}
+function goPersonagem(){ui.sPage='personagem';ui.tPage='personagem';render()}
+function crTile(u,cat,i){const cr=ui.cr;let vc=JSON.parse(JSON.stringify(cr)),it=null,on=false,sub='',crop=[6,3,28,28],sc=3;
+ if(cat==='model'){vc.model=i;on=cr.model===i;sub='<div class="r" style="color:#94a3b8">Grátis</div>'}
+ else if(cat==='skin'){vc.skin=i;on=cr.skin===i;sub='<div class="r" style="color:#94a3b8">Grátis</div>'}
+ else{it=mxItem(cat,i);
+  if(cat==='hair'){vc.hair=i;on=cr.hair===i}else if(cat==='hcol'){vc.hcol=i;on=cr.hcol===i}else if(cat==='outfit'){vc.outfit=i;on=cr.outfit===i}else{vc.acc[cat]=i;on=cr.acc[cat]===i}
+  if(cat==='outfit'||cat==='body'||cat==='back'||cat==='spec'){crop=[0,2,40,52];sc=2}
+  const rc=MX_RAR[it.rar],lk=mxLocked(u,it),ow=mxOwned(u,it);
+  sub=`<div class="r" style="color:${rc[1]}">${rc[0]}</div><div class="d">${escH(it.desc)}</div><div class="r">${lk?'🔒 Nível '+it.lvl:ow?(it.price?'✔ Seu':'Grátis'):'🪙 '+it.price}</div>`;
+  if(lk)on=on&&false}
+ const lk=it&&mxLocked(u,it);
+ return `<div class="cr-i${on?' on':''}${lk?' lk':''}" title="${escH(it?it.name+' — '+it.desc:'')}" onclick="crPick('${cat}',${typeof i==='string'?"'"+i+"'":i})"><img src="${mxURL(vc,false,null,crop,sc)}" alt=""><div class="n">${escH(it?it.name:cat==='model'?(i==='m'?'Aventureiro':'Aventureira'):'Tom '+(i+1))}</div>${sub}</div>`}
+function personagemHTML(u){if(!ui.cr||ui.crUid!==u.id){ui.cr=mxNorm(u.char);ui.crUid=u.id;ui.crTab=ui.crTab||'outfit';ui.crBack=false;ui.crWalk=false}
+ const cr=ui.cr,tab=ui.crTab||'outfit',lv=levelOf(u.xp);let grid='';
+ const tabs=MX_TABS.map(function(t){return `<button class="cr-tab${tab===t[0]?' on':''}" onclick="crTab('${t[0]}')">${t[1]}</button>`}).join('');
+ if(tab==='model')grid=['m','f'].map(function(k){return crTile(u,'model',k)}).join('');
+ else if(tab==='skin')grid=MX_SKIN.map(function(_,i){return crTile(u,'skin',i)}).join('');
+ else if(tab==='inv'){const own=[];['hair','hcol','outfit','head','face','body','back','spec'].forEach(function(c){MX_CAT[c].forEach(function(_,i){const it=mxItem(c,i);if(it.price&&(u.rpgInv||[]).indexOf(it.id)>=0)own.push(crTile(u,c,i))})});
+  grid=own.join('')||'<p class="muted" style="grid-column:1/-1">Você ainda não comprou nenhum item. Visite as abas e use suas moedas!</p>'}
+ else grid=MX_CAT[tab].map(function(_,i){return crTile(u,tab,i)}).join('');
+ setTimeout(mxPaint,0);
+ return `<h1>🧙 Personagem</h1><p class="muted">Crie e personalize seu personagem de aventura. Roupas e acessórios usam as moedas que você ganha nas missões.</p>
+ <div class="cr-wrap"><div class="cr-stage"><canvas id="mx_cv" width="40" height="56"></canvas>
+ <div class="row" style="gap:6px;flex-wrap:wrap;justify-content:center"><button class="btn sm${ui.crBack?' ghost':''}" onclick="crView(false)">FRENTE</button><button class="btn sm${ui.crBack?'':' ghost'}" onclick="crView(true)">COSTAS</button><button class="btn sm${ui.crWalk?'':' ghost'}" onclick="crWalkT()">ANDANDO</button></div>
+ <input id="cr_name" maxlength="16" placeholder="Nome do personagem" value="${escH(cr.name||'')}" oninput="ui.cr.name=this.value" style="text-align:center;max-width:260px">
+ <div class="row" style="gap:6px;flex-wrap:wrap;justify-content:center"><button class="btn ghost sm" onclick="crSurprise()">🎲 SURPREENDA-ME</button><button class="btn ghost sm" onclick="crReset()">↺ REDEFINIR</button></div>
+ <button class="btn" style="width:100%" onclick="crSave()">💾 SALVAR PERSONAGEM</button></div>
+ <div class="card"><div class="spread"><div class="cr-tabs">${tabs}</div><span class="chip">🪙 ${u.coins} · Nível ${lv}</span></div><div class="cr-grid">${grid}</div></div></div>`}
+function mxPaint(){const cv=document.getElementById('mx_cv');if(window._mxT){clearInterval(window._mxT);window._mxT=0}if(!cv||!ui.cr)return;
+ const g=cv.getContext('2d'),im=g.createImageData(MW,MH);let fr=0;
+ const draw=function(){if(!document.getElementById('mx_cv')){clearInterval(window._mxT);window._mxT=0;return}im.data.set(mxPix(ui.cr,ui.crBack,ui.crWalk?fr:null));g.putImageData(im,0,0);fr++};
+ draw();if(ui.crWalk)window._mxT=setInterval(draw,160)}
+function crTab(t){ui.crTab=t;render()}
+function crView(b){ui.crBack=b;render()}
+function crWalkT(){ui.crWalk=!ui.crWalk;render()}
+function crPick(cat,i){const u=me();if(!ui.cr)ui.cr=mxNorm(u.char);const cr=ui.cr;
+ if(cat==='model'){cr.model=i;return render()}
+ if(cat==='skin'){cr.skin=i;return render()}
+ const it=mxItem(cat,i);if(!it)return;
+ if(mxLocked(u,it))return toast('🔒 Requer nível '+it.lvl+' (você está no nível '+levelOf(u.xp)+').');
+ if(!mxOwned(u,it)){
+  if(u.coins<it.price)return toast('Moedas insuficientes: faltam '+(it.price-u.coins)+' 🪙.');
+  if(!confirm('Comprar "'+it.name+'" por '+it.price+' moedas?'))return;
+  u.coins-=it.price;u.rpgInv=(u.rpgInv||[]).concat([it.id]);save();toast('🛍️ Comprado: '+it.name+'!')}
+ if(cat==='hair')cr.hair=i;else if(cat==='hcol')cr.hcol=i;else if(cat==='outfit')cr.outfit=i;else cr.acc[cat]=cr.acc[cat]===i?-1:i;
+ render()}
+function crSurprise(){const u=me();if(!ui.cr)ui.cr=mxNorm(u.char);const cr=ui.cr,ok=function(c,i){const it=mxItem(c,i);return it&&mxOwned(u,it)&&!mxLocked(u,it)},
+ pick=function(c,n){const l=[];for(let i=0;i<n;i++)if(ok(c,i))l.push(i);return l[Math.random()*l.length|0]};
+ cr.model=Math.random()<.5?'m':'f';cr.skin=Math.random()*8|0;cr.hair=pick('hair',10);cr.hcol=pick('hcol',10);cr.outfit=pick('outfit',10);
+ ['head','face','body','back','spec'].forEach(function(c){const l=[-1];for(let i=0;i<5;i++)if(ok(c,i))l.push(i);cr.acc[c]=l[Math.random()*l.length|0]});render()}
+function crReset(){ui.cr=mxNorm(me().char);render()}
+function crSave(){const u=me();if(!ui.cr)ui.cr=mxNorm(u.char);const cr=ui.cr;cr.name=String(cr.name||'').trim().slice(0,16);u.char=JSON.parse(JSON.stringify(cr));u.avatarMode='char';u.photoOff=1;save();toast('💾 Personagem salvo!');render()}
+/* ================= BEM-VINDO (papel de parede + roteiro) ================= */
+const ROTEIRO=`# MATHXP — APRENDER PARA EVOLUIR
+### Roteiro de demonstração da plataforma
+
+## 1. Apresentação inicial
+
+O MathXP é uma plataforma educacional que utiliza a gamificação para transformar o aprendizado de Matemática em uma jornada de desafios, conquistas e evolução.
+
+A plataforma aproxima a experiência de um jogo, na qual cada atividade realizada pode representar uma oportunidade de aprender, ganhar experiência, conquistar recompensas e avançar de nível.
+
+O sistema possui dois perfis principais: estudante e professor.
+
+## 2. Tela de acesso e cadastro
+
+Ao acessar o MathXP, o usuário encontra a tela de entrada, onde pode fazer login ou criar uma conta.
+
+Para criar uma conta, é necessário informar:
+- Nome.
+- E-mail.
+- Senha.
+- Código de professor, quando aplicável.
+
+O estudante cria sua conta sem informar o código de professor. Já o professor utiliza um código de autorização para acessar as ferramentas de gerenciamento.
+
+Após entrar, cada usuário encontra um ambiente personalizado de acordo com seu perfil.
+
+## 3. Ambiente do estudante
+
+### 3.1 Bem-vindo
+
+O estudante encontra uma tela de boas-vindas com a identidade visual do MathXP.
+
+Nela, aparecem seu avatar, nível atual, quantidade de XP e moedas acumuladas.
+
+O botão de iniciar permite acessar sua jornada de aprendizagem.
+
+### 3.2 Início
+
+O painel inicial apresenta o progresso do estudante.
+
+Nessa tela, ele consegue visualizar:
+- Nível atual.
+- XP acumulado.
+- Barra de progresso para o próximo nível.
+- Quantidade de missões concluídas.
+- Próximas missões disponíveis.
+- Diário de estudos.
+
+Caso ainda não esteja vinculado a uma turma, poderá inserir o código disponibilizado pelo professor.
+
+### 3.3 Jornada de aprendizagem
+
+A Jornada é uma das principais funcionalidades do MathXP.
+
+Nela ficam disponíveis as missões de Matemática publicadas pelo professor.
+
+As atividades são organizadas em cinco áreas:
+
+1. Números e operações.
+2. Frações e decimais.
+3. Álgebra e equações.
+4. Geometria e medidas.
+5. Problemas e raciocínio lógico.
+
+Cada missão apresenta um título, assunto, habilidade trabalhada, prazo e recompensas disponíveis.
+
+O estudante escolhe uma missão e inicia a resolução do desafio.
+
+### 3.4 Resolução das missões
+
+As missões podem apresentar diferentes formatos de resposta.
+
+**Múltipla escolha:** o estudante analisa o enunciado e seleciona uma das alternativas. O sistema verifica automaticamente se a resposta está correta.
+
+**Resposta escrita:** o estudante apresenta sua resolução, explicando o raciocínio utilizado. A resposta é enviada ao professor para correção e confirmação.
+
+Quando uma missão é concluída corretamente, o estudante recebe a quantidade de XP e moedas estabelecida pelo professor.
+
+Quando erra uma questão de múltipla escolha, a missão fica encerrada até que o professor eventualmente libere uma nova tentativa.
+
+Também existe a possibilidade de praticar novamente uma missão, sem receber novas recompensas.
+
+### 3.5 Sistema de XP e níveis
+
+O XP representa a experiência acumulada durante a jornada.
+
+À medida que o estudante conclui atividades e recebe recompensas, sua experiência aumenta.
+
+Quando alcança os requisitos necessários, avança para o próximo nível.
+
+Esse sistema permite visualizar sua evolução e estabelecer novas metas de aprendizagem.
+
+### 3.6 Sistema de moedas
+
+Além do XP, o estudante acumula moedas virtuais.
+
+Enquanto o XP representa experiência e progressão, as moedas funcionam como dinheiro virtual dentro da plataforma.
+
+Elas podem ser utilizadas na loja para adquirir itens disponíveis.
+
+### 3.7 Ranking
+
+O Ranking apresenta a classificação dos estudantes da mesma turma, de acordo com a quantidade de XP acumulada.
+
+A classificação permite acompanhar o desempenho dentro da experiência gamificada e estimula a participação.
+
+### 3.8 Slides
+
+Na seção Slides, o estudante encontra os materiais disponibilizados pelo professor.
+
+Podem ser utilizados links, apresentações, arquivos PDF, PowerPoint e imagens.
+
+Isso permite consultar conteúdos das aulas diretamente pela plataforma.
+
+### 3.9 Gráficos
+
+A seção Gráficos apresenta informações sobre os acertos e erros nas missões da turma.
+
+O estudante também consegue consultar seu próprio aproveitamento.
+
+Assim, consegue identificar seus avanços e perceber quais conteúdos precisam de mais atenção.
+
+### 3.10 Loja virtual
+
+A loja permite utilizar as moedas conquistadas durante as atividades.
+
+Entre os itens disponíveis estão:
+- Avatares.
+- Símbolos especiais.
+- Cores personalizadas.
+- Efeitos de escrita.
+- Temas visuais.
+- Cartões de XP.
+
+Depois de adquirir um item, o estudante pode acessar a seção Conquistas e personalizar seu perfil.
+
+### 3.11 Conquistas
+
+As conquistas representam objetivos alcançados durante a jornada.
+
+O estudante pode desbloquear medalhas ao completar missões, alcançar determinados níveis e demonstrar conhecimentos nas diferentes áreas da Matemática.
+
+A seção também permite equipar itens adquiridos na loja e visualizar seu inventário.
+
+### 3.12 Perfil
+
+No perfil, o estudante pode visualizar suas informações, alterar sua foto ou avatar, consultar seu nível, XP, moedas, turma e personalizações.
+
+Também pode alterar sua senha e gerenciar sua conta.
+
+## 4. Ambiente do professor
+
+O professor possui ferramentas próprias para organizar as turmas, publicar atividades e acompanhar a participação dos estudantes.
+
+### 4.1 Visão geral
+
+O painel apresenta informações da turma selecionada, incluindo:
+- Quantidade de estudantes matriculados.
+- Número de missões publicadas.
+- Conclusões confirmadas.
+- Atividades disponibilizadas.
+
+### 4.2 Estudantes
+
+Nessa seção, o professor pode visualizar os estudantes vinculados à turma.
+
+Também pode:
+- Compartilhar o código de acesso.
+- Adicionar estudantes por ID ou e-mail.
+- Criar novas turmas.
+- Alterar nomes das turmas.
+- Gerenciar os estudantes vinculados.
+
+### 4.3 Publicação de missões
+
+O professor pode criar atividades personalizadas para os estudantes.
+
+Para publicar uma missão, informa o assunto, título, fonte, prazo, habilidade avaliada e enunciado.
+
+Também pode escolher o formato de resposta, adicionar imagens e criar capítulos adicionais.
+
+Cada missão possui uma quantidade de XP e moedas definida pelo professor.
+
+Após a publicação, a atividade aparece na Jornada dos estudantes da turma correspondente.
+
+### 4.4 Correção e acompanhamento
+
+O professor pode visualizar como o estudante verá cada missão e acompanhar as respostas recebidas.
+
+Nas respostas escritas, pode confirmar ou recusar a conclusão.
+
+Também pode liberar uma nova tentativa quando o estudante erra uma questão de múltipla escolha.
+
+Quando confirma uma resposta escrita, o estudante recebe as recompensas correspondentes.
+
+### 4.5 Slides
+
+O professor pode publicar materiais de aula utilizando links ou arquivos.
+
+Os conteúdos ficam disponíveis na seção Slides dos estudantes vinculados à turma.
+
+### 4.6 Ranking e gráficos
+
+O professor consegue consultar o ranking da turma e visualizar gráficos de acertos e erros.
+
+Essas informações ajudam a identificar a participação dos estudantes e os assuntos que podem precisar de maior atenção.
+
+### 4.7 Relatórios
+
+A seção Relatórios reúne informações sobre:
+- Estudantes.
+- Missões concluídas.
+- XP acumulado.
+- Resultados por habilidade matemática.
+
+Também permite exportar os dados em formato CSV para análises posteriores.
+
+### 4.8 Gestão da loja e conquistas
+
+O professor pode criar novas conquistas, definir condições para desbloqueá-las e concedê-las manualmente aos estudantes.
+
+Também pode cadastrar novos itens na loja, definindo nome, descrição, preço, categoria e aparência.
+
+### 4.9 Atividades em sala
+
+Essa ferramenta permite registrar atividades realizadas presencialmente.
+
+O professor informa o nome da atividade, define a quantidade de XP e moedas e seleciona os estudantes que receberão a recompensa.
+
+Dessa forma, a evolução pode reconhecer também a participação nas atividades realizadas em sala de aula.
+
+### 4.10 Contas
+
+O professor pode criar contas para estudantes, individualmente ou em grupos.
+
+Isso facilita a organização dos acessos e a inclusão dos estudantes na turma.
+
+### 4.11 Loja, conquistas e perfil do professor
+
+O professor também possui sua própria evolução dentro da plataforma.
+
+Pode acumular XP e moedas, conquistar medalhas, utilizar a loja e personalizar seu perfil.
+
+## 5. Objetivo final da plataforma
+
+O MathXP busca aproximar a Matemática de uma experiência de aprendizagem mais participativa.
+
+A plataforma conecta atividades escolares a desafios, metas, experiência, moedas virtuais, conquistas e acompanhamento pedagógico.
+
+O objetivo não é simplesmente transformar a Matemática em uma competição, mas permitir que cada estudante acompanhe sua própria evolução, reconheça suas dificuldades e continue aprendendo.
+
+**MathXP — Aprender para Evoluir.**`;
+function roteiroHTML(){const t=String(ROTEIRO||'').replace(/\r/g,'').trim();
+ if(!t)return '<h2>📜 Roteiro</h2><p>O roteiro do MathXP vai aparecer aqui.</p>';
+ const inl=function(x){return escH(x).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')};
+ let out='',list='',para=[];
+ const fP=function(){if(para.length){out+='<p>'+para.map(inl).join('<br>')+'</p>';para=[]}},fL=function(){if(list){out+='</'+list+'>';list=''}};
+ t.split('\n').forEach(function(line){let m;
+  if(!line.trim()){fP();fL();return}
+  if(m=line.match(/^###\s+(.*)/)){fP();fL();out+='<h4>'+inl(m[1])+'</h4>';return}
+  if(m=line.match(/^##\s+(.*)/)){fP();fL();out+='<h3>'+inl(m[1])+'</h3>';return}
+  if(m=line.match(/^#\s+(.*)/)){fP();fL();out+='<h2>'+inl(m[1])+'</h2>';return}
+  if(m=line.match(/^\s*[-•]\s+(.*)/)){fP();if(list!=='ul'){fL();out+='<ul>';list='ul'}out+='<li>'+inl(m[1])+'</li>';return}
+  if(m=line.match(/^\s*\d+\.\s+(.*)/)){fP();if(list!=='ol'){fL();out+='<ol>';list='ol'}out+='<li>'+inl(m[1])+'</li>';return}
+  fL();para.push(line)});
+ fP();fL();return out}
+function bemvindoHTML(u){const prof=u.role==='professor',LVX=lvInfo(u.xp);
+ return `<div class="wp"><div class="wp-hero"><div>${avatarBox(u,84)}</div>
+ <span class="wp-chip" style="font-size:15px;padding:8px 16px">Olá, ${escH(u.name.split(' ')[0])} 👋</span>
+ <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><span class="wp-chip">🎖️ Nível ${LVX.l}</span><span class="wp-chip">⚡ ${u.xp} XP</span><span class="wp-chip">🪙 ${u.coins}</span></div>
+ <button class="btn" style="margin-top:8px" onclick="${prof?"navT('visao')":"navS('inicio')"}">${prof?'Ir para a visão geral →':'Começar minha jornada →'}</button></div>
+ <div class="wp-body"><div class="wp-card">${roteiroHTML()}</div></div></div>`}
 /* ================= SLIDES (aulas em slide para a turma: link ou arquivo) ================= */
 const SL_EXT=['pdf','ppt','pptx','pps','ppsx','png','jpg','jpeg','webp','gif'],SL_IMG=['png','jpg','jpeg','webp','gif'],
  SL_MIME={pdf:'application/pdf',ppt:'application/vnd.ms-powerpoint',pps:'application/vnd.ms-powerpoint',pptx:'application/vnd.openxmlformats-officedocument.presentationml.presentation',ppsx:'application/vnd.openxmlformats-officedocument.presentationml.slideshow',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp',gif:'image/gif'};
@@ -729,8 +1285,8 @@ function graficoHTML(u){const c=u.role==='professor'?selClass():classOf(u);
  <div class="grid2" style="margin-top:16px">
  <div class="card"><h2>✅ Quem mais acertou</h2>${barsHTML(by('ok'),'ok','#059669',u.id)}</div>
  <div class="card"><h2>❌ Quem mais errou</h2>${barsHTML(by('wr'),'wr','#e11d48',u.id)}</div></div>`}
-function teacherHTML(u){const pages={visao:tVisao,estudantes:tEstudantes,jornada:tJornada,ranking:tRanking,slides:()=>slidesHTML(u),grafico:()=>graficoHTML(u),rel:tRel,gestao:tGestao,atividade:tAtividade,contas:tContas,loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),perfil:tPerfil};
- const nav=[['visao','📊','Visão geral'],['estudantes','👥','Estudantes'],['jornada','🧭','Jornada'],['slides','🖥️','Slides'],['ranking','🏆','Ranking'],['grafico','🧮','Gráficos'],['rel','📈','Relatórios'],['gestao','🎁','Gestão'],['atividade','📝','Atividade'],['contas','🔑','Contas'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['perfil','👤','Perfil']];
+function teacherHTML(u){const pages={bemvindo:()=>bemvindoHTML(u),visao:tVisao,estudantes:tEstudantes,jornada:tJornada,ranking:tRanking,slides:()=>slidesHTML(u),grafico:()=>graficoHTML(u),rel:tRel,gestao:tGestao,atividade:tAtividade,contas:tContas,loja:()=>shopHTML(u),conquistas:()=>conqHTML(u),personagem:()=>personagemHTML(u),perfil:tPerfil};
+ const nav=[['bemvindo','🚀','Bem-vindo'],['visao','📊','Visão geral'],['estudantes','👥','Estudantes'],['jornada','🧭','Jornada'],['slides','🖥️','Slides'],['ranking','🏆','Ranking'],['grafico','🧮','Gráficos'],['rel','📈','Relatórios'],['gestao','🎁','Gestão'],['atividade','📝','Atividade'],['contas','🔑','Contas'],['loja','🛒','Loja'],['conquistas','🎖️','Conquistas'],['personagem','🧙','Personagem'],['perfil','👤','Perfil']];
  return shellHTML(nav,ui.tPage,'navT',u,`<div class="page">${pages[ui.tPage](u)}</div>`)}
 /* ---- modal + render ---- */
 function modalHTML(){const m=ui.modal;
@@ -785,7 +1341,7 @@ function modalHTML(){const m=ui.modal;
  if(m.type==='conc'){const rs=db.responses.filter(r=>r.missionId===miss.id);
  return`<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
  <div class="spread"><div class="row">${miss.img?`<img src="${escH(miss.img)}" class="thumb" style="width:44px;height:44px" onclick="openZoom('${escH(miss.img)}')">`:''}<h2>Conclusões · ${escH(miss.title)}</h2></div><button class="btn ghost sm" onclick="closeModal()">fechar</button></div>
- ${rs.length?rs.map(r=>{const s=db.users.find(x=>x.id===r.studentId);const stb=r.status==='ok'?'<span class="badge b-green">confirmada</span>':r.status==='pending'?'<span class="badge b-amber">pendente</span>':r.status==='wrong'?'<span class="badge b-red">incorreta</span>':'<span class="badge b-gray">recusada</span>';
+ ${rs.length?rs.map(r=>{const s=db.users.find(x=>x.id===r.studentId);const stb=r.status==='ok'?'<span class="badge b-green">confirmada</span>':r.status==='pending'?'<span class="badge b-amber">pendente</span>':r.status==='wrong'?'<span class="badge b-red">incorreta'+(r.released?' · nova tentativa liberada':'')+'</span>'+(r.released?'':' <button class="btn ghost sm" onclick="releaseTry(\''+r.id+'\')">🔓 Liberar nova tentativa</button>'):'<span class="badge b-gray">recusada</span>';
  const ansTxt=miss.type==='multipla'?('Alternativa '+(+r.answer+1)+': '+miss.opts[+r.answer]):r.answer;
  const tc=s?eqVal(s,'textColor'):null;const tf=s?eqVal(s,'textEffect'):null;
  return`<div class="card" style="margin-top:12px"><div class="spread"><b>${s?displayName(s):'?'} <span class="tiny">${s?s.id:''}</span></b>${stb}</div><p class="muted ${tf?'fx-'+tf:''}" style="margin-top:6px;${tc?'color:'+tc:''}">${escH(ansTxt)}</p>
@@ -796,6 +1352,7 @@ function render(){document.querySelectorAll('.overlay').forEach(e=>e.remove());a
  if(!u){session=null;app.innerHTML=authHTML();return}
  app.innerHTML=u.role==='aluno'?studentHTML(u):teacherHTML(u);
  if(ui.modal)document.body.insertAdjacentHTML('beforeend',modalHTML())}
+introMathXP(); /* a animação do MathXP aparece sempre que o site abre ou é recarregado */
 render();
 </script>
 <script>
@@ -879,7 +1436,7 @@ sb.auth.onAuthStateChange(function(ev){if(ev==='PASSWORD_RECOVERY'){setTimeout(f
  if(p&&p.length>=8)sb.auth.updateUser({password:p}).then(function(r){if(!r.error)sb.rpc('save_my_pass',{p:p});toast(r.error?'⚠️ '+r.error.message:'🔑 Senha redefinida!')});
  else if(p)toast('A senha precisa de pelo menos 8 caracteres.')},300)}});
 function formDirty(){if(typeof pendingImage!=='undefined'&&pendingImage)return true;
- if(document.querySelector('#app iframe'))return true;
+ if(document.querySelector('#app iframe')||document.querySelector('#mx_cv'))return true;
  return [].slice.call(document.querySelectorAll('#app input,#app textarea')).some(function(el){const t=el.type;
   if(t==='file')return !!(el.files&&el.files.length);if(t==='hidden'||t==='button'||t==='submit')return false;
   if(t==='checkbox'||t==='radio')return el.checked!==el.defaultChecked;
@@ -928,6 +1485,7 @@ function cp(d){const ps=document.querySelectorAll('.cpage'),n=ps.length;cpi=Math
  document.getElementById('cpLbl').textContent='Capítulo '+(cpi+1)+' de '+n}
 const _sub=submitAnswer;
 submitAnswer=function(mid){const m=missionById(mid),cs=(m&&m.chapters)||[];if(!cs.length)return _sub(mid);
+ if(['done','pending','failed'].includes(statusOf(me(),m)))return toast('Esta missão já foi respondida.');
  const u=me(),parts=[];let allOk=true,written=false;
  const items=[{type:m.type,opts:m.opts,correct:m.correct,name:'opt',ta:document.getElementById('w_ans')}].concat(cs.map(function(c,k){return{type:c.type,opts:c.opts,correct:c.correct,name:'opt'+(k+1),ta:document.querySelector('.c_ans[data-i="'+(k+1)+'"]')}}));
  for(let k=0;k<items.length;k++){const it=items[k];
@@ -941,7 +1499,7 @@ submitAnswer=function(mid){const m=missionById(mid),cs=(m&&m.chapters)||[];if(!c
  db.responses.push({id:'R'+Date.now(),missionId:mid,studentId:u.id,answer:parts.join(' | '),status:status,date:new Date().toISOString()});
  if(status==='ok'){award(u,m);toast('✅ Tudo certo! +'+m.xp+' XP, +'+m.coins+' moedas')}
  else if(status==='pending')toast('📨 Enviado! Aguarde a confirmação do professor.');
- else toast('❌ Alguma resposta está incorreta. Tente novamente.');
+ else toast('❌ Alguma resposta está incorreta. Esta missão foi encerrada.');
  save();ui.modal=null;render()};
 function removeStudent(id){const u=db.users.find(function(x){return x.id===id});if(!u)return;
  if(!confirm('Remover '+u.name+' desta turma? A conta continua existindo e ele pode entrar em outra turma com um código.'))return;
@@ -1002,6 +1560,21 @@ async function createStudents(items,bulk){const c=selClass();if(!c)return;
  toast('✅ '+log.filter(function(x){return x.ok}).length+' de '+items.length+' conta(s) criada(s).');render()}
 function copyContas(){const t=(ui.contasLog||[]).filter(function(x){return x.ok}).map(function(x){return x.name+' — '+x.email+' — senha: '+x.pass}).join('\n');
  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast('📋 Lista copiada!')},function(){toast('Não consegui copiar. Selecione o texto e copie.')})}
+function resizeSquare(file,px){return new Promise(function(res,rej){const img=new Image(),url=URL.createObjectURL(file);
+ img.onload=function(){const q=Math.min(img.width,img.height),c=document.createElement('canvas');c.width=c.height=px;c.getContext('2d').drawImage(img,(img.width-q)/2,(img.height-q)/2,q,q,0,0,px,px);URL.revokeObjectURL(url);c.toBlob(function(b){b?res(b):rej(new Error('blob'))},'image/jpeg',.85)};
+ img.onerror=function(){rej(new Error('img'))};img.src=url})}
+async function setPhoto(inp){const f=inp.files&&inp.files[0];if(!f)return;
+ if(!/^image\//.test(f.type))return toast('Escolha uma imagem (JPG ou PNG).');
+ const u=me();toast('Enviando foto…');let blob;
+ try{blob=await resizeSquare(f,256)}catch(e){return toast('Não consegui ler essa imagem. Tente outra.')}
+ const path=authUid+'/'+Date.now()+'.jpg',r=await sb.storage.from('avatars').upload(path,blob,{contentType:'image/jpeg',cacheControl:'31536000',upsert:false});
+ if(r.error)return toast('⚠️ Não consegui enviar a foto: '+r.error.message);
+ const old=u.photoPath;u.photo=sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;u.photoPath=path;u.photoOff=0;
+ save();if(old)sb.storage.from('avatars').remove([old]).then(function(){},function(){});
+ toast('📷 Foto atualizada!');render()}
+function removePhoto(){const u=me();if(u.photoPath)sb.storage.from('avatars').remove([u.photoPath]).then(function(){},function(){});u.photo='';u.photoPath='';u.photoOff=0;save();toast('Foto removida.');render()}
+function usePhoto(){const u=me();u.photoOff=0;save();render()}
+function setAvatar(e){const u=me();u.avatar=e;u.avatarMode='emoji';u.photoOff=1;if(u.equipped)u.equipped.avatar=null;save();toast('Avatar atualizado!');render()}
 async function loadCreds(){const u=me();if(!u||u.role!=='professor')return;
  const r=await sb.from('credentials').select('uid,pass');creds={};(r.data||[]).forEach(function(c){creds[c.uid]=c.pass})}
 async function submitReset(){
