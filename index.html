@@ -285,6 +285,7 @@ function achFor(u){return u.role==='professor'?PROF_ACH:allAch()}
 function eqVal(u,type){if(!u||!u.equipped)return null;const id=u.equipped[type];if(!id)return null;const it=allItems().find(i=>i.id===id);return it&&it.effect?it.effect.value:null}
 function displayName(s){const nc=eqVal(s,'nameColor');const sy=eqVal(s,'symbol');
  return`${sy?`<span class="${sy.anim?'sym-anim':''}" style="margin-right:4px">${escH(sy.e)}</span>`:''}<span style="${nc?'color:'+nc:''}">${escH(s.name)}</span>`}
+function hojeISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function escH(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 /* ================= AVATAR E FOTO DE PERFIL ================= */
 const AV_FREE=['🦊','🐼','🐯','🦁','🐸','🐵','🦉','🐙','🦄','🐲','🤖','👾','🚀','⭐','🔥','⚡','🎯','🧠','🧮','📐','📏','🎓','🏆','😎','🤓','🐱','🐶','🦋'];
@@ -465,7 +466,7 @@ function submitAnswer(mid){const m=missionById(mid),u=me();let ans;
  else{ans=document.getElementById('w_ans').value.trim();if(ans.length<10)return toast('Escreva uma resposta com pelo menos 10 caracteres.');
   db.responses.push({id:'R'+Date.now(),missionId:mid,studentId:u.id,answer:ans,status:'pending',date:new Date().toISOString()});toast('📨 Enviado! Aguarde a confirmação do professor.')}
  save();ui.modal=null;render()}
-function confirmResp(rid){const r=db.responses.find(x=>x.id===rid);if(!r||r.status!=='pending')return;r.status='ok';const u=db.users.find(x=>x.id===r.studentId),m=missionById(r.missionId);award(u,m);teachReward(10,2,'✅ Conclusão confirmada! Aluno recebeu XP e você também');render()}
+function confirmResp(rid){const r=db.responses.find(x=>x.id===rid);if(!r||r.status!=='pending')return;r.status='ok';const u=db.users.find(x=>x.id===r.studentId),m=missionById(r.missionId);if(m.vals){const w=[];[m.type].concat((m.chapters||[]).map(function(c){return c.type})).forEach(function(t,k){if(t==='escrita')w.push(k)});awardQ(u,m,w);r.okIdx=(r.okIdx||[]).concat(w);save()}else award(u,m);teachReward(10,2,'✅ Conclusão confirmada! Aluno recebeu XP e você também');render()}
 function releaseTry(rid){const r=db.responses.find(x=>x.id===rid);if(!r||r.status!=='wrong')return;r.released=true;save();toast('🔓 Nova tentativa liberada para o aluno.');render()}
 function rejectResp(rid){const r=db.responses.find(x=>x.id===rid);if(!r)return;r.status='rejected';save();toast('Conclusão recusada — aluno poderá refazer.');render()}
 function toggleType(){const t=document.getElementById('f_type').value;document.getElementById('optsBox').style.display=t==='multipla'?'block':'none'}
@@ -592,7 +593,7 @@ function tJornada(u){const c=selClass();const ms=db.missions.filter(m=>m.classCo
  return`<h1>Jornada · publicar missões</h1><p class="muted">Cada missão é ligada a um assunto e a uma habilidade de matemática. Publicar rende <b>+20 XP e +5 🪙</b>.</p>
  <div class="card" style="margin-top:16px"><h2>Nova missão</h2>
  <div class="grid2"><div><label>Assunto (tema)</label><input id="f_book" placeholder="Ex.: Frações equivalentes"><label>Fonte (livro/página)</label><input id="f_author" placeholder="Ex.: Livro didático, pág. 32"></div>
- <div><label>Título da missão</label><input id="f_title" placeholder="Ex.: Desafio das Frações"><label>Prazo</label><input id="f_dead" type="date"></div></div>
+ <div><label>Título da missão</label><input id="f_title" placeholder="Ex.: Desafio das Frações"><label>Prazo</label><input id="f_dead" type="date" value="${hojeISO()}"></div></div>
  <label>Habilidade avaliada</label><select id="f_skill">${SKILLS.map(s=>`<option value="${s[0]}">${s[1]}</option>`).join('')}</select>
  <label>Tipo de resposta</label><select id="f_type" onchange="toggleType()"><option value="multipla">Múltipla escolha</option><option value="escrita">Resposta escrita (passo a passo)</option></select>
  <label>Imagem da missão (opcional)</label><input id="f_img" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="onMissionImage(this)">
@@ -600,8 +601,9 @@ function tJornada(u){const c=selClass();const ms=db.missions.filter(m=>m.classCo
  <div id="imgPreview"></div>
  <label>Enunciado</label><textarea id="f_q" placeholder="Descreva o desafio de matemática..."></textarea>
  <div id="optsBox"><label>Alternativas</label>${[0,1,2,3].map(i=>`<input id="f_o${i}" style="margin-top:6px" placeholder="Alternativa ${i+1}">`).join('')}<label>Correta (nº)</label><select id="f_correct"><option value="0">1</option><option value="1">2</option><option value="2">3</option><option value="3">4</option></select></div>
+ <div class="grid2"><div><label>Valor da questão 1 · XP</label><input id="f_xp" type="number" min="0" value="100" oninput="valTot()"></div><div><label>Valor da questão 1 · Moedas</label><input id="f_coins" type="number" min="0" value="10" oninput="valTot()"></div></div>
  <div id="chapBox"></div><button type="button" class="btn ghost sm" style="margin-top:12px" onclick="addChapter()">＋ Mais capítulo</button>
- <div class="grid2"><div><label>XP</label><input id="f_xp" type="number" value="100"></div><div><label>Moedas</label><input id="f_coins" type="number" value="10"></div></div>
+ <p class="tiny" id="valTot" style="margin-top:12px">Total da missão: <b>100 XP</b> · <b>10 moedas</b> <span class="muted">(soma do valor de cada questão)</span></p>
  <label class="opt"><input id="f_all" type="checkbox"> Publicar para todas as minhas turmas (${myClasses().length})</label>
  <button class="btn" style="margin-top:14px" onclick="publishMission()">Publicar missão</button></div>
  <h2 style="margin-top:22px">Missões publicadas</h2>
@@ -1255,7 +1257,7 @@ async function addSlide(){const g=function(i){return document.getElementById(i).
  if(t.length<2)return toast('Dê um título ao slide.');
  const meu=me(),alvo=all?db.classes.filter(function(c){return c.teacherId===meu.id}):[selClass()].filter(Boolean);
  if(!alvo.length)return toast('Crie uma turma primeiro.');
- const sl={id:'S'+Date.now(),title:t,desc:d,date:new Date().toISOString().slice(0,10)};
+ const sl={id:'S'+Date.now(),title:t,desc:d,date:hojeISO()};
  if(f){const ext=(f.name.split('.').pop()||'').toLowerCase();
   if(SL_EXT.indexOf(ext)<0)return toast('Formato não aceito. Use PDF, PowerPoint (.pptx) ou imagem.');
   if(f.size>25*1024*1024)return toast('Arquivo muito grande (máximo 25 MB). Dica: salve o PowerPoint como PDF.');
@@ -1328,14 +1330,16 @@ function modalHTML(){const m=ui.modal;
  <p class="muted" style="margin-top:8px">📖 ${escH(miss.book)}${escH(miss.author?' · '+miss.author:'')}</p>
  <span class="badge b-purple" style="margin-top:8px">${skillName(miss.skill)}</span>
  ${miss.img?`<div class="mimg-wrap"><img src="${escH(miss.img)}" class="mimg" onclick="openZoom(this.src)"></div><p class="tiny" style="margin-top:6px;text-align:center">🔍 Clique na imagem para ampliar</p>`:''}
- <p style="margin-top:14px;font-weight:600">${escH(miss.q)}</p>
+ ${valBadge(miss,0)}<p style="margin-top:14px;font-weight:600">${escH(miss.q)}</p>
  ${miss.type==='multipla'?miss.opts.map(o=>`<label class="opt" style="opacity:.85"><input type="radio" disabled> ${escH(o)}</label>`).join(''):`<label>Resposta escrita</label><textarea disabled placeholder="O aluno escreverá aqui a resolução com o passo a passo..."></textarea>`}
+ ${(miss.chapters||[]).map(function(c,k){return '<div style="margin-top:16px;padding-top:12px;border-top:1px dashed rgba(124,58,237,.35)"><b>Capítulo '+(k+2)+'</b> '+valBadge(miss,k+1)+(c.img?'<div class="mimg-wrap"><img src="'+escC(c.img)+'" class="mimg" onclick="openZoom(this.src)"></div>':'')+'<p style="margin-top:10px;font-weight:600">'+escC(c.q)+'</p>'+(c.type==='multipla'?c.opts.map(function(o){return '<label class="opt" style="opacity:.85"><input type="radio" disabled> '+escC(o)+'</label>'}).join(''):'<textarea disabled placeholder="Resposta escrita"></textarea>')+'</div>'}).join('')}
+ ${miss.vals?`<p class="tiny" style="margin-top:12px"><b>Total da missão:</b> ${miss.xp} XP · ${miss.coins} moedas</p>`:''}
  <p class="tiny" style="margin-top:12px">É assim que o estudante verá o desafio: imagem → enunciado → alternativas.</p></div></div>`}
  if(m.type==='answer'){return`<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
  <div class="spread"><h2>${escH(miss.title)}</h2><button class="btn ghost sm" onclick="closeModal()">fechar</button></div>
  <p class="muted">📖 ${escH(miss.book)}${escH(miss.author?' · '+miss.author:'')}</p><span class="badge b-purple" style="margin-top:8px">${skillName(miss.skill)}</span>${m.practice?'<p class="tiny" style="margin-top:10px;padding:8px 10px;background:#fff7e0;border-radius:8px">🔁 Modo treino: repita quantas vezes quiser. Não vale XP nem moedas e não vai para o professor.</p>':''}
  ${miss.img?`<div class="mimg-wrap"><img src="${escH(miss.img)}" class="mimg" onclick="openZoom(this.src)" alt="Imagem da missão"></div><p class="tiny" style="margin-top:6px;text-align:center">🔍 Clique na imagem para ampliar e ler os detalhes</p>`:''}
- <div class="cpage" data-i="0" style="display:block"><p style="margin-top:14px;font-weight:600">${escH(miss.q)}</p>
+ <div class="cpage" data-i="0" style="display:block">${valBadge(miss,0)}<p style="margin-top:14px;font-weight:600">${escH(miss.q)}</p>
  ${miss.type==='multipla'?miss.opts.map((o,i)=>`<label class="opt"><input type="radio" name="opt" value="${i}"> ${escH(o)}</label>`).join(''):`<label>Sua resposta (mostre o passo a passo)</label><textarea id="w_ans" placeholder="Escreva sua resolução mostrando o passo a passo..."></textarea>`}
  </div>${chapPages(miss)}<button id="sendBtn" class="btn" style="margin-top:16px${(miss.chapters||[]).length?';display:none':''}" onclick="submitAnswer('${miss.id}')">${m.practice?'Conferir respostas (treino)':'Enviar respostas'}</button></div></div>`}
  if(m.type==='conc'){const rs=db.responses.filter(r=>r.missionId===miss.id);
@@ -1458,9 +1462,18 @@ function chapHTML(n){return '<div class="card chap" style="margin-top:12px"><div
  +'<label>Tipo de resposta</label><select class="c_type" onchange="this.closest(\'.chap\').querySelector(\'.c_opts\').style.display=this.value===\'multipla\'?\'block\':\'none\'"><option value="multipla">Múltipla escolha</option><option value="escrita">Resposta escrita</option></select>'
  +'<label>Enunciado</label><textarea class="c_q" placeholder="Pergunta deste capítulo..."></textarea>'
  +'<label>Imagem do capítulo (opcional)</label><input type="file" class="c_img" accept="image/png,image/jpeg,image/webp,image/gif" onchange="chapImg(this)"><div class="c_prev"></div>'
- +'<div class="c_opts"><label>Alternativas</label>'+[0,1,2,3].map(function(i){return '<input class="c_o" style="margin-top:6px" placeholder="Alternativa '+(i+1)+'">'}).join('')+'<label>Correta (nº)</label><select class="c_correct"><option value="0">1</option><option value="1">2</option><option value="2">3</option><option value="3">4</option></select></div></div>'}
-function addChapter(){const b=document.getElementById('chapBox');b.insertAdjacentHTML('beforeend',chapHTML(b.children.length+2))}
-function renumChaps(){document.querySelectorAll('#chapBox .chn').forEach(function(e,i){e.textContent='Capítulo '+(i+2)})}
+ +'<div class="c_opts"><label>Alternativas</label>'+[0,1,2,3].map(function(i){return '<input class="c_o" style="margin-top:6px" placeholder="Alternativa '+(i+1)+'">'}).join('')+'<label>Correta (nº)</label><select class="c_correct"><option value="0">1</option><option value="1">2</option><option value="2">3</option><option value="3">4</option></select></div>'
+ +'<div class="grid2"><div><label>Valor deste capítulo · XP</label><input class="c_xp" type="number" min="0" value="50" oninput="valTot()"></div><div><label>Valor deste capítulo · Moedas</label><input class="c_coins" type="number" min="0" value="5" oninput="valTot()"></div></div></div>'}
+function addChapter(){const b=document.getElementById('chapBox');b.insertAdjacentHTML('beforeend',chapHTML(b.children.length+2));valTot()}
+function renumChaps(){document.querySelectorAll('#chapBox .chn').forEach(function(e,i){e.textContent='Capítulo '+(i+2)});valTot()}
+/* ===== VALOR POR QUESTÃO ===== */
+function valTot(){const el=document.getElementById('valTot');if(!el)return;let x=+(document.getElementById('f_xp').value)||0,c=+(document.getElementById('f_coins').value)||0;
+ document.querySelectorAll('#chapBox .chap').forEach(function(b){x+=+b.querySelector('.c_xp').value||0;c+=+b.querySelector('.c_coins').value||0});
+ el.innerHTML='Total da missão: <b>'+x+' XP</b> · <b>'+c+' moedas</b> <span class="muted">(soma do valor de cada questão)</span>'}
+function qVal(m,k){const v=m.vals&&m.vals[k];return v?{xp:v.xp||0,coins:v.coins||0}:(k===0?{xp:m.xp||0,coins:m.coins||0}:{xp:0,coins:0})}
+function valBadge(m,k){if(!m.vals)return '';const v=qVal(m,k);return '<span class="badge b-amber" style="margin-top:8px">⭐ Vale '+v.xp+' XP · '+v.coins+' 🪙</span>'}
+function credited(u,m){const s={};db.responses.forEach(function(r){if(r.missionId===m.id&&r.studentId===u.id)(r.okIdx||[]).forEach(function(i){s[i]=1})});return s}
+function awardQ(u,m,idx){const cr=credited(u,m),seen={};let x=0,c=0;idx.forEach(function(k){if(!cr[k]&&!seen[k]){seen[k]=1;const v=qVal(m,k);x+=v.xp;c+=v.coins}});if(x||c){u.xp+=x;u.coins+=c;checkAch(u)}return{xp:x,coins:c}}
 const _pub=publishMission;
 publishMission=function(){const chaps=[],bl=document.querySelectorAll('#chapBox .chap');
  for(let k=0;k<bl.length;k++){const b=bl[k],t=b.querySelector('.c_type').value,q=b.querySelector('.c_q').value.trim();
@@ -1468,13 +1481,16 @@ publishMission=function(){const chaps=[],bl=document.querySelectorAll('#chapBox 
   let opts=[],correct=0;
   if(t==='multipla'){opts=[].map.call(b.querySelectorAll('.c_o'),function(i){return i.value.trim()});
    if(opts.some(function(o){return !o})){toast('Preencha as 4 alternativas do capítulo '+(k+2)+'.');return}correct=+b.querySelector('.c_correct').value}
-  chaps.push({type:t,q:q,opts:opts,correct:correct,img:b.querySelector('.c_img').dataset.url||''})}
+  chaps.push({type:t,q:q,opts:opts,correct:correct,img:b.querySelector('.c_img').dataset.url||'',xp:Math.max(0,+b.querySelector('.c_xp').value||0),coins:Math.max(0,+b.querySelector('.c_coins').value||0)})}
  const before=new Set(db.missions.map(function(m){return m.id}));_pub();
- if(chaps.length){db.missions.forEach(function(m){if(!before.has(m.id))m.chapters=chaps});save()}};
+ const q1={xp:Math.max(0,+document.getElementById('f_xp').value||0),coins:Math.max(0,+document.getElementById('f_coins').value||0)};
+ db.missions.forEach(function(m){if(before.has(m.id))return;if(chaps.length)m.chapters=chaps;
+  m.vals=[q1].concat(chaps.map(function(c){return{xp:c.xp,coins:c.coins}}));
+  m.xp=m.vals.reduce(function(a,v){return a+v.xp},0);m.coins=m.vals.reduce(function(a,v){return a+v.coins},0)});save()};
 let cpi=0;
 function openAnswer(mid){cpi=0;ui.modal={type:'answer',mid:mid};render()}
 function chapPages(m){const cs=m.chapters||[];if(!cs.length)return '';
- return cs.map(function(c,k){const i=k+1;return '<div class="cpage" data-i="'+i+'" style="display:none">'+(c.img?'<div class="mimg-wrap"><img src="'+escC(c.img)+'" class="mimg" onclick="openZoom(this.src)"></div><p class="tiny" style="margin-top:6px;text-align:center">🔍 Clique na imagem para ampliar</p>':'')+'<p style="margin-top:14px;font-weight:600">'+escC(c.q)+'</p>'
+ return cs.map(function(c,k){const i=k+1;return '<div class="cpage" data-i="'+i+'" style="display:none">'+valBadge(m,i)+(c.img?'<div class="mimg-wrap"><img src="'+escC(c.img)+'" class="mimg" onclick="openZoom(this.src)"></div><p class="tiny" style="margin-top:6px;text-align:center">🔍 Clique na imagem para ampliar</p>':'')+'<p style="margin-top:14px;font-weight:600">'+escC(c.q)+'</p>'
   +(c.type==='multipla'?c.opts.map(function(o,j){return '<label class="opt"><input type="radio" name="opt'+i+'" value="'+j+'"> '+escC(o)+'</label>'}).join(''):'<label>Sua resposta</label><textarea class="c_ans" data-i="'+i+'" placeholder="Escreva sua resposta..."></textarea>')+'</div>'}).join('')
  +'<div class="spread" style="margin-top:16px"><button type="button" class="btn ghost sm" id="cpPrev" onclick="cp(-1)" style="visibility:hidden">← Anterior</button><span class="tiny" id="cpLbl">Capítulo 1 de '+(cs.length+1)+'</span><button type="button" class="btn sm" id="cpNext" onclick="cp(1)">Próximo capítulo →</button></div>'}
 function cp(d){const ps=document.querySelectorAll('.cpage'),n=ps.length;cpi=Math.max(0,Math.min(n-1,cpi+d));
@@ -1486,20 +1502,21 @@ function cp(d){const ps=document.querySelectorAll('.cpage'),n=ps.length;cpi=Math
 const _sub=submitAnswer;
 submitAnswer=function(mid){const m=missionById(mid),cs=(m&&m.chapters)||[];if(!cs.length)return _sub(mid);
  if(['done','pending','failed'].includes(statusOf(me(),m)))return toast('Esta missão já foi respondida.');
- const u=me(),parts=[];let allOk=true,written=false;
+ const u=me(),parts=[];let allOk=true,written=false;const okIdx=[];
  const items=[{type:m.type,opts:m.opts,correct:m.correct,name:'opt',ta:document.getElementById('w_ans')}].concat(cs.map(function(c,k){return{type:c.type,opts:c.opts,correct:c.correct,name:'opt'+(k+1),ta:document.querySelector('.c_ans[data-i="'+(k+1)+'"]')}}));
  for(let k=0;k<items.length;k++){const it=items[k];
   if(it.type==='multipla'){const s=document.querySelector('input[name='+it.name+']:checked');
    if(!s){toast('Responda o capítulo '+(k+1)+'.');return}
-   if(+s.value!==it.correct)allOk=false;parts.push('Cap. '+(k+1)+': '+it.opts[+s.value])}
+   if(+s.value!==it.correct)allOk=false;else okIdx.push(k);parts.push('Cap. '+(k+1)+': '+it.opts[+s.value])}
   else{const a=it.ta?it.ta.value.trim():'';
    if(a.length<10){toast('Capítulo '+(k+1)+': escreva pelo menos 10 caracteres.');return}
    written=true;parts.push('Cap. '+(k+1)+': '+a)}}
- const status=written?'pending':(allOk?'ok':'wrong');
- db.responses.push({id:'R'+Date.now(),missionId:mid,studentId:u.id,answer:parts.join(' | '),status:status,date:new Date().toISOString()});
- if(status==='ok'){award(u,m);toast('✅ Tudo certo! +'+m.xp+' XP, +'+m.coins+' moedas')}
- else if(status==='pending')toast('📨 Enviado! Aguarde a confirmação do professor.');
- else toast('❌ Alguma resposta está incorreta. Esta missão foi encerrada.');
+ const status=written?'pending':(allOk?'ok':'wrong'),leg=!m.vals,r={id:'R'+Date.now(),missionId:mid,studentId:u.id,answer:parts.join(' | '),status:status,date:new Date().toISOString()};
+ let ea={xp:0,coins:0};if(!leg){r.okIdx=okIdx.slice();ea=awardQ(u,m,okIdx)}
+ db.responses.push(r);const gt=(!leg&&(ea.xp||ea.coins))?' Você ganhou +'+ea.xp+' XP e +'+ea.coins+' moedas pelas questões certas.':'';
+ if(status==='ok'){if(leg){award(u,m);toast('✅ Tudo certo! +'+m.xp+' XP, +'+m.coins+' moedas')}else toast('✅ Tudo certo! +'+ea.xp+' XP, +'+ea.coins+' moedas')}
+ else if(status==='pending')toast('📨 Enviado! Aguarde a confirmação do professor.'+gt);
+ else toast('❌ Alguma resposta está incorreta. Esta missão foi encerrada.'+gt);
  save();ui.modal=null;render()};
 function removeStudent(id){const u=db.users.find(function(x){return x.id===id});if(!u)return;
  if(!confirm('Remover '+u.name+' desta turma? A conta continua existindo e ele pode entrar em outra turma com um código.'))return;
