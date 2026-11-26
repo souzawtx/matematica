@@ -152,15 +152,16 @@ h1{font-size:26px}h2{font-size:19px;margin-bottom:4px}
 .sh-card.r4{border-color:#f59e0b;box-shadow:0 0 20px rgba(245,158,11,.4);animation:shIn .4s both,shGold 2.4s ease-in-out infinite}
 .sh-card.r5{border:2px solid transparent;background:linear-gradient(#1b1038,#1b1038) padding-box,linear-gradient(120deg,#f472b6,#22d3ee,#a78bfa,#f472b6) border-box;background-size:100% 100%,300% 300%;color:#fff;animation:shIn .4s both,shMyth 3s linear infinite}
 .sh-card.r5 .sh-d{opacity:.85}
-.sh-pv{display:grid;place-items:center;height:116px;border-radius:14px;background:radial-gradient(circle at 50% 75%,rgba(124,58,237,.4),rgba(20,10,50,.15));overflow:hidden}
-.sh-pv img{height:106px;image-rendering:pixelated;transition:transform .25s}.sh-card:hover .sh-pv img{transform:scale(1.1) translateY(-3px)}
+.sh-pv{display:grid;place-items:center;height:176px;border-radius:14px;background:radial-gradient(circle at 50% 75%,rgba(124,58,237,.4),rgba(20,10,50,.15));overflow:hidden}
+.pr-item{display:flex;align-items:center;gap:12px}.pr-pv{width:72px;height:72px;flex:none;display:grid;place-items:center;font-size:34px;border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 75%,rgba(124,58,237,.4),rgba(20,10,50,.15))}.pr-pv img{width:72px;height:72px;object-fit:contain;image-rendering:pixelated}img.m3{image-rendering:auto!important;object-fit:contain}
+.sh-pv img{width:164px;height:164px;object-fit:contain;image-rendering:pixelated;transition:transform .25s}.sh-card:hover .sh-pv img{transform:scale(1.1) translateY(-3px)}
 .sh-rar{position:absolute;top:8px;left:8px;z-index:1;font-size:10.5px;font-weight:900;color:#fff;padding:3px 8px;border-radius:99px;text-shadow:0 1px 2px rgba(0,0,0,.4)}
 .sh-own{position:absolute;top:8px;right:8px;z-index:1;font-size:10.5px;font-weight:900;background:#16a34a;color:#fff;padding:3px 8px;border-radius:99px}
 .sh-n{font-size:14px}.sh-d{font-size:12px;opacity:.75;margin:0;min-height:31px;line-height:1.3}
 .sh-f{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:auto}.sh-pr{font-weight:900}
 .sh-pop{position:fixed;inset:0;z-index:97;display:grid;place-items:center;background:rgba(10,5,30,.72);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);animation:mxIn .2s both}
 .sh-popc{width:min(360px,90vw);text-align:center;padding:22px;border-radius:22px;background:linear-gradient(160deg,#3b1d8a,#1b1038);color:#fff;border:1px solid rgba(167,139,250,.5);box-shadow:0 20px 60px rgba(0,0,0,.5);animation:shPop .45s cubic-bezier(.2,1.5,.4,1) both}
-.sh-popc img{height:208px;image-rendering:pixelated}.sh-popc h2{margin:6px 0;color:#fff}.sh-spark{font-size:30px;animation:shSpin 1.2s ease-in-out infinite alternate}
+.sh-popc img{width:208px;height:208px;object-fit:contain;image-rendering:pixelated}.sh-popc h2{margin:6px 0;color:#fff}.sh-spark{font-size:30px;animation:shSpin 1.2s ease-in-out infinite alternate}
 @keyframes shIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes shGold{0%,100%{box-shadow:0 0 14px rgba(245,158,11,.35)}50%{box-shadow:0 0 28px rgba(251,191,36,.7)}}
 @keyframes shMyth{from{background-position:0 0,0% 50%}to{background-position:0 0,300% 50%}}
@@ -1042,7 +1043,11 @@ function mxURL(cf,back,fr,crop,sc,af){const k=JSON.stringify([cf,back,fr,crop,sc
  const px=mxPix(cf,back,fr,af),a=document.createElement('canvas');a.width=MW;a.height=MH;const g=a.getContext('2d'),im=g.createImageData(MW,MH);im.data.set(px);g.putImageData(im,0,0);
  const c=crop||[0,2,40,52],o=document.createElement('canvas');o.width=c[2]*sc;o.height=c[3]*sc;const h=o.getContext('2d');h.imageSmoothingEnabled=false;h.drawImage(a,c[0],c[1],c[2],c[3],0,0,o.width,o.height);
  const url=o.toDataURL('image/png');if(Object.keys(MX_CACHE).length>500)for(const x in MX_CACHE){delete MX_CACHE[x];break}MX_CACHE[k]=url;return url}
-function mxAvatarImg(u){return `<img src="${mxURL(mxNorm(u.char),false,null,[6,3,28,28],4)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;image-rendering:pixelated;background:linear-gradient(160deg,#4c2a9e,#2a1660)">`}
+const MX3_ID={},MX3_LIST=[],MX3_IMG={};
+/* atributos de uma imagem que começa em pixel art e é trocada pelo retrato 3D quando ele fica pronto */
+function mx3(spec,url,w,h){const k=JSON.stringify([spec,w,h]);let n=MX3_ID[k];if(n==null){n=MX3_LIST.push({spec:spec,w:w,h:h})-1;MX3_ID[k]=n}const d=MX3_IMG[n];return 'src="'+(d||url)+'" data-m3="'+n+'" width="'+w+'" height="'+h+'"'+(d?' class="m3"':'')}
+function mx3Spec(cat,i,cf){if(cat==='pet'||cat==='mon')return{k:cat,i:i};const c=Object.assign(mxNorm(cf),{pet:-1,mon:-1,name:''});return{k:['hair','hcol','skin','head','face'].indexOf(cat)>=0?'head':'char',c:c,back:cat==='back'?1:0}}
+function mxAvatarImg(u){return `<img ${mx3(mx3Spec('head',0,u.char),mxURL(mxNorm(u.char),false,null,[6,3,28,28],4),112,112)} alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;image-rendering:pixelated;background:linear-gradient(160deg,#4c2a9e,#2a1660)">`}
 function avatarStrip(u){const nm=u.char&&u.char.name?u.char.name:u.name;
  return `<div class="row" style="gap:12px;align-items:center;margin:6px 0 14px"><div style="width:52px;height:52px">${avatarBox(u,52)}</div><div><b>${escH(nm)}</b><div class="tiny muted">Nível ${levelOf(u.xp)} · 🪙 ${u.coins}</div></div><button class="btn ghost sm" onclick="${u.role==='professor'?"navT('personagem')":"navS('personagem')"}">🧙 Personagem</button></div>`}
 function goPersonagem(){ui.sPage='personagem';ui.tPage='personagem';render()}
@@ -1056,7 +1061,7 @@ function crTile(u,cat,i){const cr=ui.cr;let vc=JSON.parse(JSON.stringify(cr)),it
   sub=`<div class="r" style="color:${rc[1]}">${rc[0]}</div><div class="d">${escH(it.desc)}</div><div class="r">${lk?'🔒 Nível '+it.lvl:ow?(it.price?'✔ Seu':'Grátis'):'🪙 '+it.price}</div>`;
   if(lk)on=on&&false}
  const lk=it&&mxLocked(u,it);
- return `<div class="cr-i${on?' on':''}${lk?' lk':''}" title="${escH(it?it.name+' — '+it.desc:'')}" onclick="crPick('${cat}',${typeof i==='string'?"'"+i+"'":i})"><img src="${mxURL(vc,false,null,crop,sc)}" alt=""><div class="n">${escH(it?it.name:cat==='model'?(i==='m'?'Aventureiro':'Aventureira'):'Tom '+(i+1))}</div>${sub}</div>`}
+ return `<div class="cr-i${on?' on':''}${lk?' lk':''}" title="${escH(it?it.name+' — '+it.desc:'')}" onclick="crPick('${cat}',${typeof i==='string'?"'"+i+"'":i})"><img ${mx3(mx3Spec(cat,i,vc),mxURL(vc,false,null,crop,sc),crop[2]*sc,crop[3]*sc)} alt=""><div class="n">${escH(it?it.name:cat==='model'?(i==='m'?'Aventureiro':'Aventureira'):'Tom '+(i+1))}</div>${sub}</div>`}
 function personagemHTML(u){if(!ui.cr||ui.crUid!==u.id){ui.cr=mxNorm(u.char);ui.crUid=u.id;ui.crTab=ui.crTab||'outfit';ui.crBack=false;ui.crWalk=false}
  const cr=ui.cr,tab=ui.crTab||'outfit',lv=levelOf(u.xp);let grid='';
  const tabs=MX_TABS.map(function(t){return `<button class="cr-tab${tab===t[0]?' on':''}" onclick="crTab('${t[0]}')">${t[1]}</button>`}).join('');
@@ -1115,19 +1120,23 @@ function shopBuy(cat,i){const u=me(),it=mxItem(cat,i);if(!it||!mxBuy(u,it))retur
 function shopWear(cat,i){const u=me();ui.cr=mxNorm(u.char);ui.crUid=u.id;if(cat==='shirt'||cat==='pet'||cat==='mon')ui.cr[cat]=i;ui.crTab=cat;ui.crBack=false;ui.crWalk=false;goPersonagem()}
 function shopPop(u,it){const old=document.getElementById('shopPop');if(old)old.remove();const vc=mxNorm(u.char);vc[it.cat]=it.i;const rc=MX_RAR[it.rar];
  const o=document.createElement('div');o.id='shopPop';o.className='sh-pop';
- o.innerHTML='<div class="sh-popc"><div class="sh-spark">✨</div><img src="'+mxURL(vc,false,null,[0,2,40,52],4)+'" alt=""><h2>Compra realizada!</h2><p><b>'+escH(it.name)+'</b> <span class="sh-rar" style="position:static;background:'+rc[1]+'">'+rc[0]+'</span></p><p class="tiny">Ele já está no seu inventário. Vista no 🧙 Personagem e salve.</p><div style="display:flex;gap:8px;justify-content:center;margin-top:10px"><button class="btn" onclick="document.getElementById(\'shopPop\').remove();shopWear(\''+it.cat+'\','+it.i+')">Vestir agora</button><button class="btn ghost" onclick="document.getElementById(\'shopPop\').remove()">Continuar</button></div></div>';
+ o.innerHTML='<div class="sh-popc"><div class="sh-spark">✨</div><img '+mx3(shopSpec(it.cat,it.i,vc),mxURL(vc,false,null,[0,2,40,52],4),208,208)+' alt=""><h2>Compra realizada!</h2><p><b>'+escH(it.name)+'</b> <span class="sh-rar" style="position:static;background:'+rc[1]+'">'+rc[0]+'</span></p><p class="tiny">Ele já está no seu inventário. Vista no 🧙 Personagem e salve.</p><div style="display:flex;gap:8px;justify-content:center;margin-top:10px"><button class="btn" onclick="document.getElementById(\'shopPop\').remove();shopWear(\''+it.cat+'\','+it.i+')">Vestir agora</button><button class="btn ghost" onclick="document.getElementById(\'shopPop\').remove()">Continuar</button></div></div>';
  document.body.appendChild(o);o.addEventListener('click',function(e){if(e.target===o)o.remove()})}
+/* na vitrine, pets e monstrinhos aparecem grandes ao lado do personagem */
+function shopSpec(cat,i,vc){const c=Object.assign(mxNorm(vc),{pet:-1,mon:-1,name:''});return cat==='pet'||cat==='mon'?{k:'duo',d:cat,i:i,c:c}:{k:'char',c:c}}
 function shopCard(u,cat,i){const it=mxItem(cat,i),rc=MX_RAR[it.rar],ow=mxOwned(u,it),lk=mxLocked(u,it),vc=mxNorm(u.char);vc[cat]=i;const on=mxNorm(u.char)[cat]===i;
  return '<div class="sh-card r'+it.rar+(ow?' own':'')+'"><span class="sh-rar" style="background:'+rc[1]+'">'+rc[0]+'</span>'+(ow?'<span class="sh-own">✔ Adquirido</span>':'')+
- '<div class="sh-pv"><img src="'+mxURL(vc,false,null,[0,2,40,52],2)+'" alt=""></div><b class="sh-n">'+escH(it.name)+'</b><p class="sh-d">'+escH(it.desc)+'</p><div class="sh-f">'+
+ '<div class="sh-pv"><img '+mx3(shopSpec(cat,i,vc),mxURL(vc,false,null,[0,2,40,52],2),164,164)+' alt=""></div><b class="sh-n">'+escH(it.name)+'</b><p class="sh-d">'+escH(it.desc)+'</p><div class="sh-f">'+
  (ow?'<button class="btn ghost sm" onclick="shopWear(\''+cat+'\','+i+')">'+(on?'Equipado ✔':'Vestir')+'</button>':'<span class="sh-pr">🪙 '+it.price+'</span><button class="btn sm"'+(lk?' disabled':'')+' onclick="shopBuy(\''+cat+'\','+i+')">'+(lk?'🔒 Nv '+it.lvl:'Comprar')+'</button>')+'</div></div>'}
 /* ===== PREÇOS DA LOJA (somente professor) ===== */
 function listaPrecos(){const L=DEFAULT_SHOP.concat(criados()).filter(function(i){return !i.consume&&i.effect&&i.effect.type!=='xp'}).map(function(i){return{id:i.id,name:i.name,grupo:CATS[i.effect.type],icon:i.icon,base:i.price}});
- Object.keys(MX_CAT).forEach(function(c){const t=MX_TABS.find(function(x){return x[0]===c});MX_CAT[c].forEach(function(a,i){if(a[2])L.push({id:c+i,name:a[0],grupo:t?t[1]:c,icon:'🎮',base:a[2]})})});return L}
+ Object.keys(MX_CAT).forEach(function(c){const t=MX_TABS.find(function(x){return x[0]===c});MX_CAT[c].forEach(function(a,i){if(a[2])L.push({id:c+i,name:a[0],grupo:t?t[1]:c,cat:c,i:i,base:a[2]})})});return L}
+function precoImg(it){if(!it.cat)return escH(it.icon);const vc=mxDef();if(['head','face','body','back','spec'].indexOf(it.cat)>=0)vc.acc[it.cat]=it.i;else vc[it.cat]=it.i;if(it.cat==='hcol')vc.hair=2;
+ const alto=['outfit','shirt','pet','mon','body','back','spec'].indexOf(it.cat)>=0;return '<img '+mx3(mx3Spec(it.cat,it.i,vc),mxURL(vc,false,null,alto?[0,2,40,52]:[6,3,28,28],3),72,72)+' alt="">'}
 function precosHTML(){const g={};listaPrecos().forEach(function(it){(g[it.grupo]=g[it.grupo]||[]).push(it)});
  return '<p class="muted" style="margin-top:14px">Digite o novo valor em moedas e toque em <b>salvar</b>. Vale para a loja de todas as turmas. Quem já comprou continua com o item.</p><input type="search" style="margin-top:10px" autocomplete="off" aria-label="Pesquisar item" placeholder="🔍 Pesquisar item" oninput="filtrarPrecos(this)">'+
  Object.keys(g).map(function(n){return '<div class="card pr-grupo" style="margin-top:12px"><h2>'+escH(n)+'</h2>'+g[n].map(function(it){const v=precoDe(it.id,it.base);
-  return '<div class="spread pr-linha" data-n="'+escH(it.name)+'" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px;flex-wrap:wrap;gap:8px"><div>'+escH(it.icon)+' <b>'+escH(it.name)+'</b><br><span class="tiny">Valor original: 🪙 '+it.base+'</span></div><div class="row"><input id="pr_'+escH(it.id)+'" type="number" inputmode="numeric" min="1" step="1" value="'+v+'" aria-label="Preço de '+escH(it.name)+'" style="width:100px" onkeydown="if(event.key===\'Enter\')salvarPreco(\''+escH(it.id)+'\')"><button class="btn sm" onclick="salvarPreco(\''+escH(it.id)+'\')">salvar</button><button class="btn ghost sm" title="Voltar ao valor original" onclick="salvarPreco(\''+escH(it.id)+'\','+it.base+')">↺</button></div></div>'}).join('')+'</div>'}).join('')}
+  return '<div class="spread pr-linha" data-n="'+escH(it.name)+'" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px;flex-wrap:wrap;gap:8px"><div class="pr-item"><div class="pr-pv">'+precoImg(it)+'</div><div><b>'+escH(it.name)+'</b><br><span class="tiny">Valor original: 🪙 '+it.base+'</span></div></div><div class="row"><input id="pr_'+escH(it.id)+'" type="number" inputmode="numeric" min="1" step="1" value="'+v+'" aria-label="Preço de '+escH(it.name)+'" style="width:100px" onkeydown="if(event.key===\'Enter\')salvarPreco(\''+escH(it.id)+'\')"><button class="btn sm" onclick="salvarPreco(\''+escH(it.id)+'\')">salvar</button><button class="btn ghost sm" title="Voltar ao valor original" onclick="salvarPreco(\''+escH(it.id)+'\','+it.base+')">↺</button></div></div>'}).join('')+'</div>'}).join('')}
 function filtrarPrecos(el){el.defaultValue=el.value;const n=function(t){return t.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()},q=n(el.value.trim());
  document.querySelectorAll('.pr-grupo').forEach(function(g){let algum=false;g.querySelectorAll('.pr-linha').forEach(function(l){const ok=n(l.dataset.n).includes(q);l.style.display=ok?'':'none';algum=algum||ok});g.style.display=algum?'':'none'})}
 function salvarPreco(id,valor){const u=me();if(!u||u.role!=='professor')return;
@@ -1904,15 +1913,29 @@ function loadThree(){return new Promise(function(res){
 function fallback(){var h=document.getElementById('mx3d');if(!h)return;h.classList.add('off');var l=h.querySelector('.mx3d-load');if(l)l.remove();
  var c=document.getElementById('mx_cv');if(c)c.style.display='';var a=document.getElementById('mx2dCtl'),b=document.getElementById('mx3dCtl');if(a)a.style.display='';if(b)b.style.display='none'}
 
+var motorP=null;
+function motor(){if(!motorP)motorP=loadThree().then(function(ok){
+ if(ok)try{S.A=boot();S.state=2;return true}catch(e){console.warn('MathXP 3D indisponível:',e)}
+ S.state=3;return false});return motorP}
 function attach(){
- var host=document.getElementById('mx3d');if(!host)return;
+ if(!document.getElementById('mx3d'))return;
  if(S.state===3||!API.supported()){S.state=3;return fallback()}
- if(S.state===2&&S.A){return mountNow(host)}
- if(S.state===0){S.state=1;loadThree().then(function(ok){
-  if(!ok){S.state=3;return fallback()}
-  try{S.A=boot();S.state=2}catch(e){console.warn('MathXP 3D indisponível:',e);S.state=3;return fallback()}
-  var h=document.getElementById('mx3d');if(h)mountNow(h)})}
+ motor().then(function(ok){var h=document.getElementById('mx3d');if(!h)return;if(ok&&S.state===2)mountNow(h);else fallback()})
 }
+/* troca as imagens em pixel art pelos retratos 3D, poucas por vez para não travar a tela */
+var pintando=false,semRetrato={};
+function pendentes(){return [].slice.call(document.querySelectorAll('img[data-m3]:not(.m3)')).filter(function(i){return !semRetrato[i.getAttribute('data-m3')]})}
+function retratos(){
+ if(pintando||S.state===3||!pendentes().length||!API.supported())return;pintando=true;
+ motor().then(function(ok){if(!ok){pintando=false;return}
+  (function passo(){var L=pendentes(),ini=Date.now();
+   for(var k=0;k<L.length&&Date.now()-ini<24;k++){var el=L[k],n=el.getAttribute('data-m3'),it=MX3_LIST[n];
+    if(!MX3_IMG[n])try{MX3_IMG[n]=S.A.thumb(it.spec,it.w,it.h)}catch(e){console.warn('MathXP retrato 3D falhou:',e);semRetrato[n]=1;continue}
+    el.src=MX3_IMG[n];el.classList.add('m3')}
+   if(pendentes().length)setTimeout(passo,16);else pintando=false})()})}
+var espera=0;
+new MutationObserver(function(){if(!espera)espera=setTimeout(function(){espera=0;retratos()},30)}).observe(document.documentElement,{childList:true,subtree:true});
+setTimeout(retratos,0);
 function mountNow(host){try{S.A.mount(host)}catch(e){console.warn('MathXP 3D falhou:',e);S.state=3;fallback()}}
 
 /* ====================================================================== */
@@ -2059,7 +2082,7 @@ function buildChar(cf){
 
 /* ====================== CRIATURAS (pets e monstrinhos) ====================== */
 function C(){var g=grp(),i=grp();g.add(i);return{g:g,in:i,legs:[],wings:[],tail:null,head:null,eyes:null,kind:'walk',hover:0,ph:Math.random()*6,hopT:0,hopD:.6,act:null,idleT:2+Math.random()*3,bt:2,bl:0,rt:0,sq:0,spd:1}}
-function eyesG(c,par,y,z,sp,r,col){var g=grp(0,y,z);pair(function(s){g.add(sph(r,mt(0xffffff,{r:.3}),s*sp,0,0,1,1.1,.6),sph(r*.58,mt(col||0x14101c,{r:.2}),s*sp,0,r*.5,1,1.1,.6),sph(r*.2,mt(0xffffff,{r:.1}),s*sp+r*.15,r*.2,r*.8))});par.add(g);c.eyes=g;return g}
+function eyesG(c,par,y,z,sp,r,col){var g=grp(0,y,z);pair(function(s){g.add(sph(r,mt(0xffffff,{r:.3}),s*sp,0,0,1,1.1,.6),sph(r*.58,mt(col||0x14101c,{r:.2}),s*sp,0,r*.5,1,1.1,.6),sph(r*.2,mt(0xffffff,{r:.1,e:.6}),s*sp+r*.15,r*.22,r),sph(r*.1,mt(0xffffff,{r:.1,e:.6}),s*sp-r*.18,-r*.18,r))});par.add(g);c.eyes=g;return g}
 
 function quad(o){
  var c=C(),I=c.in,bw=o.bw||.26,bh=o.bh||.24,bl=o.bl||.42,ll=o.ll||.2,hr=o.hr||.2,lr=o.lr||.06,by=ll+bh*.8;
@@ -2068,7 +2091,8 @@ function quad(o){
  [[-1,1],[1,1],[-1,-1],[1,-1]].forEach(function(p){var L=ll+bh*.3,lg=grp(p[0]*bw*.62,L,p[1]*bl*.55);lg.add(cyl(lr,lr,L,lm,0,-L/2,0,8),sph(lr*1.2,lm,0,-L+lr*.5,.025,1,.7,1.3));I.add(lg);c.legs.push(lg)});
  var H=grp(0,by+bh*.55,bl*.8);I.add(H);c.head=H;H.add(sph(hr,hm,0,hr*.5,0));
  if(o.snout!==false){H.add(sph(hr*.46,mt(o.snC||o.head||o.body,{r:.9}),0,hr*.34,hr*.85,1,.8,1.1),sph(.032,dm,0,hr*.5,hr*1.3))}
- eyesG(c,H,hr*.72,hr*.86,hr*.42,hr*.2);
+ eyesG(c,H,hr*.72,hr*.86,hr*.42,hr*.23);
+ pair(function(s){H.add(sph(hr*.15,mt(0xfb7185,{o:.65,r:.9}),s*hr*.66,hr*.36,hr*.74,1,.65,.4))});
  var et=o.ear;
  pair(function(s){if(et==='cone'){H.add(rot(cone(hr*.38,hr*.95,em,s*hr*.58,hr*1.45,0),0,0,-s*.22))}
   else if(et==='floppy'){H.add(sph(hr*.38,em,s*hr*.98,hr*.8,-hr*.1,.45,1.25,.8))}
@@ -2281,7 +2305,38 @@ function frame(now){
 
 function markBtns(){var b=document.querySelectorAll('#mx3dCtl [data-a]');for(var i=0;i<b.length;i++){var a=b[i].getAttribute('data-a'),on=(Sx.shot?Sx.shot.n===a:Sx.mode===a);b[i].classList.toggle('ghost',!on)}}
 
+/* ---------- retratos 3D (loja, preços, editor e avatar) ---------- */
+var foto=null;
+function estudio(){
+ var r=new T.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});r.setPixelRatio(1);r.shadowMap.enabled=true;r.shadowMap.type=T.PCFSoftShadowMap;
+ var sn=new T.Scene();sn.add(new T.HemisphereLight(0xffffff,0x4c3a8a,.78));
+ var k=new T.DirectionalLight(0xfff4e8,.85);k.position.set(2.5,5,4);k.castShadow=true;k.shadow.mapSize.set(1024,1024);var c=k.shadow.camera;c.left=-3;c.right=3;c.top=3;c.bottom=-3;c.near=.5;c.far=16;k.shadow.bias=-.0008;sn.add(k);
+ var f=new T.DirectionalLight(0xbfdbfe,.22);f.position.set(-4,1.5,3);sn.add(f);
+ var b=new T.DirectionalLight(0xa855f7,.9);b.position.set(-3,3.5,-4);sn.add(b);
+ var chao=new T.Mesh(new T.PlaneGeometry(12,12),new T.ShadowMaterial({opacity:.32}));chao.rotation.x=-Math.PI/2;chao.receiveShadow=true;sn.add(chao);
+ r.domElement.addEventListener('webglcontextlost',function(){foto=null});
+ return{r:r,s:sn,cam:new T.PerspectiveCamera(28,1,.05,60),chao:chao}}
+function bicho(kind,i){var c=kind==='pet'?petBuild(i):monBuild(i);critter(c,.016,0,false,0,{});return c.g}
+function boneco(cfg){var cf=JSON.parse(JSON.stringify(cfg));cf.acc=cf.acc||{};var ch=buildChar(cf),J=ch.J;
+ J.wings.forEach(function(w){w.g.rotation.y=w.s*.4});J.fx.forEach(function(f){f(.6,.016)});return ch}
+function thumb(sp,w,h){
+ if(!foto)foto=estudio();var antes=SEG,g=new T.Group(),alvo=g;SEG=28;
+ try{
+  if(sp.k==='pet'||sp.k==='mon'){var m=bicho(sp.k,sp.i);m.rotation.y=-.55;g.add(m)}
+  else{var ch=boneco(sp.c);g.add(ch.root);
+   if(sp.k==='duo'){ch.root.position.set(-.42,0,-.35);ch.root.rotation.y=.3;var p=bicho(sp.d,sp.i);p.scale.setScalar(1.45);p.position.set(.5,0,.4);p.rotation.y=-.5;g.add(p)}
+   else{ch.root.rotation.y=sp.back?Math.PI-.55:.35;if(sp.k==='head')alvo=ch.J.neck}}
+ }finally{SEG=antes}
+ foto.s.add(g);g.updateMatrixWorld(true);
+ var cx=new T.Box3().setFromObject(alvo),m0=cx.getCenter(new T.Vector3()),t=cx.getSize(new T.Vector3()),cam=foto.cam,meio=Math.tan(cam.fov*Math.PI/360),asp=w/h;
+ var d=Math.max(t.y/2/meio,t.x/2/(meio*asp))*1.14+t.z/2;
+ cam.aspect=asp;cam.updateProjectionMatrix();cam.position.set(m0.x,m0.y+d*.2,m0.z+d);cam.lookAt(m0);
+ foto.chao.visible=sp.k!=='head';foto.chao.position.y=new T.Box3().setFromObject(g).min.y-.005;
+ var q=Math.max(2,320/Math.max(w,h));foto.r.setSize(Math.round(w*q),Math.round(h*q),false);foto.r.render(foto.s,cam);
+ var url=foto.r.domElement.toDataURL('image/png');foto.s.remove(g);disposeTree(g);return url}
+
 var A={
+ thumb:thumb,
  mount:function(host){
   if(!Sx.ready)setup();
   Sx.host=host;var cv=ren.domElement;if(cv.parentNode!==host)host.appendChild(cv);
