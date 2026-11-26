@@ -315,7 +315,9 @@ let pendingImage=null;
 function loadDB(){try{const d=JSON.parse(localStorage.getItem(DB_KEY));if(d&&d.users){d.teacherCodes=[TEACHER_CODE];d.shopItems=d.shopItems||[];d.achv=d.achv||[];return d}}catch(e){}return{users:[],classes:[],missions:[],responses:[],teacherCodes:[TEACHER_CODE],counters:{aluno:0,professor:0},shopItems:[],achv:[]}}
 function save(){try{localStorage.setItem(DB_KEY,JSON.stringify(db))}catch(e){toast('⚠️ Armazenamento do navegador cheio: remova missões com imagem.')}}
 function me(){return db.users.find(u=>u.id===session)}
-function allItems(){return DEFAULT_SHOP.concat(db.shopItems||[]).filter(function(i){return !i.consume&&!(i.effect&&i.effect.type==='xp')})}
+function precoDe(id,base){const r=(db.shopItems||[]).find(function(x){return x.id==='PRECO_'+id});return r?r.price:base}
+function criados(){return(db.shopItems||[]).filter(function(i){return !i.ref})}
+function allItems(){return DEFAULT_SHOP.concat(criados()).filter(function(i){return !i.consume&&!(i.effect&&i.effect.type==='xp')}).map(function(i){return Object.assign({},i,{price:precoDe(i.id,i.price)})})}
 function allAch(){return DEFAULT_ACH.concat(db.achv||[])}
 function achFor(u){return u.role==='professor'?PROF_ACH:allAch()}
 function eqVal(u,type){if(!u||!u.equipped)return null;const id=u.equipped[type];if(!id)return null;const it=allItems().find(i=>i.id===id);return it&&it.effect?it.effect.value:null}
@@ -488,7 +490,7 @@ function createItem(){const name=document.getElementById('i_name').value.trim(),
  if(cat==='theme')value={acc:document.getElementById('i_color').value,soft:document.getElementById('i_color').value+'22'};
  if(cat==='textEffect')value=document.getElementById('i_fx').value;
  db.shopItems.push({id:'I'+Date.now(),name,desc:desc||'Item especial da loja.',price,icon,effect:{type:cat,value}});save();teachReward(15,3,'🛒 Item adicionado à loja!');render()}
-function delItem(id){db.shopItems=db.shopItems.filter(i=>i.id!==id);save();toast('Item removido da loja.');render()}
+function delItem(id){db.shopItems=db.shopItems.filter(i=>i.id!==id&&i.ref!==id);save();toast('Item removido da loja.');render()}
 /* ================= MISSÕES ================= */
 function openAnswer(mid){ui.modal={type:'answer',mid};render()}
 function openConc(mid){ui.modal={type:'conc',mid};render()}
@@ -701,7 +703,7 @@ function tGestao(u){const c=selClass();const sts=studentsOf(c.code);const manual
  <div id="wrapColor" style="display:none"><label>Cor</label><input id="i_color" type="color" value="#7c3aed"></div>
  <div id="wrapFx" style="display:none"><label>Efeito</label><select id="i_fx"><option value="negrito">Negrito</option><option value="italico">Itálico</option><option value="neon">Neon</option><option value="rainbow">Arco-íris</option></select></div>
  <button class="btn" style="margin-top:12px" onclick="createItem()">Adicionar à loja</button>
- ${db.shopItems.length?`<h2 style="margin-top:16px">Criados por professores</h2>${db.shopItems.map(i=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div>${escH(i.icon)} <b>${escH(i.name)}</b><br><span class="tiny">${CATS[i.effect.type]} · 🪙 ${i.price}</span></div><button class="btn ghost sm" onclick="delItem('${i.id}')">🗑</button></div>`).join('')}`:''}</div></div>`}
+ ${criados().length?`<h2 style="margin-top:16px">Criados por professores</h2>${criados().map(i=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px"><div>${escH(i.icon)} <b>${escH(i.name)}</b><br><span class="tiny">${CATS[i.effect.type]} · 🪙 ${precoDe(i.id,i.price)}</span></div><button class="btn ghost sm" onclick="delItem('${i.id}')">🗑</button></div>`).join('')}`:''}</div></div>`}
 function tPerfil(u){const LVX=lvInfo(u.xp),xpL=LVX.cur;
  return`<div class="card" style="margin-top:8px;text-align:center">
  <div class="avatar" style="width:84px;height:84px;font-size:36px;margin:0 auto;overflow:hidden">${avatarInner(u)}</div>${avatarEditor(u)}
@@ -1032,7 +1034,7 @@ const MX_BUILD=['Magro','Normal','Fortinho','Gordinho','Bem gordinho'];
 const MX_TABS=[['model','Modelo'],['build','Porte'],['skin','Pele'],['hair','Cabelo'],['hcol','Cor do cabelo'],['outfit','Roupas'],['shirt','Camisas'],['pet','Pets'],['mon','Monstrinhos'],['head','Cabeça'],['face','Rosto'],['body','Corpo'],['back','Costas'],['spec','Especiais'],['inv','Inventário']];
 function mxDef(){return{model:'m',build:1,skin:2,hair:0,hcol:1,outfit:0,acc:{head:-1,face:-1,body:-1,back:-1,spec:-1},shirt:-1,pet:-1,mon:-1,name:''}}
 function mxNorm(c){const d=mxDef(),x=Object.assign({},d,c||{});x.acc=Object.assign({},d.acc,(c&&c.acc)||{});return x}
-function mxItem(cat,i){const a=MX_CAT[cat]&&MX_CAT[cat][i];return a?{cat:cat,i:i,id:cat+i,name:a[0],rar:a[1],price:a[2],lvl:a[3],desc:a[4]}:null}
+function mxItem(cat,i){const a=MX_CAT[cat]&&MX_CAT[cat][i];return a?{cat:cat,i:i,id:cat+i,name:a[0],rar:a[1],price:a[2]?precoDe(cat+i,a[2]):0,lvl:a[3],desc:a[4]}:null}
 function mxOwned(u,it){return it.price===0||(u.rpgInv||[]).indexOf(it.id)>=0}
 function mxLocked(u,it){return levelOf(u.xp)<it.lvl}
 const MX_CACHE={};
@@ -1119,17 +1121,34 @@ function shopCard(u,cat,i){const it=mxItem(cat,i),rc=MX_RAR[it.rar],ow=mxOwned(u
  return '<div class="sh-card r'+it.rar+(ow?' own':'')+'"><span class="sh-rar" style="background:'+rc[1]+'">'+rc[0]+'</span>'+(ow?'<span class="sh-own">✔ Adquirido</span>':'')+
  '<div class="sh-pv"><img src="'+mxURL(vc,false,null,[0,2,40,52],2)+'" alt=""></div><b class="sh-n">'+escH(it.name)+'</b><p class="sh-d">'+escH(it.desc)+'</p><div class="sh-f">'+
  (ow?'<button class="btn ghost sm" onclick="shopWear(\''+cat+'\','+i+')">'+(on?'Equipado ✔':'Vestir')+'</button>':'<span class="sh-pr">🪙 '+it.price+'</span><button class="btn sm"'+(lk?' disabled':'')+' onclick="shopBuy(\''+cat+'\','+i+')">'+(lk?'🔒 Nv '+it.lvl:'Comprar')+'</button>')+'</div></div>'}
-function shopHTML(u){const tab=ui.shopTab||'dest',rar=ui.shopRar==null?-1:ui.shopRar;
- const tabs=SHOP_TABS.map(function(t){return '<button class="cr-tab'+(tab===t[0]?' on':'')+'" onclick="shopTab(\''+t[0]+'\')">'+t[1]+'</button>'}).join('');
+/* ===== PREÇOS DA LOJA (somente professor) ===== */
+function listaPrecos(){const L=DEFAULT_SHOP.concat(criados()).filter(function(i){return !i.consume&&i.effect&&i.effect.type!=='xp'}).map(function(i){return{id:i.id,name:i.name,grupo:CATS[i.effect.type],icon:i.icon,base:i.price}});
+ Object.keys(MX_CAT).forEach(function(c){const t=MX_TABS.find(function(x){return x[0]===c});MX_CAT[c].forEach(function(a,i){if(a[2])L.push({id:c+i,name:a[0],grupo:t?t[1]:c,icon:'🎮',base:a[2]})})});return L}
+function precosHTML(){const g={};listaPrecos().forEach(function(it){(g[it.grupo]=g[it.grupo]||[]).push(it)});
+ return '<p class="muted" style="margin-top:14px">Digite o novo valor em moedas e toque em <b>salvar</b>. Vale para a loja de todas as turmas. Quem já comprou continua com o item.</p><input type="search" style="margin-top:10px" autocomplete="off" aria-label="Pesquisar item" placeholder="🔍 Pesquisar item" oninput="filtrarPrecos(this)">'+
+ Object.keys(g).map(function(n){return '<div class="card pr-grupo" style="margin-top:12px"><h2>'+escH(n)+'</h2>'+g[n].map(function(it){const v=precoDe(it.id,it.base);
+  return '<div class="spread pr-linha" data-n="'+escH(it.name)+'" style="border-top:1px solid #e3e6f0;margin-top:10px;padding-top:10px;flex-wrap:wrap;gap:8px"><div>'+escH(it.icon)+' <b>'+escH(it.name)+'</b><br><span class="tiny">Valor original: 🪙 '+it.base+'</span></div><div class="row"><input id="pr_'+escH(it.id)+'" type="number" inputmode="numeric" min="1" step="1" value="'+v+'" aria-label="Preço de '+escH(it.name)+'" style="width:100px" onkeydown="if(event.key===\'Enter\')salvarPreco(\''+escH(it.id)+'\')"><button class="btn sm" onclick="salvarPreco(\''+escH(it.id)+'\')">salvar</button><button class="btn ghost sm" title="Voltar ao valor original" onclick="salvarPreco(\''+escH(it.id)+'\','+it.base+')">↺</button></div></div>'}).join('')+'</div>'}).join('')}
+function filtrarPrecos(el){el.defaultValue=el.value;const n=function(t){return t.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()},q=n(el.value.trim());
+ document.querySelectorAll('.pr-grupo').forEach(function(g){let algum=false;g.querySelectorAll('.pr-linha').forEach(function(l){const ok=n(l.dataset.n).includes(q);l.style.display=ok?'':'none';algum=algum||ok});g.style.display=algum?'':'none'})}
+function salvarPreco(id,valor){const u=me();if(!u||u.role!=='professor')return;
+ const it=listaPrecos().find(function(x){return x.id===id}),el=document.getElementById('pr_'+id);if(!it||!el)return;
+ const v=valor===undefined?Number(el.value):valor;
+ if(!Number.isInteger(v)||v<1||v>1000000)return toast('Digite um número inteiro de 1 a 1.000.000.');
+ db.shopItems=(db.shopItems||[]).filter(function(x){return x.id!=='PRECO_'+id});
+ if(v!==it.base)db.shopItems.push({id:'PRECO_'+id,ref:id,price:v});
+ el.value=el.defaultValue=String(v);save();toast('🪙 '+it.name+': '+v+' moedas.')}
+function shopHTML(u){const prof=u.role==='professor';let tab=ui.shopTab||'dest';if(tab==='precos'&&!prof)tab='dest';const rar=ui.shopRar==null?-1:ui.shopRar;
+ const tabs=SHOP_TABS.concat(prof?[['precos','✏️ Editar preços']]:[]).map(function(t){return '<button class="cr-tab'+(tab===t[0]?' on':'')+'" onclick="shopTab(\''+t[0]+'\')">'+t[1]+'</button>'}).join('');
  const chips='<div class="sh-fil">'+[['-1','Todas']].concat(MX_RAR.slice(1).map(function(r,k){return [String(k+1),r[0]]})).map(function(a){return '<button class="sh-chip'+(String(rar)===a[0]?' on':'')+'" onclick="shopRar('+a[0]+')">'+a[1]+'</button>'}).join('')+'</div>';
  let body='';
- if(tab==='pers'){const h=shopOldHTML(u);body='<div style="margin-top:14px">'+h.slice(h.indexOf('</p>')+4)+'</div>'}
+ if(tab==='precos')body=precosHTML();
+ else if(tab==='pers'){const h=shopOldHTML(u);body='<div style="margin-top:14px">'+h.slice(h.indexOf('</p>')+4)+'</div>'}
  else{let list=[];(tab==='dest'?['shirt','mon','pet']:[tab]).forEach(function(c){MX_CAT[c].forEach(function(_,i){list.push([c,i])})});
   const R=function(a){return mxItem(a[0],a[1])};
   if(tab==='dest')list=list.filter(function(a){return R(a).rar>=3}).sort(function(a,b){return R(b).rar-R(a).rar||R(b).price-R(a).price});
   if(rar>=0)list=list.filter(function(a){return R(a).rar===rar});
   body=(list.length?'<div class="sh-grid">'+list.map(function(a){return shopCard(u,a[0],a[1])}).join('')+'</div>':'<p class="muted" style="margin-top:16px">Nenhum item nessa raridade.</p>')}
- return '<div class="sh-hero"><div><h1>🛒 Loja do Aventureiro</h1><p>Gaste suas moedas para colecionar camisas, monstrinhos e pets!</p></div><div class="sh-coins">🪙 '+u.coins+'</div></div>'+avatarStrip(u)+'<div class="cr-tabs">'+tabs+'</div>'+(tab==='pers'?'':chips)+body}
+ return '<div class="sh-hero"><div><h1>🛒 Loja do Aventureiro</h1><p>Gaste suas moedas para colecionar camisas, monstrinhos e pets!</p></div><div class="sh-coins">🪙 '+u.coins+'</div></div>'+avatarStrip(u)+'<div class="cr-tabs">'+tabs+'</div>'+(tab==='pers'||tab==='precos'?'':chips)+body}
 
 /* ================= BEM-VINDO (papel de parede + roteiro) ================= */
 const ROTEIRO=`# MATHXP — APRENDER PARA EVOLUIR
