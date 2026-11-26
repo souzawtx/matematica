@@ -615,9 +615,26 @@ function tVisao(u){const c=selClass();if(!c)return emptyHTML('👥','Nenhuma tur
  <div class="card" style="margin-top:14px"><div class="spread"><h2>Atividades em sala</h2><span class="tiny">Turma: <b>${escH(c.name)}</b> · Código: <b>${c.code}</b> <button class="btn ghost sm" onclick="copy('${c.code}')">copiar</button> <button class="btn ghost sm" title="Editar nome da turma" onclick="openRename('${c.code}')">✏️ editar nome</button></span></div>
  <p class="muted">Abra uma atividade para consultar e confirmar conclusões.</p>
  ${ms.length?ms.map(m=>`<div class="spread" style="border-top:1px solid #e3e6f0;margin-top:12px;padding-top:12px"><div class="row">${m.img?`<img src="${escH(m.img)}" class="thumb" style="width:40px;height:40px">`:''}<div><b>${escH(m.title)}</b><p class="muted">${skillName(m.skill)} · prazo ${fmtDate(m.deadline)}</p></div></div><div class="row"><button class="btn ghost sm" onclick="openPreview('${m.id}')" title="Ver como o aluno vê">👁</button><button class="btn ghost sm" onclick="openConc('${m.id}')">Ver conclusões</button><button class="btn ghost sm" style="color:#e11d48;border-color:#e11d48" onclick="delMission('${m.id}')">🗑️ Excluir</button></div></div>`).join(''):'<p class="muted" style="margin-top:10px">Nenhuma missão publicada ainda.</p>'}</div>`}
+/* ===== LUPA: o professor pesquisa alunos das turmas dele ===== */
+function semAcento(t){return String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim()}
+function buscaResultados(){const q=semAcento(ui.busca);
+ if(!q)return'<p class="muted" style="margin-top:10px">Digite o nome para ver Gmail, senha e ações do aluno.</p>';
+ const codes=myClasses().map(c=>c.code);
+ const L=db.users.filter(u=>u.role==='aluno'&&codes.includes(u.classCode)&&[u.name,u.email,u.id].some(v=>semAcento(v).includes(q))).sort((a,b)=>String(a.name).localeCompare(String(b.name),'pt-BR'));
+ if(!L.length)return'<p class="muted" style="margin-top:10px">Nenhum aluno das suas turmas foi encontrado.</p>';
+ return L.map(s=>{const k=classOf(s),pw=(creds||{})[s.uid];
+  const senha=!ui.reveal[s.id]?'••••••••':pw?'<code>'+escH(pw)+'</code>':'<span class="tiny">ainda não disponível · aparece no próximo login · ou use redefinir</span>';
+  return`<div style="border-top:1px solid #e3e6f0;margin-top:12px;padding-top:12px;overflow-wrap:anywhere"><b>${displayName(s)}</b> <span class="badge b-gray">${escH(k?k.name:'')}</span><br><span class="tiny">${escH(s.id)}</span>
+  <p style="margin-top:6px">📧 Gmail: ${escH(s.email||'não informado')}</p><p style="margin-top:4px">🔒 Senha: ${senha}</p>
+  <div class="row" style="margin-top:10px;flex-wrap:wrap"><button class="btn ghost sm" onclick="buscaVer('${s.id}')">${ui.reveal[s.id]?'ocultar senha':'ver senha'}</button><button class="btn ghost sm" onclick="openReset('${s.id}')">redefinir senha</button><button class="btn ghost sm" style="color:#e11d48;border-color:#e11d48" onclick="removeStudent('${s.id}')">remover da turma</button></div></div>`}).join('')}
+function buscaDesenhar(){const el=document.getElementById('busca_res');if(el)el.innerHTML=buscaResultados()}
+function buscaDigitar(el){ui.busca=el.value;el.defaultValue=el.value;ui.reveal={};buscaDesenhar()}
+async function buscaVer(id){ui.reveal[id]=!ui.reveal[id];if(ui.reveal[id])await loadCreds();buscaDesenhar()}
+function buscaHTML(){return`<div class="card" style="margin-top:14px"><label for="busca_al" style="margin-top:0">🔍 Pesquisar aluno pelo nome (todas as suas turmas)</label><input id="busca_al" type="search" autocomplete="off" placeholder="Ex.: Ana Souza" value="${escH(ui.busca||'')}" oninput="buscaDigitar(this)"><div id="busca_res" aria-live="polite">${buscaResultados()}</div></div>`}
 function tEstudantes(u){const c=selClass();const sts=studentsOf(c.code);
  return`<h1>Estudantes · ${escH(c.name)}</h1><p class="muted">Compartilhe o código da turma ou adicione por ID/e-mail.</p>
  <div class="card" style="margin-top:16px"><div class="spread"><div><span class="tiny">Código de vinculação</span><h2>${c.code}</h2></div><div class="row"><button class="btn ghost sm" title="Editar nome da turma" onclick="openRename('${c.code}')">✏️ editar nome</button><button class="btn sm" onclick="copy('${c.code}')">copiar código</button></div></div></div>
+ ${buscaHTML()}
  <div class="card" style="margin-top:14px"><label style="margin-top:0">Adicionar aluno (ID ou e-mail)</label><div class="row"><input id="add_st" placeholder="Ex.: AL-2026-0001 ou aluno@gmail.com"><button class="btn sm" onclick="addStudent()">Adicionar</button></div></div>
  <div class="card" style="margin-top:14px;overflow-x:auto"><table class="tbl"><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Nível</th><th>XP</th><th>Missões</th><th></th></tr>
  ${sts.map(s=>`<tr><td>${s.id}</td><td>${displayName(s)}</td><td>${escH(s.email||'')}</td><td>${levelOf(s.xp)}</td><td>${s.xp}</td><td>${doneCount(s)}</td><td><button class="btn ghost sm" onclick="removeStudent('${s.id}')">remover da turma</button></td></tr>`).join('')||'<tr><td colspan="7" class="muted">Nenhum aluno vinculado ainda.</td></tr>'}</table></div>
@@ -1587,7 +1604,7 @@ async function doRegister(){
  if(error)return setErr(/registered|exists/i.test(error.message)?'Este e-mail já possui conta. Use "Entrar".':(/fetch|network/i.test(error.message)?error.message+' — Diagnóstico → '+await diagNet():error.message));
  if(!data.session)return setErr('Conta criada! Confirme pelo link enviado ao seu e-mail e depois entre.');
  await sb.rpc('save_my_pass',{p:pass});await enter(data.user);toast('Conta criada! Seu ID: '+me().id);render();introMathXP()}
-async function logout(){await sb.auth.signOut();session=null;authUid=null;creds={};emptyDB();render()}
+async function logout(){await sb.auth.signOut();session=null;authUid=null;creds={};ui.busca='';ui.reveal={};emptyDB();render()}
 async function submitChPass(){
  const u=me(),cur=document.getElementById('c_cur').value,n1=document.getElementById('c_new').value,n2=document.getElementById('c_new2').value;
  if(n1.length<8)return toast('A nova senha precisa de pelo menos 8 caracteres.');
